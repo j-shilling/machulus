@@ -32,11 +32,11 @@ vga_entry_color (enum vga_color foreground, enum vga_color background)
   return foreground | background << 4;
 }
 
-static inline uint16_t
+/*static inline uint16_t
 vga_entry(unsigned char c, uint8_t color)
 {
   return (uint16_t) c | (uint16_t) color << 8;
-}
+}*/
 
 __END_DECLS
 

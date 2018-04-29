@@ -5,7 +5,7 @@
 
 __BEGIN_DECLS
 
-void tty_putchar (char c);
+int tty_putchar (unsigned char);
 
 __END_DECLS
 

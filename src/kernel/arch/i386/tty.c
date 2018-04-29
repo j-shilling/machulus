@@ -2,69 +2,115 @@
 
 #include <stddef.h>
 #include <string.h>
-
-#include "vga.h"
+#include <stdint.h>
 
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
 static uint16_t* const VGA_MEMORY = (uint16_t *) 0xB8000;
 
-static size_t tty_row;
-static size_t tty_col;
-static uint8_t tty_color;
-static uint16_t *tty_buf;
+static const uint16_t vga_blank_entry = ' ' | 7 << 8;
+
+static uint16_t *tty_cur;
+static uint16_t *tty_start;
+static uint16_t *tty_end;
+
+static inline uint16_t
+vga_entry (unsigned char c)
+{
+  return (uint16_t) c | (uint16_t) 7 << 8;
+}
+
+static inline void
+vga_scroll (void)
+{
+  for (size_t y = 0; y < (VGA_HEIGHT - 1); y++)
+    {
+      memmove (tty_start + (VGA_WIDTH * y),
+	       tty_start + (VGA_WIDTH * (y + 1)),
+	       2 * VGA_WIDTH);
+    }
+
+  tty_cur = tty_end - VGA_WIDTH;
+  for (uint16_t *cur = tty_cur; cur < tty_end; cur ++)
+    *cur = vga_blank_entry;
+}
 
 void __attribute__ ((constructor))
 tty_init (void)
 {
-  tty_row = 0;
-  tty_col = 0;
-  tty_color = vga_entry_color (VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-  tty_buf = VGA_MEMORY;
+  /* Find vga memory boundries */
+  tty_start = VGA_MEMORY;
+  tty_end = tty_start + (VGA_WIDTH * VGA_HEIGHT);
 
-  for (size_t y = 0; y < VGA_HEIGHT; y ++)
-    {
-      for (size_t x = 0; x < VGA_WIDTH; x++)
-	{
-	  const size_t index = y * VGA_WIDTH + x;
-	  tty_buf[index] = vga_entry (' ', tty_color);
-	}
-    }
+  /* Clear screen */
+  for (tty_cur = tty_start; tty_cur < tty_end; tty_cur ++)
+    *tty_cur = vga_blank_entry;
 
-  tty_putchar (':');
-  tty_putchar (')');
+  tty_cur = tty_start;
+
+  /* disable curser */
+  asm (
+    "pushf;"
+    "push %eax;"
+    "push %edx;"
+    "mov $0x3D4, %dx;"
+    "mov $0xA, %al;"
+    "out %al, %dx;"
+    "inc %dx;"
+    "mov $0x20, %al;"
+    "out %al, %dx;"
+    "pop %edx;"
+    "pop %eax;"
+    "popf;"
+  );
+
 }
 
-void
-tty_putchar (char c)
+int
+tty_putchar (unsigned char c)
 {
-  switch (c)
+  if (c > 31) /* Printable Character */
     {
-    case '\n':
+      *tty_cur = vga_entry (c);
+      tty_cur ++;
+    }
+  else /* Control Character */
+    {
+      ptrdiff_t index = tty_cur - tty_start;
+      size_t pos_in_line = index % VGA_WIDTH;
+
+      switch (c)
 	{
-	  tty_row ++;
-	  tty_col = 0;
+	case '\b':
+	  if (pos_in_line > 0)
+	    tty_cur --;
+	  *tty_cur = vga_blank_entry;
 	  break;
-	}
 
-    default:
-	{
-	  const size_t index = tty_row * VGA_WIDTH + tty_col;
-	  tty_buf[index] = vga_entry (c, tty_color);
-	  tty_col ++;
+	case '\t':
+	  while (pos_in_line % 8)
+	    {
+	      tty_cur ++;
+	      pos_in_line ++;
+	      *tty_cur = vga_blank_entry;
+	    }
 	  break;
+
+	case '\n':
+	  tty_cur += (VGA_WIDTH - pos_in_line);
+	  break;
+
+	case '\r':
+	  tty_cur -= pos_in_line;
+	  break;
+
+	default:
+	  return 1; /* Unrecognized character */
 	}
     }
 
-  if (tty_col >= VGA_WIDTH)
-    {
-      tty_col = 0;
-      tty_row ++;
-    }
+  if (tty_cur == tty_end)
+    vga_scroll();
 
-  if (tty_row >= VGA_HEIGHT)
-    {
-      tty_col = 0;
-      tty_row = 0;
-    }
+  return 0;
 }
