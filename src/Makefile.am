@@ -1,1 +1,1 @@
-SUBDIRS=kernel
+SUBDIRS=libc kernel

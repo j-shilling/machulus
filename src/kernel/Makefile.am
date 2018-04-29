@@ -1,4 +1,4 @@
-LIBS=-nostdlib -lgcc
+LIBS=$(top_srcdir)/src/libc/libk.a -nostdlib -lgcc
 
 KERNEL_ARCH_OBJS=\
   $(ARCHDIR)/boot.o \

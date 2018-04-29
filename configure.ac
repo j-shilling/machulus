@@ -26,6 +26,8 @@ if test "$GCC" != "yes"; then
 fi
 
 AM_PROG_AS
+AC_PROG_RANLIB
+AM_PROG_AR
 
 AC_MSG_CHECKING([for crtbegin.o])
 CRTBEGIN=`${CC} ${CFLAGS} -print-file-name=crtbegin.o`
@@ -47,5 +49,6 @@ fi
 
 AC_CONFIG_FILES([Makefile \
 		 src/Makefile \
+		 src/libc/Makefile \
 		 src/kernel/Makefile])
 AC_OUTPUT

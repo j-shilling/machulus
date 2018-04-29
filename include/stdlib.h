@@ -5,6 +5,8 @@
 
 __BEGIN_DECLS
 
+_Noreturn void abort(void);
+
 __END_DECLS
 
 #endif /* _STDLIB_H_ */
