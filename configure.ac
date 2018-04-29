@@ -47,6 +47,12 @@ else
 	AC_SUBST([CRTEND])
 fi
 
+AC_CHECK_HEADER([stdint.h], [],
+		 [AC_MSG_ERROR([Missing stdint.h])])
+
+AC_CHECK_HEADER([stddef.h], [],
+		 [AC_MSG_ERROR([Missing stddef.h])])
+
 AC_CONFIG_FILES([Makefile \
 		 src/Makefile \
 		 src/libc/Makefile \
