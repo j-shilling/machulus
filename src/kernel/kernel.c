@@ -2,8 +2,5 @@
 
 void kernel_main()
 {
-  tty_init();
- 
-  tty_putchar (':');
-  tty_putchar (')');
+
 }

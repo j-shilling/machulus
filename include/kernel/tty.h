@@ -5,7 +5,6 @@
 
 __BEGIN_DECLS
 
-void tty_init (void);
 void tty_putchar (char c);
 
 __END_DECLS
