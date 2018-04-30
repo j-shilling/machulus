@@ -1,177 +1,224 @@
-
 #include "printf-fspec.h"
 
-#include <string.h>
-
-#define __read_dec(fmt,i)               \
-({                                      \
-    __label__ done;                     \
-    int result = 0;                     \
-                                        \
-    for (;;)                            \
-      {                                 \
-        switch (fmt[i])                 \
-          {                             \
-          case '0':                     \
-            result = result * 10 ;      \
-            break;                      \
-          case '1':                     \
-            result = result * 10 + 1;   \
-            break;                      \
-          case '2':                     \
-            result = result * 10 + 2;   \
-            break;                      \
-          case '3':                     \
-            result = result * 10 + 3;   \
-            break;                      \
-          case '4':                     \
-            result = result * 10 + 4;   \
-            break;                      \
-          case '5':                     \
-            result = result * 10 + 5;   \
-            break;                      \
-          case '6':                     \
-            result = result * 10 + 6;   \
-            break;                      \
-          case '7':                     \
-            result = result * 10 + 7;   \
-            break;                      \
-          case '8':                     \
-            result = result * 10 + 8;   \
-            break;                      \
-          case '9':                     \
-            result = result * 10 + 9;   \
-            break;                      \
-          default:                      \
-            goto done;                  \
-          }                             \
-                                        \
-        i++;                            \
-        if (fmt[i] == '\0')             \
-          goto done;                    \
-      }                                 \
-                                        \
-    done:                               \
-      result;                           \
-})
-
-int
-printf_parse_fspec (const char *__fmt, size_t *i, struct fspec *fspec)
+static int
+__read_width_or_precision (const char *__fmt, size_t *i)
 {
   size_t index = *i;
-  
-  if (__fmt[index] == '\0' || __fmt[index] != '%')
-    return -1; /* Cannot parse if this does not point to a '%' */
+  int result = 0;
 
-  /* Initialize fspec */
-  memset (fspec, 0, sizeof (struct fspec));
-  
-  index++;
-
-  /* Get Flags Field */
   for (;;)
     {
       switch (__fmt[index])
         {
-        case '-':
-          fspec->left = 1;
+        case '*': result = -1;
+          goto done;
+        case '0': result *= 10;
           break;
-        case '+':
-          fspec->plus = 1;
+        case '1': result = result * 10 + 1;
           break;
-        case ' ':
-          fspec->space = 1;
+        case '2': result = result * 10 + 2;
           break;
-        case '0':
-          fspec->zero = 1;
+        case '3': result = result * 10 + 3;
           break;
-        case '#':
-          fspec->alt = 1;
+        case '4': result = result * 10 + 4;
           break;
-        default:
-          goto width;
+        case '5': result = result * 10 + 5;
+          break;
+        case '6': result = result * 10 + 6;
+          break;
+        case '7': result = result * 10 + 7;
+          break;
+        case '8': result = result * 10 + 8;
+          break;
+        case '9': result = result * 10 + 9;
+          break;
+        default: goto done;
         }
+
       index++;
-      if (__fmt[index] == '\0')
-        return -1;
     }
 
-width:
-  /* Get width field */
-  fspec->width = __read_dec (__fmt, index);
-  if (__fmt[index] == '\0')
+done:
+  *i = index;
+  return result;
+}
+
+int
+printf_parse_fspec (const char *__fmt,
+                    size_t *i,
+                    struct __fspec *fspec,
+                    va_list ap)
+{
+  if (!__fmt || fspec)
     return -1;
 
-  /* Get precision field */
+  size_t index = *i;
+  if (__fmt[index] != '%')
+    return -1;
+
+  index++;
+
+  /* Get Flags */
+  int cont = 1;
+  while (cont)
+    {
+      switch (__fmt[index])
+        {
+        case '-': fspec->flag.left = 1;
+          break;
+        case '+': fspec->flag.plus = 1;
+          break;
+        case ' ': fspec->flag.space = 1;
+          break;
+        case '0': fspec->flag.zero = 1;
+          break;
+        case '#': fspec->flag.alt = 1;
+          break;
+        default: cont = 0;
+          break;
+        }
+      index++;
+    }
+
+  /* Width Field */
+  fspec->width = __read_width_or_precision (__fmt, &index);
+  if (fspec->width = -1)
+    fspec->width = va_arg (ap, int);
+
+  /* Precision Field */
   if (__fmt[index] == '.')
     {
       index++;
-      if (__fmt[index] == '\0')
-        return -1;
-      else if (__fmt[index] == '*')
-        {
-          fspec->prec = -1;
-          index++;
-        }
-      else
-        {
-          fspec->prec = __read_dec (__fmt, index);
-        }
+      fspec->prec = __read_width_or_precision (__fmt, &index);
+      if (fspec->prec = -1)
+        fspec->prec = va_arg (ap, int);
     }
 
-  /* Length Field */
+  /* Length Modifier */
   switch (__fmt[index])
     {
     case 'h':
-      if (__fmt[index + 1] == 'h')
-        {
-          fspec->is_char = 1;
-          index += 2;
-        }
-      else
-        {
-          fspec->is_short = 1;
-          index++;
-        }
-      break;
+      {
+        if (__fmt[index + 1] == 'h')
+          {
+            fspec->length.is_char = 1;
+            index += 2;
+          }
+        else
+          {
+            fspec->length.is_short = 1;
+            index += 1;
+          }
+        break;
+      }
     case 'l':
-      if (__fmt[index + 1] == 'l')
-        {
-          fspec->is_long_long = 1;
-          index += 2;
-        }
-      else
-        {
-          fspec->is_long = 1;
-          index++;
-        }
-      break;
+      {
+        if (__fmt[index + 1] == 'l')
+          {
+            fspec->length.is_long_long = 1;
+            index += 2;
+          }
+        else
+          {
+            fspec->length.is_long = 1;
+            index += 1;
+          }
+        break;
+      }
     case 'L':
-      fspec->is_long_double = 1;
-      index++;
-      break;
+      {
+        fspec->length.is_long_double = 1;
+        index += 1;
+        break;
+      }
     case 'z':
-      fspec->is_size_t = 1;
-      index++;
-      break;
+      {
+        fspec->length.is_size_t = 1;
+        index += 1;
+        break;
+      }
     case 'j':
-      fspec->is_intmax_t = 1;
-      index++;
-      break;
+      {
+        fspec->length.is_intmax_t = 1;
+        break;
+      }
     case 't':
-      fspec->is_ptrdiff_t = 1;
-      index++;
-      break;
-    case '\0':
-      return -1;
-    default:
-      break;
+      {
+        fspec->length.is_ptrdiff_t = 1;
+        break;
+      }
     }
 
-  /* Type field */
-  fspec->type = __fmt[index];
-  
-  *i = index + 1;
+  fspec->arg.tag = __fmt[index++];
+  *i = index;
 
+  switch (fspec->arg.tag)
+    {
+      /* Integer Values */
+    case 'd':
+    case 'i':
+    case 'u':
+    case 'x':
+    case 'X':
+    case 'o':
+    case 'c':
+      {
+        if (fspec->length.is_long)
+          fspec->arg.long_val = va_arg (ap, long);
+        else if (fspec->length.is_long_long)
+          fspec->arg.long_long_val = va_arg (ap, long long);
+        else if (fspec->length.is_size_t)
+          fspec->arg.size_val = va_arg (ap, size_t);
+        else if (fspec->length.is_intmax_t)
+          fspec->arg.intmax_val = va_arg (ap, intmax_t);
+        else if (fspec->length.is_ptrdiff_t)
+          fspec->arg.ptrdiff_val = va_arg (ap, ptrdiff_t);
+        else
+          fspec->arg.int_val = va_arg (ap, int);
+        break;
+      }
+
+      /* Floating point value */
+    case 'f':
+    case 'F':
+    case 'e':
+    case 'E':
+    case 'g':
+    case 'G':
+    case 'a':
+    case 'A':
+      {
+        if (fspec->length.is_long_double)
+          fspec->arg.long_double_val = va_arg (ap, long double);
+        else
+          fspec->arg.double_val = va_arg (ap, double);
+        break;
+      }
+
+      /* Pointer value */
+    case 'p':
+    case 's':
+      {
+        fspec->arg.void_p_val = va_arg (ap, void *);
+        break;
+      }
+    
+      /* Misc */
+    case 'n':
+      break;
+      
+      /* Error */
+    default:
+      return -1;
+    }
+  
   return 0;
+}
+
+int
+printf_expand_fspec (char *buf,
+                     size_t buf_size,
+                     struct __fspec fspec)
+{
+  return -1;
 }

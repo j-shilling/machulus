@@ -248,7 +248,7 @@ extern "C"
     case 'p': /* void * */                                                  \
       break;                                                                \
                                                                             \
-    case 'a':                                                               \
+    case 'a':         /usr/bin/qemu-system-i386 -kenel ./src/kernel/jkernel                                                      \
     case 'A': /* float in hex */                                            \
       break;                                                                \
                                                                             \

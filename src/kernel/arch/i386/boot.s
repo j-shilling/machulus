@@ -20,6 +20,7 @@
 .section .text
 	start:
 		mov $stack_top, %esp
+		push %ebx
 		call _init
 		call kernel_main
  

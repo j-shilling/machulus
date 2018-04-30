@@ -2,7 +2,7 @@ AC_INIT([jkernel], [0.0.1])
 AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 
 if test -z "$CFLAGS"; then
-	CFLAGS="-std=gnu99 -ffreestanding -I$(pwd)/include"
+	CFLAGS="-O0 -ggdb -std=gnu11 -ffreestanding -I$(pwd)/include"
 fi
 if test -z "$LDFLAGS"; then
 	LDFLAGS="-ffreestanding -nostdlib -lgcc"
