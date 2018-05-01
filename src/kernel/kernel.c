@@ -6,6 +6,6 @@ kernel_main(multiboot_info_t *mbd, unsigned int magic)
 {
   printf ("Hello, World!\n");
   printf ("\n");
-  printf ("Lower memory:\t%lu KB\n", mbd->mem_lower);
-  printf ("Upper memory:\t%lu KB\n", mbd->mem_upper);
+  printf ("|%-10d|\n", -10);
+  printf ("|% 010d|\n", 10);
 }
