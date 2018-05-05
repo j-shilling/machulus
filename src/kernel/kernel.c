@@ -1,11 +1,9 @@
 #include <stdio.h>
-#include <kernel/multiboot.h>
+
+#include "arch/i386/multiboot.h"
 
 void
-kernel_main(multiboot_info_t *mbd, unsigned int magic)
+kernel_main(void)
 {
-  printf ("Hello, World!\n");
-  printf ("\n");
-  printf ("|%-10d|\n", -10);
-  printf ("|% 010d|\n", 10);
+  printf ("mbi = %p\n", mbi);
 }

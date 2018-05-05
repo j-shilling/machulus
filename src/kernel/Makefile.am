@@ -25,7 +25,7 @@ LINK_LIST=\
   $(ARCHDIR)/crtn.o
 
 .PHONY: all clean
-SUFFIXES=.o .c .s
+SUFFIXES=.o .c .S
 
 all: jkernel
 
@@ -35,7 +35,7 @@ jkernel: $(OBJS) $(ARCHDIR)/linker.ld
 .c.o:
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
-.s.o:
+.S.o:
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
 clean-local:

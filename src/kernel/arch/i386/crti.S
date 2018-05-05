@@ -1,16 +1,16 @@
 .section .init
-.global _init
-.type _init, @function
-_init:
+.global init
+.type init, @function
+init:
 	push %ebp
 	movl %esp, %ebp
 
 	/* gcc will put the contents of crtbegin.o's .init here. */
 
 .section .fini
-.global _fini
-.type _fini, @function
-_fini:
+.global fini
+.type fini, @function
+fini:
 	push %ebp
 	movl %esp, %ebp
 

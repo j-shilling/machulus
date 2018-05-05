@@ -105,7 +105,7 @@ tty_putchar (unsigned char c)
 	  break;
 
 	default:
-	  return 1; /* Unrecognized character */
+	  return -1; /* Unrecognized character */
 	}
     }
 
