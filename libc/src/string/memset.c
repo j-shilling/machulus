@@ -1,12 +1,12 @@
 #include <string.h>
 
 void *
-memset (void *__ptr, int value, size_t size)
+memset (void *restrict s, int c, size_t n)
 {
-  unsigned char *ptr = (unsigned char *) __ptr;
+  size_t i;
 
-  for (size_t i = 0; i < size; i++)
-    ptr[i] = (unsigned char) value;
+  for (i = 0; i < n; i++)
+    ((unsigned char *)s)[i] = (unsigned char) c;
 
-  return __ptr;
+  return s;
 }

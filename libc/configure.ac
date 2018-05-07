@@ -16,7 +16,7 @@ AC_ARG_ENABLE([libk],
 	         yes) libk=true ;;
 	         no)  libk=false ;;
 	         *)   AC_MSG_ERROR([bad value ${enable_libk} for --enable-libk]) ;;
-	       esac],[libk=false])
+	       esac],[libk=true])
 AM_CONDITIONAL([LIBK], [test x$libk = xtrue])
 
 AC_ARG_ENABLE([libc],

@@ -37,4 +37,8 @@
 #  define __STD_C89__ 1
 #endif 
 
+#if ! __STD_C99
+#  define restrict		/* ignore */
+#endif
+
 #endif /* _SYS_CDEFS_H_ */

@@ -1,16 +1,15 @@
 #include <string.h>
 
-int memcmp (const void *__x, const void *__y, size_t size)
+int
+memcmp (const void *s1, const void *s2, size_t n)
 {
-  const unsigned char *x = (const unsigned char *) x;
-  const unsigned char *y = (const unsigned char *) y;
+  size_t i;
 
-  for (size_t i = 0; i < size; i ++)
+  for (i = 0; i < n; i ++)
     {
-      if (x[i] < y[i])
-	return -1;
-      else if (y[i] > x[i])
-	return 1;
+      char ret = ((const char *)s1)[i] - ((const char *)s2)[i];
+      if (ret)
+        return ret;
     }
 
   return 0;

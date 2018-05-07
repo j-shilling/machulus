@@ -1,13 +1,11 @@
 #include <string.h>
 
 void *
-memcpy (void *restrict __dest, const void * restrict __src, size_t size)
+memcpy (void *restrict dest, const void *restrict src, size_t n)
 {
-  unsigned char *dest = (unsigned char *) __dest;
-  const unsigned char *src = (const unsigned char *) __src;
+  size_t i;
+  for (i = 0; i < n; i++)
+    ((char *)dest)[i] = ((const char *)src)[i];
 
-  for (size_t i = 0; i < size; i++)
-    dest[i] = src[i];
-
-  return __dest;
+  return dest;
 }

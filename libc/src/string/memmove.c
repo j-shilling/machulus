@@ -1,17 +1,18 @@
 #include <string.h>
 
 void *
-memmove (void *__dest, const void *__src, size_t size)
+memmove (void *restrict dest, const void *restrict src, size_t n)
 {
-  unsigned char *dest = (unsigned char *) __dest;
-  const unsigned char * src = (const unsigned char *) __src;
+  size_t i;
+
   if (dest < src)
     {
-      for (size_t i = 0; i < size; i++)
-	dest[i] = src[i];
+      for (i = 0; i < n; i++)
+	((char *)dest)[i] = ((const char *)src)[i];
     } else {
-      for (size_t i = size; i != 0; i --)
-	dest[i-1] = src[i-1];
+      for (i = n; i != 0; i --)
+	((char *)dest)[i-1] = ((const char *)src)[i-1];
     }
-  return __dest;
+
+  return dest;
 }
