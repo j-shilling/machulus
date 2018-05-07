@@ -96,7 +96,13 @@ char *strcpy (char *dest, const char *src);
 char *strncpy (char *dest, const char *src, size_t n);
 
 char *strerror (int);
+
+/**
+ * The strlen() function calculates the length of the string pointed to by s, 
+ * excluding the terminating null byte ('\0').
+ */
 size_t strlen (const char *);
+
 size_t strspn (const char *, const char *);
 size_t strcspn (const char *, const char *);
 char *strpbrk (const char*, const char *);
