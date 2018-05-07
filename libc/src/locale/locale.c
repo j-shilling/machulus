@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <locale.h>
 #include <limits.h>
 
@@ -29,4 +30,4 @@ struct lconv locale_c =
   .int_n_sign_posn = CHAR_MAX
 };
 
-struct lconv *current_locale = &locale_c;
+struct lconv *locale = &locale_c;

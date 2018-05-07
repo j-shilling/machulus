@@ -1,13 +1,10 @@
 #include <locale.h>
+#include <string.h>
 
-extern struct lconv locale_c;
-extern struct lconv *current_locale;
+extern struct lconv *locale;
 
 struct lconv *
 localeconv (void)
 {
-  if (current_locale)
-    return current_locale;
-  else
-    return &locale_c;
+  return locale;
 }
