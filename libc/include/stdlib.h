@@ -2,10 +2,11 @@
 #define _STDLIB_H_
 
 #include <sys/cdefs.h>
+#include <stdnoreturn.h>
 
 __BEGIN_DECLS
 
-_Noreturn void abort(void);
+noreturn void abort(void);
 
 __END_DECLS
 

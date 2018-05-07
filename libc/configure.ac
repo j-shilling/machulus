@@ -1,19 +1,14 @@
-AC_INIT([jkernel], [0.0.1])
+AC_INIT([libc], [0.0.1])
 AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 
-AC_CANONICAL_HOST
+AC_CONFIG_MACRO_DIRS([m4])
 
-if test "$host_os" != "elf"; then
-	AC_MSG_ERROR("$host_os is not supported")
-fi
+AC_PROG_CC
+AM_PROG_AS
+AM_PROG_AR
 
-AS_CASE([$host_cpu],
-	[i?86], [ARCHDIR=arch/i386],
-	[AC_MSG_ERROR("$host_cpu is not supported")])
-
-AC_SUBST([HOST],[$host])
-AC_SUBST([OS],[$host_os])
-AC_SUBST([CPU],[$host_cpu])
+CFLAGS="-ffreestanding -I`pwd`/include"
+LDFLAGS="-ffreestanding -nostdlib"
 
 AC_ARG_ENABLE([libk],
 	      AS_HELP_STRING([--enable-libk],[libc implementation to run in kernel-space]),
@@ -33,16 +28,7 @@ AC_ARG_ENABLE([libc],
 	     esac],[libc=false])
 AM_CONDITIONAL([LIBC], [test x$libc = xtrue])
 
-AC_ARG_ENABLE([jkernel],
-	    AS_HELP_STRING([--enable-jkernel],[the kernel itself]),
-	    [case "${enable_jkernel}" in
-	       yes) jkernel=true ;;
-	       no)  jkernel=false ;;
-	       *)   AC_MSG_ERROR([bad value ${enable_jkernel} for --enable-jkernel]) ;;
-	     esac],[jkernel=false])
-AM_CONDITIONAL([JKERNEL], [test x$libc = xtrue])
-
-AM_CONDITIONAL([LIB], [test x$libc = xtrue -o x$libk = xtrue -o x$jkernel = xtrue])
+AM_CONDITIONAL([BUILD_SUBLIBS], [test x$libc = xtrue -o x$libk = xtrue])
 
 AC_ARG_ENABLE([debug],
 	    AS_HELP_STRING([--enable-debug],[build with GDB debuging support]),
@@ -51,9 +37,17 @@ AC_ARG_ENABLE([debug],
 	       no)  debug=false ;;
 	       *)   AC_MSG_ERROR([bad value ${enable_debug} for --enable-debug]) ;;
 	     esac],[debug=false])
-AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
 
-AC_CONFIG_FILES([Makefile \
-		 libc/Makefile \
-		 kernel/Makefile])
+if text "x$debug = xtrue"; then
+	CFLAGS="$CFLAGS -O0 -ggdb"
+else
+	CFLAGS="$CFLAGS -O2"
+fi
+
+LT_INIT
+
+AC_CONFIG_FILES([Makefile
+		 src/Makefile
+		 src/string/Makefile])
+
 AC_OUTPUT
