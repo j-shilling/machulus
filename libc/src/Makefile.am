@@ -1,6 +1,7 @@
 if BUILD_SUBLIBS
 
-SUBDIRS = string
+SUBDIRS = stdlib \
+	  string
 
 endif
 

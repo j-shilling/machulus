@@ -41,4 +41,12 @@
 #  define restrict		/* ignore */
 #endif
 
+#if __STD_C11
+#  define __THREAD              _Thread_local
+#elif __GNUC__
+#  define __THREAD                  __thread
+#else
+#  error "Cannot define thread local variables"
+#endif
+
 #endif /* _SYS_CDEFS_H_ */

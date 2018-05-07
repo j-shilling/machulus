@@ -48,6 +48,7 @@ LT_INIT
 
 AC_CONFIG_FILES([Makefile
 		 src/Makefile
+		 src/stdlib/Makefile
 		 src/string/Makefile])
 
 AC_OUTPUT
