@@ -1,11 +1,20 @@
 AC_INIT([jkernel], [0.0.1])
 AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 
-if test -z "$CFLAGS"; then
-	CFLAGS="-O0 -ggdb -std=gnu11 -ffreestanding -I$(pwd)/include"
-fi
-if test -z "$LDFLAGS"; then
-	LDFLAGS="-ffreestanding -nostdlib -lgcc"
+CFLAGS="-ffreestanding -I$(pwd)/include"
+LDFLAGS="-ffreestanding -nostdlib"
+
+AC_ARG_ENABLE([debug],
+	    AS_HELP_STRING([--enable-debug],[build with GDB debuging support]),
+	    [case "${enable_debug}" in
+	       yes) debug=true ;;
+	       no)  debug=false ;;
+	       *)   AC_MSG_ERROR([bad value ${enable_debug} for --enable-debug]) ;;
+	     esac],[debug=false])
+if text "x$debug = xtrue"; then
+	CFLAGS="$CFLAGS -O0 -ggdb"
+else
+	CFLAGS="$CFLAGS -O2"
 fi
 
 AC_CANONICAL_HOST
@@ -15,49 +24,16 @@ if test "$host_os" != "elf"; then
 fi
 
 AS_CASE([$host_cpu],
-	[i?86], [ARCHDIR=arch/i386],
+	[i?86], [ARCHDIR=i386],
 	[AC_MSG_ERROR("$host_cpu is not supported")])
 AC_SUBST([ARCHDIR])
 
 AC_PROG_CC
-
-if test "$GCC" != "yes"; then
-	AC_MSG_ERROR("gcc is required")
-fi
-
 AM_PROG_AS
 AC_PROG_RANLIB
 AM_PROG_AR
 
-AC_MSG_CHECKING([for crtbegin.o])
-CRTBEGIN=`${CC} ${CFLAGS} -print-file-name=crtbegin.o`
-if test -z "$CRTBEGIN"; then
-	AC_MSG_ERROR(["Could not find crtbegin.o"])
-else
-	AC_MSG_RESULT([$CRTBEGIN])
-	AC_SUBST([CRTBEGIN])
-fi
-
-AC_MSG_CHECKING([for crtend.o])
-CRTEND=`${CC} ${CFLAGS} -print-file-name=crtend.o`
-if test -z "$CRTEND"; then
-	AC_MSG_ERROR(["Could not find crtend.o"])
-else
-	AC_MSG_RESULT([$CRTEND])
-	AC_SUBST([CRTEND])
-fi
-
-AC_CHECK_HEADER([stdint.h], [],
-		 [AC_MSG_ERROR([Missing stdint.h])])
-
-AC_CHECK_HEADER([stddef.h], [],
-		 [AC_MSG_ERROR([Missing stddef.h])])
-
-AC_CHECK_HEADER([stdarg.h], [],
-		 [AC_MSG_ERROR([Missing stdarg.h])])
-
-AC_CONFIG_FILES([Makefile \
-		 src/Makefile \
-		 src/libc/Makefile \
-		 src/kernel/Makefile])
+AC_CONFIG_FILES([Makefile
+		 arch/Makefile
+		 arch/i386/Makefile])
 AC_OUTPUT

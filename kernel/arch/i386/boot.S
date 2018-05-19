@@ -13,9 +13,6 @@
 /* Multboot Header Flags */
 #define MULTIBOOT_HEADER_FLAGS	MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_VIDEO_MODE
 
-.extern _init
-.extern kernel_main
-
 .global start
 .global mbi
  
@@ -54,8 +51,8 @@ load_multiboot:	mov $mbi, %edx
 		mov %ebx, (%edx) /* mbi = ebx */
 
 		/* Call constructors & start program */
-function_calls:	call EXT_C(init)
-		call EXT_C(kernel_main)
+function_calls:	
+		call EXT_C(kmain)
  
 		hang:
 			cli
