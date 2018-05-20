@@ -1,6 +1,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <stdio.h>
+
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
 static uint16_t* const VGA_MEMORY = (uint16_t *) 0xB8000;
@@ -61,7 +63,7 @@ tty_init (void)
 }
 
 int
-tty_putchar (unsigned char c)
+putchar (int c)
 {
   if (c > 31) /* Printable Character */
     {
@@ -99,7 +101,7 @@ tty_putchar (unsigned char c)
 	  break;
 
 	default:
-	  return 1; /* Unrecognized character */
+	  return EOF; /* Unrecognized character */
 	}
     }
 
@@ -108,3 +110,4 @@ tty_putchar (unsigned char c)
 
   return 0;
 }
+
