@@ -1,7 +1,7 @@
 AC_INIT([jkernel], [0.0.1])
 AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 
-CFLAGS="-O0 -ggdb -fpic -ffreestanding -I$(pwd)/include"
+CFLAGS="-O0 -ggdb -fno-pic -ffreestanding -I$(pwd)/include"
 LDFLAGS="-ffreestanding -nostdlib"
 
 AC_CANONICAL_HOST

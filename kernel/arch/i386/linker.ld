@@ -15,7 +15,7 @@ SECTIONS {
 		*(.rodata)
 	}
 
-	.data ALIGN (4K) : AT(ADDR(.data)-0xC0000000)  /* align at 4 KB */
+	.data ALIGN (4K) : AT(ADDR(.data)-0xC0000000)
 	{
 		*(.data)             /* all data sections from all files */
 	}
@@ -24,7 +24,7 @@ SECTIONS {
 	{
 		*(COMMON)            /* all COMMON sections from all files */
 		*(.bss)              /* all bss sections from all files */
-		*(.bootstrap_stack)
 	}
+
 	_kernel_end = .;
 }
