@@ -1,5 +1,6 @@
 #define ASM_FILE		1
 #include "multiboot.h"
+#include "paging.h"
 
 #ifdef HAVE_ASM_USCORE
 #  define EXT_C(sym)		_ ## sym
@@ -13,6 +14,9 @@
 #define KERNEL_VBASE		0xC0000000
 #define PAGE_SIZE		0x1000
 #define PHYS_ADDR(x)		((x) - KERNEL_VBASE)
+
+#define KPAGE_FLAGS		(PAGE_TABLE_FLAG_PRESENT | PAGE_TABLE_FLAG_READ_WRITE)
+#define KPAGE_DIR_FLAGS		(PAGE_DIRECTORY_FLAG_PRESENT | PAGE_DIRECTORY_FLAG_READ_WRITE)
 
 .section .multiboot
 	.align 4
@@ -55,12 +59,12 @@
 	map_kernel:
 		/* Find all page frames with our kernel */
 		cmpl $(PHYS_ADDR(_kernel_start)), %esi		// if esi holds an address before the kernel
-		jmp get_next_frame				// continue
+		jl get_next_frame				// continue
 		cmpl $(PHYS_ADDR(_kernel_end)), %esi		// if esi holds an address after the kernel
-		jmp end_loop					// end
+		jge end_loop					// end
 
 		movl %esi, %edx
-		orl $0x003, %edx
+		orl $(KPAGE_FLAGS), %edx
 		movl %edx, (%edi)
 
 	get_next_frame:
@@ -69,18 +73,19 @@
 		loop map_kernel
 
 	end_loop:
-		movl $(0x000B8000 | 0x003), boot_page_table - KERNEL_VBASE + 1023 * 4
-		movl $(PHYS_ADDR(boot_page_table) + 0x003), PHYS_ADDR(boot_page_directory) + 0
-		movl $(PHYS_ADDR(boot_page_table) + 0x003), PHYS_ADDR(boot_page_directory) + 768 * 4
+		movl $(0x000B8000 | KPAGE_FLAGS), boot_page_table - KERNEL_VBASE + 1023 * 4
+		movl $(PHYS_ADDR(boot_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(boot_page_directory) + 0
+		movl $(PHYS_ADDR(boot_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(boot_page_directory) + 768 * 4
 
 		movl $(PHYS_ADDR(boot_page_directory)), %ecx
 		movl %ecx, %cr3
 
+	activate_paging:
 		movl %cr0, %ecx
-		orl $0x80010000, %ecx
+		orl $0x80000001, %ecx
 		movl %ecx, %cr0
 
-		lea higher_half, %ecx
+		mov $higher_half, %ecx
 		jmp *%ecx
 
 	higher_half:
