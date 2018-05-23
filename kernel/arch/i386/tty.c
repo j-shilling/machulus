@@ -5,7 +5,9 @@
 
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
-static uint16_t* const VGA_MEMORY = (uint16_t *) 0xC03FF000;
+
+/* initialized in boot.S */
+uint16_t *const video_memory;
 
 static const uint16_t vga_blank_entry = ' ' | 7 << 8;
 
@@ -35,7 +37,7 @@ void
 tty_init (void)
 {
   /* Find vga memory boundries */
-  tty_start = VGA_MEMORY;
+  tty_start = video_memory;
   tty_end = tty_start + (VGA_WIDTH * VGA_HEIGHT);
 
   /* Clear screen */

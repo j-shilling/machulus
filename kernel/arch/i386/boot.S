@@ -14,9 +14,18 @@
 #define KERNEL_VBASE		0xC0000000
 #define PAGE_SIZE		0x1000
 #define PHYS_ADDR(x)		((x) - KERNEL_VBASE)
+#define VRTL_ADDR(x,index)	(KERNEL_VBASE | ((index) << 12) | ((x) & 0x0000FFFF))
 
 #define KPAGE_FLAGS		(PAGE_TABLE_FLAG_PRESENT | PAGE_TABLE_FLAG_READ_WRITE)
 #define KPAGE_DIR_FLAGS		(PAGE_DIRECTORY_FLAG_PRESENT | PAGE_DIRECTORY_FLAG_READ_WRITE)
+#define KPAGE_DIR_INDEX		(KERNEL_VBASE >> 22)
+
+#define CR0_PAGING		(1 << 31)
+#define CR0_WRITE_PROTECT	(1 << 16)
+
+#define VIDEO_MEMORY		(0x000B8000)
+
+.extern video_memory		/* virtual address of x86 video memory */
 
 .section .multiboot
 	.align 4
@@ -54,7 +63,7 @@
 		/* Start setting up our page table */
 		movl $(PHYS_ADDR(boot_page_table)), %edi	// Store page table at edi
 		movl $0, %esi					// esi iterates frames, start at 0
-		movl $1023, %ecx
+		movl $1023, %ecx				/* VIDEO_MEMORY will be at index 1023 */
 
 	map_kernel:
 		/* Find all page frames with our kernel */
@@ -73,27 +82,27 @@
 		loop map_kernel
 
 	end_loop:
-		movl $(0x000B8000 | KPAGE_FLAGS), boot_page_table - KERNEL_VBASE + 1023 * 4
-		movl $(PHYS_ADDR(boot_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(boot_page_directory) + 0
-		movl $(PHYS_ADDR(boot_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(boot_page_directory) + 768 * 4
+		/* Add final entry for video memory */
+		movl $(VIDEO_MEMORY | KPAGE_FLAGS), boot_page_table - KERNEL_VBASE + 1023 * 4
+		movl $PHYS_ADDR(video_memory), %ecx		// initialize variable used in tty.c
+		movl $(VRTL_ADDR(VIDEO_MEMORY, 1023)), (%ecx)
+
+		/* Install page directory */
+		movl $(PHYS_ADDR(boot_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(boot_page_directory)
+		movl $(PHYS_ADDR(boot_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(boot_page_directory) + (KPAGE_DIR_INDEX * 4)
 
 		movl $(PHYS_ADDR(boot_page_directory)), %ecx
 		movl %ecx, %cr3
 
 	activate_paging:
 		movl %cr0, %ecx
-		orl $0x80000001, %ecx
+		orl $(CR0_PAGING | CR0_WRITE_PROTECT), %ecx
 		movl %ecx, %cr0
 
-		mov $higher_half, %ecx
+		lea higher_half, %ecx
 		jmp *%ecx
 
 	higher_half:
-		movl $0, boot_page_directory + 0
-
-		movl %cr3, %ecx
-		movl %ecx, %cr3
-
 		/* Set up the stack */
 		mov $stack_top, %esp
 
