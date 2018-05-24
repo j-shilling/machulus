@@ -65,7 +65,7 @@ tty_init (void)
 }
 
 int
-putchar (int c)
+fputc (int c, FILE *stream __attribute__ ((unused)))
 {
   if (c > 31) /* Printable Character */
     {
@@ -110,6 +110,37 @@ putchar (int c)
   if (tty_cur == tty_end)
     vga_scroll();
 
-  return 0;
+  return c;
 }
 
+int
+fputs (const char *s, FILE *stream __attribute__ ((unused)))
+{
+  int ret = 0;
+  for (; (*s) != '\0'; s++)
+    {
+      if (EOF == fputc ((int) (*s), NULL))
+	return EOF;
+      ret ++;
+    }
+  return ret;
+}
+
+int
+putchar (int c)
+{
+  return fputc (c, NULL);
+}
+
+int
+puts (const char *s)
+{
+  int ret = fputs (s, NULL);
+  if (EOF == ret)
+    return EOF;
+
+  if (EOF == fputc ('\n', NULL))
+    return EOF;
+
+  return ret + 1;
+}

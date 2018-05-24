@@ -1,5 +1,7 @@
+#include <stdio.h>
+
 void
 kmain(void)
 {
-  for (;;);
+  printf ("Hello, World!");
 }
