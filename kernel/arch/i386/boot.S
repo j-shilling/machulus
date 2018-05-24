@@ -16,8 +16,8 @@
 #define PHYS_ADDR(x)		((x) - KERNEL_VBASE)
 #define VRTL_ADDR(x,index)	(KERNEL_VBASE | ((index) << 12) | ((x) & 0x0000FFFF))
 
-#define KPAGE_FLAGS		(PAGE_TABLE_FLAG_PRESENT | PAGE_TABLE_FLAG_READ_WRITE)
-#define KPAGE_DIR_FLAGS		(PAGE_DIRECTORY_FLAG_PRESENT | PAGE_DIRECTORY_FLAG_READ_WRITE)
+#define KPAGE_FLAGS		(PAGE_FLAG_PRESENT | PAGE_FLAG_READ_WRITE)
+#define KPAGE_DIR_FLAGS		(PAGE_FLAG_PRESENT | PAGE_FLAG_READ_WRITE)
 #define KPAGE_DIR_INDEX		(KERNEL_VBASE >> 22)
 
 #define CR0_PAGING		(1 << 31)
@@ -26,6 +26,7 @@
 #define VIDEO_MEMORY		(0x000B8000)
 
 .extern video_memory		/* virtual address of x86 video memory */
+.extern arch_init
 
 .section .multiboot
 	.align 4
@@ -106,6 +107,7 @@
 		/* Set up the stack */
 		mov $stack_top, %esp
 
+		call EXT_C (arch_init)
 		call EXT_C (kmain)
 		
 		/* kmain should never return and this should be unreachable */
