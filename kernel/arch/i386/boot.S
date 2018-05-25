@@ -14,7 +14,7 @@
 #define KERNEL_VBASE		0xC0000000
 #define PAGE_SIZE		0x1000
 #define PHYS_ADDR(x)		((x) - KERNEL_VBASE)
-#define VRTL_ADDR(x,index)	(KERNEL_VBASE | ((index) << 12) | ((x) & 0x0000FFFF))
+#define VRTL_ADDR(x,index)	(KERNEL_VBASE | ((index) << 12) | ((x) & 0x00000FFF))
 
 #define KPAGE_FLAGS		(PAGE_FLAG_PRESENT | PAGE_FLAG_READ_WRITE)
 #define KPAGE_DIR_FLAGS		(PAGE_FLAG_PRESENT | PAGE_FLAG_READ_WRITE)
@@ -64,7 +64,7 @@
 		/* Start setting up our page table */
 		movl $(PHYS_ADDR(boot_page_table)), %edi	// Store page table at edi
 		movl $0, %esi					// esi iterates frames, start at 0
-		movl $1023, %ecx				/* VIDEO_MEMORY will be at index 1023 */
+		movl $1022, %ecx				/* VIDEO_MEMORY will be at index 1023 */
 
 	map_kernel:
 		/* Find all page frames with our kernel */
@@ -83,8 +83,30 @@
 		loop map_kernel
 
 	end_loop:
+		/* Add entry for the multiboot address */
+		cmp $(MULTIBOOT_BOOTLOADER_MAGIC), %eax
+		jne no_multiboot
+		
+		/* put address in %ebx into the page table */
+		movl $0xFFFFF000, %ecx
+		and  %ebx, %ecx
+		or   $(KPAGE_FLAGS), %ecx
+		movl %ecx, PHYS_ADDR(boot_page_table) + 1022 * 4
+
+		/* replace %ebx with virtual address */
+		andl $0x00000FFF, %ebx		// isolate just the offset
+		movl $1022, %eax
+		shl  $12, %eax			// (1022 << 12)
+		orl  %eax, %ebx			// apply page number
+		orl  $KERNEL_VBASE, %ebx	// apply page dir number
+		jmp  map_video_memory
+
+	no_multiboot:
+		movl $0, %ebx 			// ebx = NULL
+
+	map_video_memory:
 		/* Add final entry for video memory */
-		movl $(VIDEO_MEMORY | KPAGE_FLAGS), boot_page_table - KERNEL_VBASE + 1023 * 4
+		movl $(VIDEO_MEMORY | KPAGE_FLAGS), PHYS_ADDR(boot_page_table) + 1023 * 4
 		movl $PHYS_ADDR(video_memory), %ecx		// initialize variable used in tty.c
 		movl $(VRTL_ADDR(VIDEO_MEMORY, 1023)), (%ecx)
 
@@ -107,6 +129,7 @@
 		/* Set up the stack */
 		mov $stack_top, %esp
 
+		push %ebx
 		call EXT_C (arch_init)
 		call EXT_C (kmain)
 		
