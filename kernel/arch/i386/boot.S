@@ -9,10 +9,8 @@
 #endif
 
 /* Multboot Header Flags */
-#define MULTIBOOT_HEADER_FLAGS	MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_VIDEO_MODE
+#define MULTIBOOT_HEADER_FLAGS	MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO
 
-#define KERNEL_VBASE		0xC0000000
-#define PAGE_SIZE		0x1000
 #define PHYS_ADDR(x)		((x) - KERNEL_VBASE)
 #define VRTL_ADDR(x,index)	(KERNEL_VBASE | ((index) << 12) | ((x) & 0x00000FFF))
 
@@ -36,17 +34,19 @@
 
 .section .bss, "aw", @nobits
 
-	.type boot_page_directory, @object
+	.global kernel_page_directroy
+	.type kernel_page_directory, @object
 	.align PAGE_SIZE
-	boot_page_directory:
+	kernel_page_directory:
 		.skip PAGE_SIZE
-	.size boot_page_directory, . - boot_page_directory
+	.size kernel_page_directory, . - kernel_page_directory
 
-	.type boot_page_table, @object
+	.global kernel_page_table
+	.type kernel_page_table, @object
 	.align PAGE_SIZE
-	boot_page_table:
+	kernel_page_table:
 		.skip PAGE_SIZE
-	.size boot_page_table, . - boot_page_table
+	.size kernel_page_table, . - kernel_page_table
 
 	.type stack, @object
 	.align PAGE_SIZE
@@ -62,59 +62,107 @@
 
 	_start:
 		/* Start setting up our page table */
-		movl $(PHYS_ADDR(boot_page_table)), %edi	// Store page table at edi
+		movl $(PHYS_ADDR(kernel_page_table)), %edi	// Store page table at edi
 		movl $0, %esi					// esi iterates frames, start at 0
-		movl $1022, %ecx				/* VIDEO_MEMORY will be at index 1023 */
+		movl $0, %ecx					// ecx holds the current index in page table
 
 	map_kernel:
 		/* Find all page frames with our kernel */
+		cmpl $1024, %ecx				// make sure there is still room
+		jge  out_of_memory				
 		cmpl $(PHYS_ADDR(_kernel_start)), %esi		// if esi holds an address before the kernel
-		jl get_next_frame				// continue
+		jl   get_next_frame				// continue
 		cmpl $(PHYS_ADDR(_kernel_end)), %esi		// if esi holds an address after the kernel
-		jge end_loop					// end
+		jge  end_loop					// end
+		
 
 		movl %esi, %edx
-		orl $(KPAGE_FLAGS), %edx
+		orl  $(KPAGE_FLAGS), %edx
 		movl %edx, (%edi)
 
 	get_next_frame:
 		addl $PAGE_SIZE, %esi
 		addl $4, %edi
-		loop map_kernel
-
+		inc  %ecx
+		jmp map_kernel
 	end_loop:
-		/* Add entry for the multiboot address */
+
+		/* Add entry for video memory */
+		movl $(VIDEO_MEMORY), %edx
+		orl  $(KPAGE_FLAGS), %edx
+		movl %edx, (%edi)
+
+		/* Calculate virtual address of video memory */
+		/* video memory is page aligned so their is no offset */
+		movl $(PHYS_ADDR(video_memory)), %esi	// initialize video_memory for tty.c
+		movl $(KERNEL_VBASE), (%esi)		// page dir index
+		movl %ecx, %edx
+		shl  $12, %edx
+		orl  %edx, (%esi)			// page table index
+
+		/* Increment index and table pointer*/
+		inc  %ecx
+		addl $4, %edi
+
+		/* check for multiboot */
 		cmp $(MULTIBOOT_BOOTLOADER_MAGIC), %eax
-		jne no_multiboot
+		jne no_mmap
+
+		/* check for mmap */
+		movl (%ebx), %eax			// get flags at the start of the struct
+		andl $(1 << 6), %eax			// check 6th bit for mmap
+		je   no_mmap
+
+		/* get mmap address and length */		
+		movl 48(%ebx), %esi			// phys addr
+		movl 44(%ebx), %eax			// length
+		movl %esi, %edx
+		andl $0xFFFFF000, %esi			// page align
+		andl $0x00000FFF, %edx			// page offset
+
+		/* add entry */
+		orl  $(KPAGE_FLAGS), %esi
+		movl %esi, (%edi)
+
+		/* put virtual address of mmap in ebx */
+		movl %ecx, %ebx
+		shl  $12, %ebx
+		orl  $(KERNEL_VBASE), %ebx
+		orl  %edx, %ebx
+
+		/* see if mmap spans more than one page */
+		cmp $(PAGE_SIZE), %eax
+		jge install_page_directory
+
+		inc  %ecx
+		addl $4, %edi
+		movl 48(%ebx), %esi
+		movl %esi, %edx
+		addl %eax, %edx
+		addl $(PAGE_SIZE), %esi
+	map_mmap:
+		cmp $(1024), %ecx
+		jge out_of_memory
+		cmp %esi, %edi
+		jge install_page_directory
+	
+		movl %esi, (%edi)
+		orl  $(KPAGE_FLAGS), (%edi)
+
+		addl $(PAGE_SIZE), %esi
+		addl $4, %edi
+		inc  %ecx
+		jmp map_mmap
 		
-		/* put address in %ebx into the page table */
-		movl $0xFFFFF000, %ecx
-		and  %ebx, %ecx
-		or   $(KPAGE_FLAGS), %ecx
-		movl %ecx, PHYS_ADDR(boot_page_table) + 1022 * 4
-
-		/* replace %ebx with virtual address */
-		andl $0x00000FFF, %ebx		// isolate just the offset
-		movl $1022, %eax
-		shl  $12, %eax			// (1022 << 12)
-		orl  %eax, %ebx			// apply page number
-		orl  $KERNEL_VBASE, %ebx	// apply page dir number
-		jmp  map_video_memory
-
-	no_multiboot:
+	no_mmap:
 		movl $0, %ebx 			// ebx = NULL
 
-	map_video_memory:
-		/* Add final entry for video memory */
-		movl $(VIDEO_MEMORY | KPAGE_FLAGS), PHYS_ADDR(boot_page_table) + 1023 * 4
-		movl $PHYS_ADDR(video_memory), %ecx		// initialize variable used in tty.c
-		movl $(VRTL_ADDR(VIDEO_MEMORY, 1023)), (%ecx)
-
+	install_page_directory:
 		/* Install page directory */
-		movl $(PHYS_ADDR(boot_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(boot_page_directory)
-		movl $(PHYS_ADDR(boot_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(boot_page_directory) + (KPAGE_DIR_INDEX * 4)
+		movl $(PHYS_ADDR(kernel_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory)
+		movl $(PHYS_ADDR(kernel_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (KPAGE_DIR_INDEX * 4)
 
-		movl $(PHYS_ADDR(boot_page_directory)), %ecx
+		movl $(PHYS_ADDR(kernel_page_directory)), %ecx
 		movl %ecx, %cr3
 
 	activate_paging:
@@ -129,6 +177,7 @@
 		/* Set up the stack */
 		mov $stack_top, %esp
 
+		push %eax
 		push %ebx
 		call EXT_C (arch_init)
 		call EXT_C (kmain)
@@ -136,6 +185,7 @@
 		/* kmain should never return and this should be unreachable */
 		cli
 
+	out_of_memory:
 	inf_loop:
 		hlt
 		jmp inf_loop
