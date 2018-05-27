@@ -11,12 +11,11 @@
 /* Multboot Header Flags */
 #define MULTIBOOT_HEADER_FLAGS	MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO
 
-#define PHYS_ADDR(x)		((x) - KERNEL_VBASE)
 #define VRTL_ADDR(x,index)	(KERNEL_VBASE | ((index) << 12) | ((x) & 0x00000FFF))
 
-#define KPAGE_FLAGS		(PAGE_FLAG_PRESENT | PAGE_FLAG_READ_WRITE)
 #define KPAGE_DIR_FLAGS		(PAGE_FLAG_PRESENT | PAGE_FLAG_READ_WRITE)
 #define KPAGE_DIR_INDEX		(KERNEL_VBASE >> 22)
+#define FRAME_STACK_DIR_INDEX	(FRAME_STACK_VBASE >> 22)
 
 #define CR0_PAGING		(1 << 31)
 #define CR0_WRITE_PROTECT	(1 << 16)
@@ -25,6 +24,9 @@
 
 .extern video_memory		/* virtual address of x86 video memory */
 .extern arch_init
+.extern kernel_page_directory
+.extern kernel_page_table
+.extern frame_stack_page_table
 
 .section .multiboot
 	.align 4
@@ -34,14 +36,12 @@
 
 .section .bss, "aw", @nobits
 
-	.global kernel_page_directroy
 	.type kernel_page_directory, @object
 	.align PAGE_SIZE
 	kernel_page_directory:
 		.skip PAGE_SIZE
 	.size kernel_page_directory, . - kernel_page_directory
 
-	.global kernel_page_table
 	.type kernel_page_table, @object
 	.align PAGE_SIZE
 	kernel_page_table:
@@ -61,6 +61,7 @@
 	.type _start, @function
 
 	_start:
+		movl $(PHYS_ADDR(stack_top)), %esp
 		/* Start setting up our page table */
 		movl $(PHYS_ADDR(kernel_page_table)), %edi	// Store page table at edi
 		movl $0, %esi					// esi iterates frames, start at 0
@@ -116,6 +117,9 @@
 		/* get mmap address and length */		
 		movl 48(%ebx), %esi			// phys addr
 		movl 44(%ebx), %eax			// length
+		push %eax
+		push %esi
+		call _frames_init
 		movl %esi, %edx
 		andl $0xFFFFF000, %esi			// page align
 		andl $0x00000FFF, %edx			// page offset
@@ -161,6 +165,7 @@
 		/* Install page directory */
 		movl $(PHYS_ADDR(kernel_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory)
 		movl $(PHYS_ADDR(kernel_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (KPAGE_DIR_INDEX * 4)
+		movl $(PHYS_ADDR(frame_stack_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (FRAME_STACK_DIR_INDEX * 4)
 
 		movl $(PHYS_ADDR(kernel_page_directory)), %ecx
 		movl %ecx, %cr3
