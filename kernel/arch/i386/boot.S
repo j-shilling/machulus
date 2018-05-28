@@ -26,7 +26,7 @@
 .extern arch_init
 .extern kernel_page_directory
 .extern kernel_page_table
-.extern frame_stack_page_table
+.extern frames_page_table
 
 .section .multiboot
 	.align 4
@@ -35,18 +35,6 @@
 	.long		-(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
 
 .section .bss, "aw", @nobits
-
-	.type kernel_page_directory, @object
-	.align PAGE_SIZE
-	kernel_page_directory:
-		.skip PAGE_SIZE
-	.size kernel_page_directory, . - kernel_page_directory
-
-	.type kernel_page_table, @object
-	.align PAGE_SIZE
-	kernel_page_table:
-		.skip PAGE_SIZE
-	.size kernel_page_table, . - kernel_page_table
 
 	.type stack, @object
 	.align PAGE_SIZE
@@ -61,7 +49,6 @@
 	.type _start, @function
 
 	_start:
-		movl $(PHYS_ADDR(stack_top)), %esp
 		/* Start setting up our page table */
 		movl $(PHYS_ADDR(kernel_page_table)), %edi	// Store page table at edi
 		movl $0, %esi					// esi iterates frames, start at 0
@@ -117,9 +104,6 @@
 		/* get mmap address and length */		
 		movl 48(%ebx), %esi			// phys addr
 		movl 44(%ebx), %eax			// length
-		push %eax
-		push %esi
-		call _frames_init
 		movl %esi, %edx
 		andl $0xFFFFF000, %esi			// page align
 		andl $0x00000FFF, %edx			// page offset
@@ -165,7 +149,7 @@
 		/* Install page directory */
 		movl $(PHYS_ADDR(kernel_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory)
 		movl $(PHYS_ADDR(kernel_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (KPAGE_DIR_INDEX * 4)
-		movl $(PHYS_ADDR(frame_stack_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (FRAME_STACK_DIR_INDEX * 4)
+		movl $(PHYS_ADDR(frames_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (FRAME_STACK_DIR_INDEX * 4)
 
 		movl $(PHYS_ADDR(kernel_page_directory)), %ecx
 		movl %ecx, %cr3

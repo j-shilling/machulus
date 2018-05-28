@@ -20,8 +20,8 @@
 
 __BEGIN_DECLS
 
-int paging_map_frame_stack (uint32_t, uint32_t);
-int paging_unmap_frame_stack (uint32_t, uint32_t *);
+void paging_map_frame_stack (uint32_t, uint32_t);
+uint32_t paging_unmap_frame_stack (uint32_t);
 
 __END_DECLS
 
