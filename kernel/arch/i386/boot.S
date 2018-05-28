@@ -16,6 +16,7 @@
 #define KPAGE_DIR_FLAGS		(PAGE_FLAG_PRESENT | PAGE_FLAG_READ_WRITE)
 #define KPAGE_DIR_INDEX		(KERNEL_VBASE >> 22)
 #define FRAME_STACK_DIR_INDEX	(FRAME_STACK_VBASE >> 22)
+#define KHEAP_DIR_INDEX		(KHEAP_VBASE >> 22)
 
 #define CR0_PAGING		(1 << 31)
 #define CR0_WRITE_PROTECT	(1 << 16)
@@ -27,6 +28,7 @@
 .extern kernel_page_directory
 .extern kernel_page_table
 .extern frames_page_table
+.extern kheap_page_table
 
 .section .multiboot
 	.align 4
@@ -150,6 +152,7 @@
 		movl $(PHYS_ADDR(kernel_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory)
 		movl $(PHYS_ADDR(kernel_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (KPAGE_DIR_INDEX * 4)
 		movl $(PHYS_ADDR(frames_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (FRAME_STACK_DIR_INDEX * 4)
+		movl $(PHYS_ADDR(kheap_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (KHEAP_DIR_INDEX * 4)
 
 		movl $(PHYS_ADDR(kernel_page_directory)), %ecx
 		movl %ecx, %cr3
