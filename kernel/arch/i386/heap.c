@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <stdint.h>
+#include <stddef.h>
 
 #include "paging.h"
 
@@ -13,6 +14,9 @@ static char *kheap_top = (char *)KHEAP_VBASE;
 int
 brk (void *addr)
 {
+  if (NULL == addr)
+    return -1;
+
   /* Do we need to grow */
   if ((char*)addr > kheap_max)
     {
@@ -50,7 +54,14 @@ sbrk (intptr_t increment)
     return (void *)kheap_top;
 
   void *old = (void*)kheap_top;
+
+  if (increment > 0
+      ? ((uintptr_t) old + (uintptr_t) increment < (uintptr_t) old)
+      : ((uintptr_t) old + (uintptr_t) -increment))
+    return (void *)-1;
+
   if (brk (kheap_top + increment))
     return (void *)-1;
+
   return old;
 }
