@@ -4,7 +4,7 @@
 #define PHYS_ADDR(x)		((x) - KERNEL_VBASE)
 
 #define FRAME_STACK_VBASE	(KERNEL_VBASE + 0x10000000)
-#define KSTACK_VBASE		(KERNEL_VBASE + 0x20000000)
+#define KHEAP_VBASE		(KERNEL_VBASE + 0x20000000)
 
 #define PAGE_SIZE		(0x1000)
 
@@ -22,6 +22,9 @@ __BEGIN_DECLS
 
 void paging_map_frame_stack (uint32_t, uint32_t);
 uint32_t paging_unmap_frame_stack (uint32_t);
+
+int  paging_grow_heap (int);
+void paging_shrink_heap (int);
 
 __END_DECLS
 

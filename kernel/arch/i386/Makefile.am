@@ -3,4 +3,5 @@ lib_a_SOURCES = boot.S \
 		tty.c \
 		arch-init.c \
 		paging.c \
-		frames.c
+		frames.c \
+		heap.c
