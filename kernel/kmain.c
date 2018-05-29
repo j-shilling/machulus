@@ -11,5 +11,6 @@ kmain(void)
   for (size_t i = 0; i < (len + 1); i++)
     s[i] = msg[i];
 
-  puts (s);
+  printf ("%20s", s);
+  free (s);
 }
