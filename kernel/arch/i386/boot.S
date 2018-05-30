@@ -51,31 +51,18 @@
 	.type _start, @function
 
 	_start:
-		/* Start setting up our page table */
-		movl $(PHYS_ADDR(kernel_page_table)), %edi	// Store page table at edi
-		movl $0, %esi					// esi iterates frames, start at 0
-		movl $0, %ecx					// ecx holds the current index in page table
+		mov $(PHYS_ADDR(stack_top)), %esp
 
-	map_kernel:
-		/* Find all page frames with our kernel */
-		cmpl $1024, %ecx				// make sure there is still room
-		jge  out_of_memory				
-		cmpl $(PHYS_ADDR(_kernel_start)), %esi		// if esi holds an address before the kernel
-		jl   get_next_frame				// continue
-		cmpl $(PHYS_ADDR(_kernel_end)), %esi		// if esi holds an address after the kernel
-		jge  end_loop					// end
-		
-
-		movl %esi, %edx
-		orl  $(KPAGE_FLAGS), %edx
-		movl %edx, (%edi)
-
-	get_next_frame:
-		addl $PAGE_SIZE, %esi
-		addl $4, %edi
-		inc  %ecx
-		jmp map_kernel
-	end_loop:
+		push %eax
+		push %ebx
+		call _kpage_init
+		movl %eax, %ecx
+		pop %ebx
+		pop %eax
+		movl $4, %edx
+		imul %ecx, %edx
+		movl $(PHYS_ADDR(kernel_page_table)), %edi
+		addl %edx, %edi
 
 		/* Add entry for video memory */
 		movl $(VIDEO_MEMORY), %edx
@@ -101,6 +88,7 @@
 		/* check for mmap */
 		movl (%ebx), %eax			// get flags at the start of the struct
 		andl $(1 << 6), %eax			// check 6th bit for mmap
+		cmpl $0, %eax
 		je   no_mmap
 
 		/* get mmap address and length */		

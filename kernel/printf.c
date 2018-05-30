@@ -152,6 +152,7 @@ vprintf (const char *format, va_list ap)
 	    case 'o':
 	    case 'x':
 	    case 'X':
+
 	      /* Doubles */
 	    case 'f':
 	    case 'F':
