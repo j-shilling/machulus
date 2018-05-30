@@ -51,92 +51,42 @@
 	.type _start, @function
 
 	_start:
+		/* Set up temporary stack */
 		mov $(PHYS_ADDR(stack_top)), %esp
 		mov $(PHYS_ADDR(stack_bottom)), %ebp
 
+		/* Check for mmap */
 		push %eax
 		push %ebx
+		call _get_mmap
+		addl $8, %esp
 
+		/* Save return values */
+		movl %ebx, %edi // phys addr of mmap
+		movl %eax, %esi // length of mmap
+
+		/* Initialize kernel page table */
 		call _kpage_init
 
-		movl %eax, %ecx
+		/* Insert mmap into page table */
+		movl %eax, %ebx // save return
+		push %eax // index
+		push %edi // addr
+		call _kpage_insert
+		addl $8, %esp
+		movl %eax, %edi // replace phys addr with vrtl addr
 
-		movl $4, %edx
-		imul %ecx, %edx
-		movl $(PHYS_ADDR(kernel_page_table)), %edi
-		addl %edx, %edi
-
-		push %ecx
-		push %eax
-		push $(VIDEO_MEMORY)
+		/* Insert video memory into page table */
+		inc  %ebx
+		push %ebx // index
+		push $(VIDEO_MEMORY) // addr
 		call _kpage_insert
 		addl $8, %esp
 
-		movl $(PHYS_ADDR(video_memory)), %esi
-		movl %eax, (%esi)
+		/* Initialize video_memory with virtual addr */
+		movl $(PHYS_ADDR(video_memory)), %ebx
+		movl %eax, (%ebx)
 
-		pop %ecx
-		pop %ebx
-		pop %eax
-
-		inc  %ecx
-		addl $4, %edi
-
-		/* check for multiboot */
-		cmp $(MULTIBOOT_BOOTLOADER_MAGIC), %eax
-		jne no_mmap
-
-		/* check for mmap */
-		movl (%ebx), %eax			// get flags at the start of the struct
-		andl $(1 << 6), %eax			// check 6th bit for mmap
-		cmpl $0, %eax
-		je   no_mmap
-
-		/* get mmap address and length */		
-		movl 48(%ebx), %esi			// phys addr
-		movl 44(%ebx), %eax			// length
-		movl %esi, %edx
-		andl $0xFFFFF000, %esi			// page align
-		andl $0x00000FFF, %edx			// page offset
-
-		/* add entry */
-		orl  $(KPAGE_FLAGS), %esi
-		movl %esi, (%edi)
-
-		/* put virtual address of mmap in ebx */
-		movl %ecx, %ebx
-		shl  $12, %ebx
-		orl  $(KERNEL_VBASE), %ebx
-		orl  %edx, %ebx
-
-		/* see if mmap spans more than one page */
-		cmp $(PAGE_SIZE), %eax
-		jge install_page_directory
-
-		inc  %ecx
-		addl $4, %edi
-		movl 48(%ebx), %esi
-		movl %esi, %edx
-		addl %eax, %edx
-		addl $(PAGE_SIZE), %esi
-	map_mmap:
-		cmp $(1024), %ecx
-		jge out_of_memory
-		cmp %esi, %edi
-		jge install_page_directory
-	
-		movl %esi, (%edi)
-		orl  $(KPAGE_FLAGS), (%edi)
-
-		addl $(PAGE_SIZE), %esi
-		addl $4, %edi
-		inc  %ecx
-		jmp map_mmap
-		
-	no_mmap:
-		movl $0, %ebx 			// ebx = NULL
-
-	install_page_directory:
 		/* Install page directory */
 		movl $(PHYS_ADDR(kernel_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory)
 		movl $(PHYS_ADDR(kernel_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (KPAGE_DIR_INDEX * 4)
@@ -159,9 +109,11 @@
 		mov $stack_top, %esp
 		mov $stack_bottom, %ebp
 
-		push %eax
-		push %ebx
+		push %esi /* mmap_length */
+		push %edi /* mmap_addr */
 		call EXT_C (arch_init)
+		addl $8, %esp
+
 		call EXT_C (kmain)
 		
 		/* kmain should never return and this should be unreachable */
