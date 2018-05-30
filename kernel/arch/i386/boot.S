@@ -52,32 +52,33 @@
 
 	_start:
 		mov $(PHYS_ADDR(stack_top)), %esp
+		mov $(PHYS_ADDR(stack_bottom)), %ebp
 
 		push %eax
 		push %ebx
+
 		call _kpage_init
+
 		movl %eax, %ecx
-		pop %ebx
-		pop %eax
+
 		movl $4, %edx
 		imul %ecx, %edx
 		movl $(PHYS_ADDR(kernel_page_table)), %edi
 		addl %edx, %edi
 
-		/* Add entry for video memory */
-		movl $(VIDEO_MEMORY), %edx
-		orl  $(KPAGE_FLAGS), %edx
-		movl %edx, (%edi)
+		push %ecx
+		push %eax
+		push $(VIDEO_MEMORY)
+		call _kpage_insert
+		addl $8, %esp
 
-		/* Calculate virtual address of video memory */
-		/* video memory is page aligned so their is no offset */
-		movl $(PHYS_ADDR(video_memory)), %esi	// initialize video_memory for tty.c
-		movl $(KERNEL_VBASE), (%esi)		// page dir index
-		movl %ecx, %edx
-		shl  $12, %edx
-		orl  %edx, (%esi)			// page table index
+		movl $(PHYS_ADDR(video_memory)), %esi
+		movl %eax, (%esi)
 
-		/* Increment index and table pointer*/
+		pop %ecx
+		pop %ebx
+		pop %eax
+
 		inc  %ecx
 		addl $4, %edi
 
@@ -156,6 +157,7 @@
 	higher_half:
 		/* Set up the stack */
 		mov $stack_top, %esp
+		mov $stack_bottom, %ebp
 
 		push %eax
 		push %ebx
