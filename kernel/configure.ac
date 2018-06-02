@@ -25,6 +25,18 @@ AM_PROG_AS
 AC_PROG_RANLIB
 AM_PROG_AR
 
+AC_CHECK_HEADERS([limits.h stddef.h stdint.h stdarg.h])
+
+AC_C_INLINE
+AC_TYPE_SIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_UINT8_T
+AC_CHECK_TYPES([ptrdiff_t])
+
+AC_CHECK_LIB(gcc, __umoddi3)
+
 AC_CONFIG_FILES([Makefile
 		 arch/Makefile
 		 arch/i386/Makefile])

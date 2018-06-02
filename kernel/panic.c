@@ -13,6 +13,6 @@ panic (const char *format, ...)
   va_end (ap);
 
   for (;;)
-    ;;
+    ;
   __builtin_unreachable();
 }
