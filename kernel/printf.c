@@ -38,44 +38,22 @@ printf (const char *format, ...)
 #define WIDTH       (1 << 14)
 #define UPPERCASE   (1 << 15)
 
-int ret;
-int err;
-
-/**
- * Print a character to the screen or return EOF on error.
- * 
- * @param character         Character to pass to putchar
- * @return                  0 on success; EOF on error
- */
-static inline int
-__out (char character)
-{
-  if (err)
-    return EOF;
-
-  if (ret == INT_MAX)
-    return EOF;
-
-  if (EOF == putchar (character))
-    {
-      err = 1;
-      return EOF;
-    }
-
-  ret++;
-  return 0;
-}
+#define BUF_MAX     (512)
 
 int
 vprintf (const char *format, va_list ap)
 {
-  ret = 0;
-  err = 0;
+  int ret = 0;
 
-#define __print(x) \
-  do { if (__out (x)) return ret; } while (0)
-#define BUF_MAX         (512)
-  char buf[BUF_MAX];
+#define __print(x)                      \
+    do {                                \
+        if (ret == INT_MAX)             \
+            return ret;                 \
+        if (EOF == putchar ((x)))       \
+            return ret;                 \
+        ret ++;                         \
+    } while (0)
+
 
   while ((*format) != '\0')
     {
@@ -331,6 +309,7 @@ vprintf (const char *format, va_list ap)
                 else
                   {
                     /* write digits to buf backwards */
+                    char buf[BUF_MAX];
                     int len = 0;
                     do
                       {
@@ -352,7 +331,7 @@ vprintf (const char *format, va_list ap)
                         int zeros = (width - len);
                         if (flags & HASH)
                           zeros -= (base == 16) ? 2 : 1;
-                        for (; (zeros > 0) && (len < BUF_MAX); zeros --)
+                        for (; (zeros > 0) && (len < BUF_MAX); zeros--)
                           buf[len++] = '0';
                       }
 
@@ -397,7 +376,7 @@ vprintf (const char *format, va_list ap)
 
                     /* Pad with spaces */
                     if (flags & LEFT)
-                      for (int i = len; i < width; i ++)
+                      for (int i = len; i < width; i++)
                         __print (' ');
                   }
                 break;

@@ -121,7 +121,7 @@ am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
 am__v_at_0 = @
 am__v_at_1 = 
 DEFAULT_INCLUDES = -I.
-depcomp = $(SHELL) $(top_srcdir)/../depcomp
+depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -180,11 +180,9 @@ ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
 DIST_SUBDIRS = $(SUBDIRS)
-am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/../ar-lib \
-	$(top_srcdir)/../compile $(top_srcdir)/../config.guess \
-	$(top_srcdir)/../config.sub $(top_srcdir)/../depcomp \
-	$(top_srcdir)/../install-sh $(top_srcdir)/../missing AUTHORS \
-	COPYING ChangeLog INSTALL NEWS README
+am__DIST_COMMON = $(srcdir)/Makefile.in AUTHORS COPYING ChangeLog \
+	INSTALL NEWS README ar-lib compile config.guess config.sub \
+	depcomp install-sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -227,21 +225,21 @@ distuninstallcheck_listfiles = find . -type f -print
 am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/jake/projects/jkernel/missing aclocal-1.15
+ACLOCAL = ${SHELL} /home/jake/Projects/jkernel/kernel/missing aclocal-1.15
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = i686-elf-ar
 ARCHDIR = i386
-AUTOCONF = ${SHELL} /home/jake/projects/jkernel/missing autoconf
-AUTOHEADER = ${SHELL} /home/jake/projects/jkernel/missing autoheader
-AUTOMAKE = ${SHELL} /home/jake/projects/jkernel/missing automake-1.15
+AUTOCONF = ${SHELL} /home/jake/Projects/jkernel/kernel/missing autoconf
+AUTOHEADER = ${SHELL} /home/jake/Projects/jkernel/kernel/missing autoheader
+AUTOMAKE = ${SHELL} /home/jake/Projects/jkernel/kernel/missing automake-1.15
 AWK = gawk
 CC = /usr/local/bin/i686-elf-gcc
 CCAS = /usr/local/bin/i686-elf-gcc
 CCASDEPMODE = depmode=gcc3
-CCASFLAGS = -ggdb -O0 -fno-pic -ffreestanding -I/home/jake/projects/jkernel/kernel/include
+CCASFLAGS = -ggdb -O0 -fno-pic -ffreestanding -I/home/jake/Projects/jkernel/kernel/include
 CCDEPMODE = depmode=gcc3
-CFLAGS = -ggdb -O0 -fno-pic -ffreestanding -I/home/jake/projects/jkernel/kernel/include
+CFLAGS = -ggdb -O0 -fno-pic -ffreestanding -I/home/jake/Projects/jkernel/kernel/include
 CPP = /usr/local/bin/i686-elf-gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
@@ -262,7 +260,7 @@ LDFLAGS = -ffreestanding -nostdlib
 LIBOBJS = 
 LIBS = -lgcc 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/jake/projects/jkernel/missing makeinfo
+MAKEINFO = ${SHELL} /home/jake/Projects/jkernel/kernel/missing makeinfo
 MKDIR_P = /bin/mkdir -p
 OBJEXT = o
 PACKAGE = jkernel
@@ -278,10 +276,10 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = i686-elf-strip
 VERSION = 0.0.1
-abs_builddir = /home/jake/projects/jkernel/kernel
-abs_srcdir = /home/jake/projects/jkernel/kernel
-abs_top_builddir = /home/jake/projects/jkernel/kernel
-abs_top_srcdir = /home/jake/projects/jkernel/kernel
+abs_builddir = /home/jake/Projects/jkernel/kernel
+abs_srcdir = /home/jake/Projects/jkernel/kernel
+abs_top_builddir = /home/jake/Projects/jkernel/kernel
+abs_top_srcdir = /home/jake/Projects/jkernel/kernel
 ac_ct_AR = 
 ac_ct_CC = 
 am__include = include
@@ -309,7 +307,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/jake/projects/jkernel/install-sh
+install_sh = ${SHELL} /home/jake/Projects/jkernel/kernel/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale

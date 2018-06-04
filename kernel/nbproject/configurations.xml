@@ -243,29 +243,10 @@
         </cTool>
       </folder>
       <item path="kmain.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="2">
           <incDir>
             <pElem>.</pElem>
-            <pElem>include</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>HAVE_LIBGCC=1</Elem>
-            <Elem>HAVE_LIMITS_H=1</Elem>
-            <Elem>HAVE_PTRDIFF_T=1</Elem>
-            <Elem>HAVE_STDARG_H=1</Elem>
-            <Elem>HAVE_STDDEF_H=1</Elem>
-            <Elem>HAVE_STDINT_H=1</Elem>
-            <Elem>HAVE_STDLIB_H=1</Elem>
-            <Elem>HAVE_UNISTD_H=1</Elem>
-            <Elem>PACKAGE="jkernel"</Elem>
-            <Elem>PACKAGE_BUGREPORT=""</Elem>
-            <Elem>PACKAGE_NAME="jkernel"</Elem>
-            <Elem>PACKAGE_STRING="jkernel 0.0.1"</Elem>
-            <Elem>PACKAGE_TARNAME="jkernel"</Elem>
-            <Elem>PACKAGE_URL=""</Elem>
-            <Elem>PACKAGE_VERSION="0.0.1"</Elem>
-            <Elem>VERSION="0.0.1"</Elem>
-          </preprocessorList>
         </cTool>
       </item>
       <item path="malloc.c" ex="false" tool="0" flavor2="3">
