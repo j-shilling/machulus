@@ -8,6 +8,7 @@
         <df name="i386">
           <df name=".deps">
           </df>
+          <in>acpi.c</in>
           <in>acpi.h</in>
           <in>arch-init.c</in>
           <in>boot.S</in>
@@ -17,7 +18,6 @@
           <in>kpage.S</in>
           <in>multiboot.S</in>
           <in>multiboot.h</in>
-          <in>page-frames.c</in>
           <in>paging.c</in>
           <in>paging.h</in>
           <in>tty.c</in>

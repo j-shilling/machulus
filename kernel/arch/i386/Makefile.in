@@ -107,7 +107,7 @@ lib_a_AR = $(AR) $(ARFLAGS)
 lib_a_LIBADD =
 am_lib_a_OBJECTS = boot.$(OBJEXT) kpage.$(OBJEXT) multiboot.$(OBJEXT) \
 	tty.$(OBJEXT) arch-init.$(OBJEXT) paging.$(OBJEXT) \
-	frames.$(OBJEXT) heap.$(OBJEXT)
+	frames.$(OBJEXT) heap.$(OBJEXT) acpi.$(OBJEXT)
 lib_a_OBJECTS = $(am_lib_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -281,7 +281,8 @@ lib_a_SOURCES = boot.S \
 		arch-init.c \
 		paging.c \
 		frames.c \
-		heap.c
+		heap.c \
+		acpi.c
 
 all: all-am
 
@@ -331,6 +332,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/acpi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/arch-init.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boot.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/frames.Po@am__quote@

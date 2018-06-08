@@ -6,4 +6,5 @@ lib_a_SOURCES = boot.S \
 		arch-init.c \
 		paging.c \
 		frames.c \
-		heap.c
+		heap.c \
+		acpi.c
