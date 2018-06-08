@@ -67,9 +67,9 @@
 
 		/* Initialize kernel page table */
 		call _kpage_init
+                movl %eax, %ebx // save return value
 
 		/* Insert mmap into page table */
-		movl %eax, %ebx // save return
 		push %eax // index
 		push %edi // addr
 		call _kpage_insert
@@ -96,7 +96,7 @@
 		movl $(PHYS_ADDR(kernel_page_directory)), %ecx
 		movl %ecx, %cr3
 
-	activate_paging:
+                /* activate_paging */
 		movl %cr0, %ecx
 		orl $(CR0_PAGING | CR0_WRITE_PROTECT), %ecx
 		movl %ecx, %cr0
@@ -119,7 +119,6 @@
 		/* kmain should never return and this should be unreachable */
 		cli
 
-	out_of_memory:
 	inf_loop:
 		hlt
 		jmp inf_loop
