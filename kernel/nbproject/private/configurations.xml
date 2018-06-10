@@ -15,8 +15,6 @@
           <in>frames.c</in>
           <in>frames.h</in>
           <in>heap.c</in>
-          <in>kpage.S</in>
-          <in>multiboot.S</in>
           <in>multiboot.h</in>
           <in>paging.c</in>
           <in>paging.h</in>

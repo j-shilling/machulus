@@ -7,7 +7,7 @@ static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
 
 /* initialized in boot.S */
-uint16_t *const video_memory;
+uint16_t *const video_memory = (uint16_t *)0xC00B8000;
 
 static const uint16_t vga_blank_entry = ' ' | 7 << 8;
 

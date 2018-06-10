@@ -105,9 +105,9 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 lib_a_AR = $(AR) $(ARFLAGS)
 lib_a_LIBADD =
-am_lib_a_OBJECTS = boot.$(OBJEXT) kpage.$(OBJEXT) multiboot.$(OBJEXT) \
-	tty.$(OBJEXT) arch-init.$(OBJEXT) paging.$(OBJEXT) \
-	frames.$(OBJEXT) heap.$(OBJEXT) acpi.$(OBJEXT)
+am_lib_a_OBJECTS = boot.$(OBJEXT) tty.$(OBJEXT) arch-init.$(OBJEXT) \
+	paging.$(OBJEXT) frames.$(OBJEXT) heap.$(OBJEXT) \
+	acpi.$(OBJEXT)
 lib_a_OBJECTS = $(am_lib_a_OBJECTS)
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
@@ -275,8 +275,6 @@ top_builddir = ../..
 top_srcdir = ../..
 noinst_LIBRARIES = lib.a
 lib_a_SOURCES = boot.S \
-		kpage.S \
-		multiboot.S \
 		tty.c \
 		arch-init.c \
 		paging.c \
@@ -337,8 +335,6 @@ include ./$(DEPDIR)/arch-init.Po
 include ./$(DEPDIR)/boot.Po
 include ./$(DEPDIR)/frames.Po
 include ./$(DEPDIR)/heap.Po
-include ./$(DEPDIR)/kpage.Po
-include ./$(DEPDIR)/multiboot.Po
 include ./$(DEPDIR)/paging.Po
 include ./$(DEPDIR)/tty.Po
 

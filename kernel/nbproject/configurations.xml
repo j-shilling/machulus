@@ -31,8 +31,6 @@
           <in>frames.c</in>
           <in>frames.h</in>
           <in>heap.c</in>
-          <in>kpage.S</in>
-          <in>multiboot.S</in>
           <in>multiboot.h</in>
           <in>paging.c</in>
           <in>paging.h</in>
@@ -116,10 +114,6 @@
       </item>
       <item path="arch/i386/heap.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="arch/i386/kpage.S" ex="false" tool="4" flavor2="0">
-      </item>
-      <item path="arch/i386/multiboot.S" ex="false" tool="4" flavor2="0">
-      </item>
       <item path="arch/i386/multiboot.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="arch/i386/paging.c" ex="false" tool="0" flavor2="0">
@@ -158,12 +152,11 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-ggdb -ffreestanding"/>
-        <element flagsID="1"
+        <element flagsID="0"
                  commonFlags="-mtune=generic -march=pentiumpro -g -g -g -O2 -O2 -O2 -fbuilding-libgcc -fpic -fexceptions -fnon-call-exceptions"/>
-        <element flagsID="2"
+        <element flagsID="1"
                  commonFlags="-mtune=generic -march=pentiumpro -ggdb -ffreestanding"/>
-        <element flagsID="3" commonFlags="-std=c11"/>
+        <element flagsID="2" commonFlags="-std=c11"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -187,115 +180,54 @@
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
-      <item path="arch/i386/acpi.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="0">
+      <item path="arch/i386/acpi.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
           <incDir>
             <pElem>arch/i386</pElem>
-            <pElem>include</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>HAVE_LIBGCC=1</Elem>
-            <Elem>HAVE_LIMITS_H=1</Elem>
-            <Elem>HAVE_PTRDIFF_T=1</Elem>
-            <Elem>HAVE_STDARG_H=1</Elem>
-            <Elem>HAVE_STDDEF_H=1</Elem>
-            <Elem>HAVE_STDINT_H=1</Elem>
-            <Elem>HAVE_STDLIB_H=1</Elem>
-            <Elem>HAVE_UNISTD_H=1</Elem>
-            <Elem>PACKAGE="jkernel"</Elem>
-            <Elem>PACKAGE_BUGREPORT=""</Elem>
-            <Elem>PACKAGE_NAME="jkernel"</Elem>
-            <Elem>PACKAGE_STRING="jkernel 0.0.1"</Elem>
-            <Elem>PACKAGE_TARNAME="jkernel"</Elem>
-            <Elem>PACKAGE_URL=""</Elem>
-            <Elem>PACKAGE_VERSION="0.0.1"</Elem>
-            <Elem>VERSION="0.0.1"</Elem>
-          </preprocessorList>
         </cTool>
       </item>
       <item path="arch/i386/arch-init.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
             <pElem>arch/i386</pElem>
-            <pElem>include</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>HAVE_LIBGCC=1</Elem>
-            <Elem>HAVE_LIMITS_H=1</Elem>
-            <Elem>HAVE_PTRDIFF_T=1</Elem>
-            <Elem>HAVE_STDARG_H=1</Elem>
-            <Elem>HAVE_STDDEF_H=1</Elem>
-            <Elem>HAVE_STDINT_H=1</Elem>
-            <Elem>HAVE_STDLIB_H=1</Elem>
-            <Elem>HAVE_UNISTD_H=1</Elem>
-            <Elem>PACKAGE="jkernel"</Elem>
-            <Elem>PACKAGE_BUGREPORT=""</Elem>
-            <Elem>PACKAGE_NAME="jkernel"</Elem>
-            <Elem>PACKAGE_STRING="jkernel 0.0.1"</Elem>
-            <Elem>PACKAGE_TARNAME="jkernel"</Elem>
-            <Elem>PACKAGE_URL=""</Elem>
-            <Elem>PACKAGE_VERSION="0.0.1"</Elem>
-            <Elem>VERSION="0.0.1"</Elem>
-          </preprocessorList>
         </cTool>
       </item>
       <item path="arch/i386/frames.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
             <pElem>arch/i386</pElem>
-            <pElem>include</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>HAVE_LIBGCC=1</Elem>
-            <Elem>HAVE_LIMITS_H=1</Elem>
-            <Elem>HAVE_PTRDIFF_T=1</Elem>
-            <Elem>HAVE_STDARG_H=1</Elem>
-            <Elem>HAVE_STDDEF_H=1</Elem>
-            <Elem>HAVE_STDINT_H=1</Elem>
-            <Elem>HAVE_STDLIB_H=1</Elem>
-            <Elem>HAVE_UNISTD_H=1</Elem>
-            <Elem>PACKAGE="jkernel"</Elem>
-            <Elem>PACKAGE_BUGREPORT=""</Elem>
-            <Elem>PACKAGE_NAME="jkernel"</Elem>
-            <Elem>PACKAGE_STRING="jkernel 0.0.1"</Elem>
-            <Elem>PACKAGE_TARNAME="jkernel"</Elem>
-            <Elem>PACKAGE_URL=""</Elem>
-            <Elem>PACKAGE_VERSION="0.0.1"</Elem>
-            <Elem>VERSION="0.0.1"</Elem>
-          </preprocessorList>
         </cTool>
       </item>
       <item path="arch/i386/heap.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
             <pElem>arch/i386</pElem>
-            <pElem>include</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>HAVE_LIBGCC=1</Elem>
-            <Elem>HAVE_LIMITS_H=1</Elem>
-            <Elem>HAVE_PTRDIFF_T=1</Elem>
-            <Elem>HAVE_STDARG_H=1</Elem>
-            <Elem>HAVE_STDDEF_H=1</Elem>
-            <Elem>HAVE_STDINT_H=1</Elem>
-            <Elem>HAVE_STDLIB_H=1</Elem>
-            <Elem>HAVE_UNISTD_H=1</Elem>
-            <Elem>PACKAGE="jkernel"</Elem>
-            <Elem>PACKAGE_BUGREPORT=""</Elem>
-            <Elem>PACKAGE_NAME="jkernel"</Elem>
-            <Elem>PACKAGE_STRING="jkernel 0.0.1"</Elem>
-            <Elem>PACKAGE_TARNAME="jkernel"</Elem>
-            <Elem>PACKAGE_URL=""</Elem>
-            <Elem>PACKAGE_VERSION="0.0.1"</Elem>
-            <Elem>VERSION="0.0.1"</Elem>
-          </preprocessorList>
         </cTool>
       </item>
       <item path="arch/i386/paging.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
+          <incDir>
+            <pElem>arch/i386</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="arch/i386/tty.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>arch/i386</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <folder path="0/arch">
+        <cTool>
           <incDir>
             <pElem>arch/i386</pElem>
             <pElem>include</pElem>
@@ -319,15 +251,7 @@
             <Elem>VERSION="0.0.1"</Elem>
           </preprocessorList>
         </cTool>
-      </item>
-      <item path="arch/i386/tty.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>include</pElem>
-            <pElem>arch/i386</pElem>
-          </incDir>
-        </cTool>
-      </item>
+      </folder>
       <folder path="libgcc">
         <cTool>
           <incDir>
@@ -341,35 +265,35 @@
         </cTool>
       </folder>
       <item path="kmain.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
+        <cTool flags="1">
           <incDir>
             <pElem>.</pElem>
           </incDir>
         </cTool>
       </item>
       <item path="malloc.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
+        <cTool flags="1">
           <incDir>
             <pElem>.</pElem>
           </incDir>
         </cTool>
       </item>
       <item path="panic.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
+        <cTool flags="1">
           <incDir>
             <pElem>.</pElem>
           </incDir>
         </cTool>
       </item>
       <item path="printf.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
+        <cTool flags="1">
           <incDir>
             <pElem>.</pElem>
           </incDir>
         </cTool>
       </item>
       <item path="test.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
+        <cTool flags="2">
         </cTool>
       </item>
     </conf>
