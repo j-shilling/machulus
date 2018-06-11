@@ -6,6 +6,7 @@
 #include "frames.h"
 #include "multiboot.h"
 #include "acpi.h"
+#include "gdt.h"
 
 extern void tty_init (void);
 
@@ -24,4 +25,5 @@ arch_init(multiboot_info_t *mbi, uint32_t magic)
   /* Initialize tty output */
   tty_init();
   acpi_init();
+  gdt_init();
 }

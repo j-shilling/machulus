@@ -107,7 +107,7 @@ lib_a_AR = $(AR) $(ARFLAGS)
 lib_a_LIBADD =
 am_lib_a_OBJECTS = boot.$(OBJEXT) tty.$(OBJEXT) arch-init.$(OBJEXT) \
 	paging.$(OBJEXT) frames.$(OBJEXT) heap.$(OBJEXT) \
-	acpi.$(OBJEXT)
+	acpi.$(OBJEXT) gdt.$(OBJEXT)
 lib_a_OBJECTS = $(am_lib_a_OBJECTS)
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
@@ -280,7 +280,8 @@ lib_a_SOURCES = boot.S \
 		paging.c \
 		frames.c \
 		heap.c \
-		acpi.c
+		acpi.c \
+		gdt.c
 
 all: all-am
 
@@ -334,6 +335,7 @@ include ./$(DEPDIR)/acpi.Po
 include ./$(DEPDIR)/arch-init.Po
 include ./$(DEPDIR)/boot.Po
 include ./$(DEPDIR)/frames.Po
+include ./$(DEPDIR)/gdt.Po
 include ./$(DEPDIR)/heap.Po
 include ./$(DEPDIR)/paging.Po
 include ./$(DEPDIR)/tty.Po

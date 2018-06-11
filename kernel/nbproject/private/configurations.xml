@@ -14,6 +14,8 @@
           <in>boot.S</in>
           <in>frames.c</in>
           <in>frames.h</in>
+          <in>gdt.c</in>
+          <in>gdt.h</in>
           <in>heap.c</in>
           <in>multiboot.h</in>
           <in>paging.c</in>
