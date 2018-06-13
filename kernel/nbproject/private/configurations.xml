@@ -17,6 +17,7 @@
           <in>gdt.c</in>
           <in>gdt.h</in>
           <in>heap.c</in>
+          <in>mp.c</in>
           <in>multiboot.h</in>
           <in>paging.c</in>
           <in>paging.h</in>

@@ -33,6 +33,7 @@
           <in>gdt.c</in>
           <in>gdt.h</in>
           <in>heap.c</in>
+          <in>mp.c</in>
           <in>multiboot.h</in>
           <in>paging.c</in>
           <in>paging.h</in>
@@ -119,6 +120,8 @@
       <item path="arch/i386/gdt.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="arch/i386/heap.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="arch/i386/mp.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="arch/i386/multiboot.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -210,15 +213,44 @@
           </incDir>
         </cTool>
       </item>
-      <item path="arch/i386/gdt.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="arch/i386/gdt.h" ex="false" tool="3" flavor2="0">
+      <item path="arch/i386/gdt.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>arch/i386</pElem>
+          </incDir>
+        </cTool>
       </item>
       <item path="arch/i386/heap.c" ex="false" tool="0" flavor2="3">
         <cTool flags="1">
           <incDir>
             <pElem>arch/i386</pElem>
           </incDir>
+        </cTool>
+      </item>
+      <item path="arch/i386/mp.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="2">
+          <incDir>
+            <pElem>arch/i386</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>HAVE_LIBGCC=1</Elem>
+            <Elem>HAVE_LIMITS_H=1</Elem>
+            <Elem>HAVE_PTRDIFF_T=1</Elem>
+            <Elem>HAVE_STDARG_H=1</Elem>
+            <Elem>HAVE_STDDEF_H=1</Elem>
+            <Elem>HAVE_STDINT_H=1</Elem>
+            <Elem>HAVE_STDLIB_H=1</Elem>
+            <Elem>HAVE_UNISTD_H=1</Elem>
+            <Elem>PACKAGE="jkernel"</Elem>
+            <Elem>PACKAGE_BUGREPORT=""</Elem>
+            <Elem>PACKAGE_NAME="jkernel"</Elem>
+            <Elem>PACKAGE_STRING="jkernel 0.0.1"</Elem>
+            <Elem>PACKAGE_TARNAME="jkernel"</Elem>
+            <Elem>PACKAGE_URL=""</Elem>
+            <Elem>PACKAGE_VERSION="0.0.1"</Elem>
+            <Elem>VERSION="0.0.1"</Elem>
+          </preprocessorList>
         </cTool>
       </item>
       <item path="arch/i386/paging.c" ex="false" tool="0" flavor2="3">

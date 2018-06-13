@@ -1,90 +1,74 @@
 #include <stddef.h>
 
 #include <kernel/panic.h>
+#include <stdint.h>
 
 #include "paging.h"
 #include "frames.h"
 #include "multiboot.h"
 
+#define	  __page_align(x)  (((x) + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1))
+
 extern uint32_t _kernel_start;
 extern uint32_t _kernel_end;
 
+uintptr_t kernel_phys_start;
+uintptr_t kernel_phys_end;
+
+uintptr_t mmap_addr;
+uintptr_t mmap_end;
+
+uintptr_t block_addr;
+uintptr_t block_end;
+
 int sp = -1;
-uint32_t *const frame_stack = (uint32_t*)(FRAME_STACK_VBASE);
+uintptr_t *frame_stack = (uintptr_t *)(FRAME_STACK_VBASE);
 
-static inline int
-__blocks_overlap (uint32_t x, size_t x_len, uint32_t y, size_t y_len)
+static int
+__next_block (void)
 {
-  /* is x in y? */
-  if ((x >= y) && (x < (y + y_len)))
-    return 1;
-  /* is y in x? */
-  if ((y >= x) && (y < (x + x_len)))
-    return 1;
-
-  return 0;
-}
-
-void
-frames_init (uint32_t mmap_addr, uint32_t mmap_length)
-{
-  if (0 == mmap_addr)
-    panic ("Boot loader did not give us a memory map");
-
-  uint32_t mmap_start = mmap_addr;
-  uint32_t mmap_end   = (mmap_addr + mmap_length);
-  uint32_t kstart     = (uint32_t)(&_kernel_start) - KERNEL_VBASE;
-  uint32_t kend       = (uint32_t)(&_kernel_end)   - KERNEL_VBASE;
-
-  /* Hold the frames used by the memory map itself */
-  uint32_t tmp_frames[(mmap_length / PAGE_SIZE) + 1];
-  size_t   n_tmp_frames = 0;
-
   while (mmap_addr < mmap_end)
     {
       multiboot_memory_map_t *mmap = (multiboot_memory_map_t *)mmap_addr;
 
       if ((MULTIBOOT_MEMORY_AVAILABLE == mmap->type) /* memory is available */
-	  && (mmap->addr <= 0xFFFFFFFF))             /* memory is a 32-bit address */
+          && (mmap->addr > kernel_phys_end)          /* memory is after the kernel */
+	  && (mmap->addr <= UINTPTR_MAX))            /* memory is addressable */
 	{
-	  /* Get end of block */
-	  uint32_t block_end = ((mmap->addr + mmap->len) < 0xFFFFFFFF) ?
-	    (uint32_t)(mmap->addr + mmap->len) : 0xFFFFFFFF;
-	  /* Get first frame aligned address */
-	  uint32_t frame = (mmap->addr & 0x00000FFF) ?
-	    (mmap->addr & 0xFFFFF000) + 0x1000 : mmap->addr;
-
-	  while ((frame + PAGE_SIZE) < block_end)
-	    {
-	      /* ignore anything that overlaps the kernel */
-	      if (!__blocks_overlap (frame, PAGE_SIZE, kstart, (kend - kstart)))
-		{
-		  /* we cannot free mmap frames while it is being read. save
-		   * for later */
-		  if (__blocks_overlap (frame, PAGE_SIZE, mmap_start, mmap_length))
-		    {
-		      tmp_frames[n_tmp_frames++] = frame;
-		    }
-		  else
-		    {
-		      frames_free (frame);
-		    }
-		}
-
-	      frame += PAGE_SIZE;
-	    }
-	}
+          block_addr = (uintptr_t) __page_align(mmap->addr);
+          if ((mmap->len > UINTPTR_MAX) || ((UINTPTR_MAX - mmap->len) < mmap->addr))
+            block_end = UINTPTR_MAX;
+          else
+            block_end = block_addr + mmap->len;
+          
+          return 0;
+        }
 
       mmap_addr += (mmap->size + sizeof (mmap->size));
     }
-
-  /* we are no done with mmap and can free those frames */
-  for (size_t i = 0; i < n_tmp_frames; i ++)
-    frames_free (tmp_frames[i]);
+  
+  return 1;
 }
 
 void
-frames_free (uint32_t frame)
+frames_init (uint32_t _mmap_addr, uint32_t _mmap_length)
+{
+  kernel_phys_start = (uintptr_t)(&_kernel_start) - KERNEL_VBASE;
+  kernel_phys_end   = (uintptr_t)(&_kernel_end) - KERNEL_VBASE;
+  
+  if (0 == _mmap_addr)
+    panic ("Boot loader did not give us a memory map");
+  if (mmap_addr > kernel_phys_start)
+    panic ("Boot loader put the memory map after the kernel");
+  
+  mmap_addr = (uintptr_t) _mmap_addr;
+  mmap_end  = mmap_addr + _mmap_length;
+
+  __next_block();
+}
+
+void
+frames_free (uintptr_t frame)
 {
   frame &= 0xFFFFF000;
 
@@ -99,12 +83,20 @@ frames_free (uint32_t frame)
     }
 }
 
-uint32_t
+uintptr_t
 frames_alloc (void)
 {
   if (sp == -1)
     {
-      return 1; /* 1 is an invalid frame */
+      while ((block_end - PAGE_SIZE) < block_addr)
+        {
+          if (__next_block())
+            return 1; /* Out of memory */
+        }
+      
+      uintptr_t ret = block_addr;
+      block_addr += PAGE_SIZE;
+      return ret;
     }
   if (0 == (sp % 1024))
     {
