@@ -10,7 +10,7 @@ extern uint32_t _kernel_start;
 extern uint32_t _kernel_end;
 
 int sp = -1;
-uint32_t *const frame_stack = (uint32_t*)(FRAME_STACK_VBASE);
+frame_t *const frame_stack = (frame_t*)(FRAME_STACK_VBASE);
 
 static inline int
 __blocks_overlap (uint32_t x, size_t x_len, uint32_t y, size_t y_len)
@@ -84,14 +84,17 @@ frames_init (uint32_t mmap_addr, uint32_t mmap_length)
 }
 
 void
-frames_free (uint32_t frame)
+frames_free (frame_t frame)
 {
   frame &= 0xFFFFF000;
 
   sp ++;
   if (0 == (sp % 1024))
     {
-      paging_map_frame_stack ((uint32_t)(frame_stack + sp), frame);
+      int ret = page_map (frame_stack + sp, frame);
+      if (ret != 0)
+        panic ("Could not map to frame stack (%p). Error code %d",
+               frame_stack + sp, ret);
     }
   else
     {

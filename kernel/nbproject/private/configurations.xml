@@ -32,6 +32,7 @@
         <df name="sys">
           <in>cdefs.h</in>
         </df>
+        <in>errno.h</in>
         <in>stdio.h</in>
         <in>stdlib.h</in>
         <in>unistd.h</in>

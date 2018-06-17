@@ -10,6 +10,7 @@
 
 #define PAGE_FLAG_READ_WRITE	(1 << 1) /* Page is read-write accessible */
 #define PAGE_FLAG_PRESENT	(1 << 0) /* Page is present */
+#define PAGE_FLAG_USER          (1 << 2) /* Page is available in user space */
 
 #define KPAGE_FLAGS		(PAGE_FLAG_PRESENT | PAGE_FLAG_READ_WRITE)
 
@@ -17,6 +18,7 @@
 
 #include <sys/cdefs.h>
 #include <stdint.h>
+#include "frames.h"
 
 __BEGIN_DECLS
 
@@ -25,6 +27,9 @@ uint32_t paging_unmap_frame_stack (uint32_t);
 
 int  paging_grow_heap (int);
 void paging_shrink_heap (int);
+
+int page_map (void *, frame_t);
+frame_t page_unmap (void *);
 
 __END_DECLS
 
