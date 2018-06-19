@@ -105,9 +105,9 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 lib_a_AR = $(AR) $(ARFLAGS)
 lib_a_LIBADD =
-am_lib_a_OBJECTS = boot.$(OBJEXT) kpage.$(OBJEXT) multiboot.$(OBJEXT) \
-	tty.$(OBJEXT) arch-init.$(OBJEXT) paging.$(OBJEXT) \
-	frames.$(OBJEXT) heap.$(OBJEXT)
+am_lib_a_OBJECTS = boot.$(OBJEXT) tty.$(OBJEXT) arch-init.$(OBJEXT) \
+	paging.$(OBJEXT) frames.$(OBJEXT) heap.$(OBJEXT) \
+	acpi.$(OBJEXT) gdt.$(OBJEXT)
 lib_a_OBJECTS = $(am_lib_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -275,13 +275,13 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 noinst_LIBRARIES = lib.a
 lib_a_SOURCES = boot.S \
-		kpage.S \
-		multiboot.S \
 		tty.c \
 		arch-init.c \
 		paging.c \
 		frames.c \
-		heap.c
+		heap.c \
+		acpi.c \
+		gdt.c
 
 all: all-am
 
@@ -331,12 +331,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/acpi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/arch-init.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boot.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/frames.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gdt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/heap.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kpage.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/multiboot.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/paging.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tty.Po@am__quote@
 

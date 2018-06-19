@@ -15,35 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* 
+ * File:   gdt.h
+ * Author: Jake Shilling <shilling.jake@gmail.com>
+ *
+ * Created on June 11, 2018, 11:54 AM
+ */
+
 #pragma once
 
 #include <sys/cdefs.h>
-#include <stdint.h>
 
 __BEGIN_DECLS
-
-struct _rsdp_descriptor
-{
-  char signature[8];
-  uint8_t checksum;
-  char oemid[6];
-  uint8_t revision;
-  uint32_t rsdt_addr;
-} __attribute__ ((packed));
-
-typedef struct _rsdp_descriptor rsdp_descriptor_t;
-
-struct _rsdp_descriptor_20
-{
-  rsdp_descriptor_t rsdp_descriptor;
-  uint32_t length;
-  uint64_t xsdt_addr;
-  uint8_t checksum;
-  uint8_t reserved[3];
-} __attribute__ ((packed));
-
-typedef struct _rsdp_descriptor_20 rsdp_descriptor_20_t;
-
-void acpi_init (void);
+        
+void gdt_init (void);
 
 __END_DECLS

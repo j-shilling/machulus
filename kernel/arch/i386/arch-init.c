@@ -1,5 +1,3 @@
-#include <kernel/panic.h>
-#include <stddef.h>
 #include <stdint.h>
 #include <errno.h>
 

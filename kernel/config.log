@@ -116,10 +116,17 @@ conftest.c:16:23: warning: implicit declaration of function 'fclose' [-Wimplicit
   return ferror (f) || fclose (f) != 0;
                        ^~~~~~
 /usr/local/lib/gcc/i686-elf/7.3.0/../../../../i686-elf/bin/ld: warning: cannot find entry symbol _start; defaulting to 0000000008048054
+<<<<<<< HEAD
 /tmp/cc0sAMg0.o: In function `main':
 /home/jake/projects/jkernel/kernel/conftest.c:15: undefined reference to `fopen'
 /home/jake/projects/jkernel/kernel/conftest.c:16: undefined reference to `ferror'
 /home/jake/projects/jkernel/kernel/conftest.c:16: undefined reference to `fclose'
+=======
+/tmp/ccRW3uHx.o: In function `main':
+/home/jake/Projects/jkernel/kernel/conftest.c:15: undefined reference to `fopen'
+/home/jake/Projects/jkernel/kernel/conftest.c:16: undefined reference to `ferror'
+/home/jake/Projects/jkernel/kernel/conftest.c:16: undefined reference to `fclose'
+>>>>>>> a28ef545fe77c83d232051268679f5a2f4803b00
 collect2: error: ld returned 1 exit status
 configure:3393: $? = 1
 configure:3400: ./conftest

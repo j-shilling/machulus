@@ -2,6 +2,7 @@
 
 #define KERNEL_VBASE		(0xC0000000)
 #define PHYS_ADDR(x)		((x) - KERNEL_VBASE)
+#define VIRT_ADDR(x)            ((x) + KERNEL_VBASE)
 
 #define FRAME_STACK_VBASE	(KERNEL_VBASE + 0x10000000)
 #define KHEAP_VBASE		(KERNEL_VBASE + 0x20000000)

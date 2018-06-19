@@ -2,12 +2,14 @@
 #include <errno.h>
 
 #include <kernel/panic.h>
+#include <stdint.h>
 
 #include "paging.h"
 #include "frames.h"
 #include "multiboot.h"
 
 #define FRAME_MAX   (0xFFFFF000)
+#define	  __page_align(x)  (((x) + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1))
 
 extern uint32_t _kernel_start;
 extern uint32_t _kernel_end;
