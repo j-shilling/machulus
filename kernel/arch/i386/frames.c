@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <errno.h>
 
 #include <kernel/panic.h>
 
@@ -6,115 +7,109 @@
 #include "frames.h"
 #include "multiboot.h"
 
+#define FRAME_MAX   (0xFFFFF000)
+
 extern uint32_t _kernel_start;
 extern uint32_t _kernel_end;
 
-int sp = -1;
-frame_t *const frame_stack = (frame_t*)(FRAME_STACK_VBASE);
+static int sp = -1;
+static frame_t * const frame_stack = (frame_t *) (FRAME_STACK_VBASE);
+
+uintptr_t kernel_phys_end;
+
+uintptr_t mmap_start;
+uintptr_t mmap_addr;
+uintptr_t mmap_end;
+
+uintptr_t block_addr;
+uintptr_t block_end;
 
 static inline int
-__blocks_overlap (uint32_t x, size_t x_len, uint32_t y, size_t y_len)
+__next_block (void)
 {
-  /* is x in y? */
-  if ((x >= y) && (x < (y + y_len)))
-    return 1;
-  /* is y in x? */
-  if ((y >= x) && (y < (x + x_len)))
-    return 1;
-
-  return 0;
-}
-
-void
-frames_init (uint32_t mmap_addr, uint32_t mmap_length)
-{
-  if (0 == mmap_addr)
-    panic ("Boot loader did not give us a memory map");
-
-  uint32_t mmap_start = mmap_addr;
-  uint32_t mmap_end   = (mmap_addr + mmap_length);
-  uint32_t kstart     = (uint32_t)(&_kernel_start) - KERNEL_VBASE;
-  uint32_t kend       = (uint32_t)(&_kernel_end)   - KERNEL_VBASE;
-
-  /* Hold the frames used by the memory map itself */
-  uint32_t tmp_frames[(mmap_length / PAGE_SIZE) + 1];
-  size_t   n_tmp_frames = 0;
-
   while (mmap_addr < mmap_end)
     {
-      multiboot_memory_map_t *mmap = (multiboot_memory_map_t *)mmap_addr;
+      multiboot_memory_map_t *mmap = (multiboot_memory_map_t *) mmap_addr;
 
-      if ((MULTIBOOT_MEMORY_AVAILABLE == mmap->type) /* memory is available */
-	  && (mmap->addr <= 0xFFFFFFFF))             /* memory is a 32-bit address */
-	{
-	  /* Get end of block */
-	  uint32_t block_end = ((mmap->addr + mmap->len) < 0xFFFFFFFF) ?
-	    (uint32_t)(mmap->addr + mmap->len) : 0xFFFFFFFF;
-	  /* Get first frame aligned address */
-	  uint32_t frame = (mmap->addr & 0x00000FFF) ?
-	    (mmap->addr & 0xFFFFF000) + 0x1000 : mmap->addr;
+      if ((MULTIBOOT_MEMORY_AVAILABLE == mmap->type)
+          /* memory is available */
+          && (mmap->addr <= FRAME_MAX))
+        /* memory is addressable */
+        {
+          /* Set block_* vars */
+          block_addr = (mmap->addr & (PAGE_SIZE - 1)) ?
+                  ((mmap->addr & ~(PAGE_SIZE - 1)) + PAGE_SIZE) :
+                  (mmap->addr);
+          block_end = ((UINTPTR_MAX - mmap->len) < mmap->addr) ?
+                  (UINTPTR_MAX) :
+                  (mmap->addr + mmap->len);
 
-	  while ((frame + PAGE_SIZE) < block_end)
-	    {
-	      /* ignore anything that overlaps the kernel */
-	      if (!__blocks_overlap (frame, PAGE_SIZE, kstart, (kend - kstart)))
-		{
-		  /* we cannot free mmap frames while it is being read. save
-		   * for later */
-		  if (__blocks_overlap (frame, PAGE_SIZE, mmap_start, mmap_length))
-		    {
-		      tmp_frames[n_tmp_frames++] = frame;
-		    }
-		  else
-		    {
-		      frames_free (frame);
-		    }
-		}
+          /* Check that this block is after the kernel */
+          if (block_addr < kernel_phys_end)
+            block_addr = (kernel_phys_end & ~(PAGE_SIZE - 1)) + PAGE_SIZE;
 
-	      frame += PAGE_SIZE;
-	    }
-	}
+          /* Check that this block works for a frame */
+          if ((block_end - PAGE_SIZE) >= block_addr)
+            {
+              mmap_addr += (mmap->size + sizeof (mmap->size));
+              return 0;
+            }
+        }
 
       mmap_addr += (mmap->size + sizeof (mmap->size));
     }
 
-  /* we are no done with mmap and can free those frames */
-  for (size_t i = 0; i < n_tmp_frames; i ++)
-    frames_free (tmp_frames[i]);
+  /* Out of memory, no next block */
+  return 1;
 }
 
 void
-frames_free (frame_t frame)
+frame_init (uint32_t _mmap_addr, uint32_t mmap_length)
 {
-  frame &= 0xFFFFF000;
+  if (0 == _mmap_addr)
+    panic ("Boot loader did not give us a memory map");
 
-  sp ++;
-  if (0 == (sp % 1024))
-    {
-      int ret = page_map (frame_stack + sp, frame);
-      if (ret != 0)
-        panic ("Could not map to frame stack (%p). Error code %d",
-               frame_stack + sp, ret);
-    }
-  else
-    {
-      frame_stack[sp] = frame;
-    }
+  kernel_phys_end = (uintptr_t) (&_kernel_end) - KERNEL_VBASE;
+
+  mmap_addr = (uintptr_t) _mmap_addr;
+  mmap_start = mmap_addr;
+  mmap_end = mmap_addr + mmap_length;
+
+  if (__next_block ())
+    panic ("Could not find an initial free memory block");
 }
 
-uint32_t
-frames_alloc (void)
+int
+frame_free (frame_t frame)
 {
-  if (sp == -1)
-    {
-      return 1; /* 1 is an invalid frame */
-    }
-  if (0 == (sp % 1024))
-    {
-      return paging_unmap_frame_stack ((uint32_t)(frame_stack + sp));
-    }
+  if (!__frame_valid (frame))
+    return EINVAL;
+
+  sp++;
+  if (0 == (sp % (PAGE_SIZE / sizeof (frame_t))))
+    return page_map (frame_stack + sp, frame);
   else
+    frame_stack[sp] = frame;
+
+  return 0;
+}
+
+frame_t
+frame_alloc (void)
+{
+  if (0 == (sp % (PAGE_SIZE / sizeof (frame_t))))
+    return page_unmap (frame_stack + sp--);
+  else if (sp > 0)
+    return frame_stack[sp--];
+
+  /* No freed frames; create on from current memory block */
+  if ((block_end - PAGE_SIZE) < block_addr)
     {
-      return frame_stack[sp--];
+      if (__next_block ())
+        return (frame_t) ENOMEM;
     }
+
+  frame_t ret = block_addr;
+  block_addr += PAGE_SIZE;
+  return ret;
 }

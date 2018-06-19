@@ -13,23 +13,6 @@ uint32_t frames_page_table[1024] __attribute__ ((aligned (PAGE_SIZE))) = {0};
 uint32_t kheap_page_table[1024] __attribute__ ((aligned (PAGE_SIZE))) = {0};
 size_t kheap_index = 0;
 
-void
-paging_map_frame_stack (uint32_t vaddr, uint32_t paddr)
-{
-  paddr &= 0xFFFFF000;
-  uint32_t index = ((vaddr & 0x003FF000) >> 12);
-  frames_page_table[index] = (paddr | KPAGE_FLAGS);
-}
-
-uint32_t
-paging_unmap_frame_stack (uint32_t vaddr)
-{
-  uint32_t index = ((vaddr & 0x003FF000) >> 12);
-  uint32_t ret = frames_page_table[index];
-  frames_page_table[index] = 0;
-  return (ret & 0xFFFFF000);
-}
-
 int
 paging_grow_heap (int nframes)
 {
@@ -49,7 +32,7 @@ paging_grow_heap (int nframes)
   size_t index = kheap_index;
   for (int i = 0; i < nframes; i++)
     {
-      uint32_t frame = frames_alloc ();
+      uint32_t frame = frame_alloc ();
       if (frame & 0x00000FFF)
         /* We are out of frames */
         goto frame_error;
@@ -64,7 +47,7 @@ frame_error:
   for (; index >= kheap_index; index--)
     {
       uint32_t frame = (kheap_page_table[index] & 0xFFFFF000);
-      frames_free (frame);
+      frame_free (frame);
       kheap_page_table[index--] = 0;
     }
   return -1;
@@ -79,7 +62,7 @@ paging_shrink_heap (int nframes)
   for (int i = 0; (i < nframes) && (kheap_index >= 0); i++)
     {
       uint32_t frame = (kheap_page_table[kheap_index] & 0xFFFFF000);
-      frames_free (frame);
+      frame_free (frame);
       kheap_page_table[kheap_index--] = 0;
     }
 }
@@ -189,7 +172,7 @@ page_map (void *vaddr, frame_t phys)
   if (!__page_directory_table_is_present (page_directory, table_index))
     {
       /* A new table is needed */
-      frame_t frame = frames_alloc ();
+      frame_t frame = frame_alloc ();
       if (frame == (frame_t) ENOMEM)
         return ENOMEM;
 

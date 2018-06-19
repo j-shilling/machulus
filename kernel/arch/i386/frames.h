@@ -7,9 +7,9 @@ __BEGIN_DECLS
 
 typedef uint32_t frame_t;
 
-void frames_init (uint32_t, uint32_t);
-void frames_free (uint32_t);
-uint32_t frames_alloc (void);
+void frame_init (uint32_t, uint32_t);
+int frame_free (frame_t);
+frame_t frame_alloc (void);
 
 static inline int
 __frame_valid (frame_t frame)
