@@ -2,6 +2,7 @@
 #include <errno.h>
 
 #include "gdt.h"
+#include "idt.h"
 #include "frames.h"
 #include "paging.h"
 #include "multiboot.h"
@@ -11,13 +12,11 @@
 
 extern void tty_init (void);
 
-static frame_t * const frame_stack = (frame_t *) (0xB0000000);
-static int sp = -1;
-
 void
 arch_init (uint32_t mbi_addr, uint32_t mbi_magic)
 {
   gdt_init();
+  idt_init();
   tty_init();
   
   if (MULTIBOOT_BOOTLOADER_MAGIC != mbi_magic)

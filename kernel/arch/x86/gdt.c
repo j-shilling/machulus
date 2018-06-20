@@ -18,6 +18,7 @@
 #include <stdint.h>
 
 #include "tss.h"
+#include "gdt.h"
 
 #define GDT_ENTRIES                             (8)
 
@@ -31,12 +32,6 @@
 #define SEG_TYPE_EXECUTE_ONLY_CONFORMING_CODE   (12)
 #define SEG_TYPE_EXECUTE_READ_CONFORMING_CODE   (14)
 #define SEG_TYPE_SYSTEM                         (16)
-
-/* Descriptor Privilege Levels */
-#define DPL_KERNEL                              (0)
-#define DPL_SERVER                              (1)
-#define DPL_MODULE                              (2)
-#define DPL_USERSPACE                           (3)
 
 uint64_t gdt[GDT_ENTRIES];
 

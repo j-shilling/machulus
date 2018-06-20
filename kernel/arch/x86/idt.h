@@ -16,24 +16,18 @@
  */
 
 /* 
- * File:   gdt.h
+ * File:   idt.h
  * Author: Jake Shilling <shilling.jake@gmail.com>
  *
- * Created on June 11, 2018, 11:54 AM
+ * Created on June 20, 2018, 2:20 PM
  */
 
 #pragma once
 
 #include <sys/cdefs.h>
 
-/* Descriptor Privilege Levels */
-#define DPL_KERNEL                              (0)
-#define DPL_SERVER                              (1)
-#define DPL_MODULE                              (2)
-#define DPL_USERSPACE                           (3)
-
 __BEGIN_DECLS
         
-void gdt_init (void);
+void idt_init (void);
 
 __END_DECLS

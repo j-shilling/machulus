@@ -7,9 +7,12 @@ lib_a_SOURCES = boot.S \
 		frames.c \
 		heap.c \
 		acpi.c \
-		gdt.c \
 		tss.h \
-		tss.c
+		tss.c \
+		gdt.h \
+		gdt.c \
+		idt.h \
+		idt.c
 
 lib_a_CFLAGS = -I$(top_srcdir)/include $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
 lib_a_CCASFLAGS = $(ARCH_CFLAGS)
