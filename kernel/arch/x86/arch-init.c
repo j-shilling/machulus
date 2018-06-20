@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <errno.h>
 
+#include "gdt.h"
 #include "frames.h"
 #include "paging.h"
 #include "multiboot.h"
@@ -16,6 +17,7 @@ static int sp = -1;
 void
 arch_init (uint32_t mbi_addr, uint32_t mbi_magic)
 {
+  gdt_init();
   tty_init();
   
   if (MULTIBOOT_BOOTLOADER_MAGIC != mbi_magic)

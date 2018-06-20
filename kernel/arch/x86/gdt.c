@@ -17,7 +17,9 @@
 
 #include <stdint.h>
 
-#define GDT_ENTRIES                             (2)
+#include "tss.h"
+
+#define GDT_ENTRIES                             (8)
 
 /* Segment Type Flags */
 #define SEG_TYPE_READ_ONLY_DATA                 (0)
@@ -28,6 +30,7 @@
 #define SEG_TYPE_EXECUTE_READ_CODE              (10)
 #define SEG_TYPE_EXECUTE_ONLY_CONFORMING_CODE   (12)
 #define SEG_TYPE_EXECUTE_READ_CONFORMING_CODE   (14)
+#define SEG_TYPE_SYSTEM                         (16)
 
 /* Descriptor Privilege Levels */
 #define DPL_KERNEL                              (0)
@@ -35,94 +38,72 @@
 #define DPL_MODULE                              (2)
 #define DPL_USERSPACE                           (3)
 
-/**
- * Describes a memory segment starting at base with size limit
- */
-struct _segment_descriptor
-{
-  uint16_t segment_limit_0_15   : 16;
-  uint16_t segment_base_0_15    : 16;
-  
-  uint8_t  segment_base_16_23   :  8;
-  
-  /* Type flag (see above) */
-  uint8_t  type                 :  4;
-  /* If set, the segment is code / data */
-  uint8_t  code_or_data_seg     :  1;
-  
-  /* Descriptor Privilege Level */
-  uint8_t  dpl                  :  2;
-  /* Set if segment is present */
-  uint8_t  present              :  1;
-  
-  uint8_t  segment_limit_16_19  :  4;
-  uint8_t  avl                  :  1;
-  
-  /* If set, segment is 64-bit code */
-  uint8_t  long_mode            :  1;
-  
-  /* For executable code: if set, code is 32-bit (16-bit otherwise).
-   * For stack segment: If set, 32-bit stack pointer is used (16-bit otherwise)
-   * For expand down data: If set upper bound is 4GiB (64KiB otherwise) 
-   */
-  uint8_t  default_size_or_bound:  1;
-  
-  /* If set, limit is in KiB */
-  uint8_t  granularity          :  1;
-  
-  uint8_t  segment_base_24_31   :  8;
-  
-} __attribute__ ((packed));
-typedef struct _segment_descriptor segment_descriptor_t;
+uint64_t gdt[GDT_ENTRIES];
 
-struct _gdt_descriptor
+static uint64_t
+__gdt_entry (uint32_t base, uint32_t limit, int prvl, int type, int kbyte)
 {
-  uint16_t size;
-  uint32_t offset;
-} __attribute__ ((packed));
-typedef struct _gdt_descriptor gdt_descriptor_t;
-
-static segment_descriptor_t gdt[GDT_ENTRIES + 1];
-
-static segment_descriptor_t
-get_seg_descriptor (unsigned int base, unsigned int limit, int type, int prvl)
-{
-  segment_descriptor_t seg;
+  uint64_t ret = 0;
   
-  seg.segment_base_0_15  = (uint16_t)( base        & 0xFFFF);
-  seg.segment_base_16_23 = (uint8_t) ((base >> 16) & 0xFF);
-  seg.segment_base_24_31 = (uint8_t) ((base >> 24) & 0xFF);
+  ret  = (uint64_t)(limit & 0x0000FFFF);
+  ret |= (uint64_t)( base & 0x00FFFFFF) << 16;
+  ret |= (uint64_t)(limit & 0x000F0000) << 32;
+  ret |= (uint64_t)( base & 0xFF000000) << 32;
   
-  seg.segment_limit_0_15 = (uint16_t)( limit       & 0xFFFF);
-  seg.segment_limit_16_19= (uint8_t) ((limit >>16) & 0x0F);
+  /* Always set the present bit */
+  ret |= ((uint64_t)1 << 48);
   
-  seg.type = type;
-  seg.dpl  = prvl;
+  /* Set privilege level */
+  ret |= (uint64_t)(prvl & 0x03) << 45;
   
-  seg.code_or_data_seg = 1;
-  seg.present = 1;
-  seg.long_mode = 0;
-  seg.default_size_or_bound = 1;
+  /* Set segment type */
+  if (SEG_TYPE_SYSTEM != type)
+    {
+      ret |= ((uint64_t)1 << 44);
+      ret |= ((uint64_t)type & 0x0F) << 40;
+    }
   
-  return seg;
+  /* Always set to 32-bit */
+  ret |= ((uint64_t)1 << 54);
+  
+  /* Set grandularity */
+  if (kbyte)
+    {
+      ret |= ((uint64_t)1 << 55);
+    }
+  
+  return ret;
 }
 
 void
 gdt_init (void)
 {
-  gdt[1] = 
-    get_seg_descriptor (0, 0xFFFFFFFF, SEG_TYPE_EXECUTE_ONLY_CODE, DPL_KERNEL);
-  gdt[2] =
-    get_seg_descriptor (0, 0xFFFFFFFF, SEG_TYPE_READ_WRITE_DATA, DPL_KERNEL);
+  gdt[0] = 0;
+  gdt[1] = __gdt_entry (0, 0xFFFFFFFF, 
+    DPL_KERNEL, SEG_TYPE_READ_WRITE_DATA, 1);
+  gdt[2] = __gdt_entry (0, 0xFFFFFFFF, 
+    DPL_KERNEL, SEG_TYPE_EXECUTE_READ_CODE, 1);
+  gdt[3] = __gdt_entry (0, 0xFFFFFFFF, 
+    DPL_SERVER, SEG_TYPE_READ_WRITE_DATA, 1);
+  gdt[4] = __gdt_entry (0, 0xFFFFFFFF, 
+    DPL_SERVER, SEG_TYPE_EXECUTE_READ_CODE, 1);
+  gdt[5] = __gdt_entry (0, 0xFFFFFFFF, 
+    DPL_MODULE, SEG_TYPE_READ_WRITE_DATA, 1);
+  gdt[6] = __gdt_entry (0, 0xFFFFFFFF, 
+    DPL_MODULE, SEG_TYPE_EXECUTE_READ_CODE, 1);
+  gdt[5] = __gdt_entry (0, 0xFFFFFFFF, 
+    DPL_USERSPACE, SEG_TYPE_READ_WRITE_DATA, 1);
+  gdt[6] = __gdt_entry (0, 0xFFFFFFFF, 
+    DPL_USERSPACE, SEG_TYPE_EXECUTE_READ_CODE, 1);
+  gdt[7] = __gdt_entry ((uint32_t)(&tss), (uint32_t)(tss_size),
+    DPL_KERNEL, SEG_TYPE_SYSTEM, 0);
   
+  char gdt_desc[6];
+  uint16_t *gdt_size = (uint16_t *)gdt_desc;
+  uint32_t *gdt_addr = (uint32_t *)(gdt_desc + 2);
   
-  gdt_descriptor_t gdtp = {
-    .size = GDT_ENTRIES,
-    .offset = (uint32_t) gdt
-  };
+  *gdt_size = GDT_ENTRIES - 1;
+  *gdt_addr = (uint32_t)gdt;
   
-//  asm volatile (
-//    "lgdt (%0)" : /* no output */ : "p" (&gdtp)
-//  );
+  asm volatile ("lgdt (%0)" :: "r" (gdt_desc));
 }
-
