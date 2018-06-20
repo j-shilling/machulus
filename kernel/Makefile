@@ -102,11 +102,11 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am_jkernel_OBJECTS = kmain.$(OBJEXT) printf.$(OBJEXT) panic.$(OBJEXT) \
-	malloc.$(OBJEXT)
+am_jkernel_OBJECTS = jkernel-kmain.$(OBJEXT) jkernel-printf.$(OBJEXT) \
+	jkernel-panic.$(OBJEXT) jkernel-malloc.$(OBJEXT)
 jkernel_OBJECTS = $(am_jkernel_OBJECTS)
-jkernel_DEPENDENCIES = arch/i386/lib.a
-jkernel_LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(jkernel_LDFLAGS) \
+jkernel_DEPENDENCIES = arch/x86/lib.a
+jkernel_LINK = $(CCLD) $(jkernel_CFLAGS) $(CFLAGS) $(jkernel_LDFLAGS) \
 	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
@@ -124,6 +124,10 @@ DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
+AM_V_lt = $(am__v_lt_$(V))
+am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
+am__v_lt_0 = --silent
+am__v_lt_1 = 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_$(V))
@@ -182,7 +186,7 @@ CSCOPE = cscope
 DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in AUTHORS COPYING ChangeLog \
 	INSTALL NEWS README ar-lib compile config.guess config.sub \
-	depcomp install-sh missing
+	depcomp install-sh ltmain.sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -225,42 +229,42 @@ distuninstallcheck_listfiles = find . -type f -print
 am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/jake/projects/jkernel/kernel/missing aclocal-1.15
+ACLOCAL = ${SHELL} /home/jake/Projects/jkernel/kernel/missing aclocal-1.15
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AR = i686-elf-ar
-ARCHDIR = i386
-AUTOCONF = ${SHELL} /home/jake/projects/jkernel/kernel/missing autoconf
-AUTOHEADER = ${SHELL} /home/jake/projects/jkernel/kernel/missing autoheader
-AUTOMAKE = ${SHELL} /home/jake/projects/jkernel/kernel/missing automake-1.15
+AR = ar
+ARCHDIR = x86
+ARCH_CFLAGS = -ffreestanding -fno-pie
+ARCH_LDFLAGS = -nostdlib -no-pie
+AUTOCONF = ${SHELL} /home/jake/Projects/jkernel/kernel/missing autoconf
+AUTOHEADER = ${SHELL} /home/jake/Projects/jkernel/kernel/missing autoheader
+AUTOMAKE = ${SHELL} /home/jake/Projects/jkernel/kernel/missing automake-1.15
 AWK = gawk
-CC = /usr/local/bin/i686-elf-gcc
-CCAS = /usr/local/bin/i686-elf-gcc
+CC = i686-pc-elf-gcc
+CCAS = i686-pc-elf-gcc
 CCASDEPMODE = depmode=gcc3
-CCASFLAGS = -ggdb -O0 -fno-pic -ffreestanding -I/home/jake/projects/jkernel/kernel/include
+CCASFLAGS = -ffreestanding -fno-pie
 CCDEPMODE = depmode=gcc3
-CFLAGS = -ggdb -O0 -fno-pic -ffreestanding -I/home/jake/projects/jkernel/kernel/include
-CPP = /usr/local/bin/i686-elf-gcc -E
+CFLAGS = 
 CPPFLAGS = 
 CYGPATH_W = echo
-DEFS = -DPACKAGE_NAME=\"jkernel\" -DPACKAGE_TARNAME=\"jkernel\" -DPACKAGE_VERSION=\"0.0.1\" -DPACKAGE_STRING=\"jkernel\ 0.0.1\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"jkernel\" -DVERSION=\"0.0.1\" -DHAVE_STDLIB_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_LIMITS_H=1 -DHAVE_STDDEF_H=1 -DHAVE_STDINT_H=1 -DHAVE_STDARG_H=1 -DHAVE_PTRDIFF_T=1 -DHAVE_LIBGCC=1
+DEBUG_CFLAGS = 
+DEFS = -DPACKAGE_NAME=\"jkernel\" -DPACKAGE_TARNAME=\"jkernel\" -DPACKAGE_VERSION=\"0.0.1\" -DPACKAGE_STRING=\"jkernel\ 0.0.1\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"jkernel\" -DVERSION=\"0.0.1\" -DHAVE_LIBGCC=1
 DEPDIR = .deps
 ECHO_C = 
 ECHO_N = -n
 ECHO_T = 
-EGREP = /bin/grep -E
 EXEEXT = 
-GREP = /bin/grep
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LDFLAGS = -ffreestanding -nostdlib
+LDFLAGS = 
 LIBOBJS = 
 LIBS = -lgcc 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/jake/projects/jkernel/kernel/missing makeinfo
+MAKEINFO = ${SHELL} /home/jake/Projects/jkernel/kernel/missing makeinfo
 MKDIR_P = /bin/mkdir -p
 OBJEXT = o
 PACKAGE = jkernel
@@ -271,17 +275,17 @@ PACKAGE_TARNAME = jkernel
 PACKAGE_URL = 
 PACKAGE_VERSION = 0.0.1
 PATH_SEPARATOR = :
-RANLIB = i686-elf-ranlib
+RANLIB = ranlib
 SET_MAKE = 
 SHELL = /bin/sh
-STRIP = i686-elf-strip
+STRIP = 
 VERSION = 0.0.1
-abs_builddir = /home/jake/projects/jkernel/kernel
-abs_srcdir = /home/jake/projects/jkernel/kernel
-abs_top_builddir = /home/jake/projects/jkernel/kernel
-abs_top_srcdir = /home/jake/projects/jkernel/kernel
-ac_ct_AR = 
-ac_ct_CC = 
+abs_builddir = /home/jake/Projects/jkernel/kernel
+abs_srcdir = /home/jake/Projects/jkernel/kernel
+abs_top_builddir = /home/jake/Projects/jkernel/kernel
+abs_top_srcdir = /home/jake/Projects/jkernel/kernel
+ac_ct_AR = ar
+ac_ct_CC = i686-pc-elf-gcc
 am__include = include
 am__leading_dot = .
 am__quote = 
@@ -290,7 +294,7 @@ am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
 build = x86_64-pc-linux-gnu
 build_alias = 
-build_cpu = x86_64
+build_cpu = i686
 build_os = linux-gnu
 build_vendor = pc
 builddir = .
@@ -300,14 +304,14 @@ docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
 host = i686-pc-elf
-host_alias = i686-elf
+host_alias = i686-pc-elf
 host_cpu = i686
 host_os = elf
 host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/jake/projects/jkernel/kernel/install-sh
+install_sh = ${SHELL} /home/jake/Projects/jkernel/kernel/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -327,14 +331,16 @@ target_alias =
 top_build_prefix = 
 top_builddir = .
 top_srcdir = .
+ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = arch
 jkernel_SOURCES = kmain.c \
 		  printf.c \
 		  panic.c \
 		  malloc.c
 
-jkernel_LDADD = arch/i386/lib.a
-jkernel_LDFLAGS = -T $(srcdir)/arch/i386/linker.ld
+jkernel_LDADD = arch/x86/lib.a
+jkernel_LDFLAGS = -T $(srcdir)/arch/x86/linker.ld $(ARCH_LDFLAGS)
+jkernel_CFLAGS = -I$(srcdir)/include $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
 all: all-recursive
 
 .SUFFIXES:
@@ -386,10 +392,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/kmain.Po
-include ./$(DEPDIR)/malloc.Po
-include ./$(DEPDIR)/panic.Po
-include ./$(DEPDIR)/printf.Po
+include ./$(DEPDIR)/jkernel-kmain.Po
+include ./$(DEPDIR)/jkernel-malloc.Po
+include ./$(DEPDIR)/jkernel-panic.Po
+include ./$(DEPDIR)/jkernel-printf.Po
 
 .c.o:
 	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -406,6 +412,62 @@ include ./$(DEPDIR)/printf.Po
 #	$(AM_V_CC)source='$<' object='$@' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+jkernel-kmain.o: kmain.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-kmain.o -MD -MP -MF $(DEPDIR)/jkernel-kmain.Tpo -c -o jkernel-kmain.o `test -f 'kmain.c' || echo '$(srcdir)/'`kmain.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-kmain.Tpo $(DEPDIR)/jkernel-kmain.Po
+#	$(AM_V_CC)source='kmain.c' object='jkernel-kmain.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-kmain.o `test -f 'kmain.c' || echo '$(srcdir)/'`kmain.c
+
+jkernel-kmain.obj: kmain.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-kmain.obj -MD -MP -MF $(DEPDIR)/jkernel-kmain.Tpo -c -o jkernel-kmain.obj `if test -f 'kmain.c'; then $(CYGPATH_W) 'kmain.c'; else $(CYGPATH_W) '$(srcdir)/kmain.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-kmain.Tpo $(DEPDIR)/jkernel-kmain.Po
+#	$(AM_V_CC)source='kmain.c' object='jkernel-kmain.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-kmain.obj `if test -f 'kmain.c'; then $(CYGPATH_W) 'kmain.c'; else $(CYGPATH_W) '$(srcdir)/kmain.c'; fi`
+
+jkernel-printf.o: printf.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-printf.o -MD -MP -MF $(DEPDIR)/jkernel-printf.Tpo -c -o jkernel-printf.o `test -f 'printf.c' || echo '$(srcdir)/'`printf.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-printf.Tpo $(DEPDIR)/jkernel-printf.Po
+#	$(AM_V_CC)source='printf.c' object='jkernel-printf.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-printf.o `test -f 'printf.c' || echo '$(srcdir)/'`printf.c
+
+jkernel-printf.obj: printf.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-printf.obj -MD -MP -MF $(DEPDIR)/jkernel-printf.Tpo -c -o jkernel-printf.obj `if test -f 'printf.c'; then $(CYGPATH_W) 'printf.c'; else $(CYGPATH_W) '$(srcdir)/printf.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-printf.Tpo $(DEPDIR)/jkernel-printf.Po
+#	$(AM_V_CC)source='printf.c' object='jkernel-printf.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-printf.obj `if test -f 'printf.c'; then $(CYGPATH_W) 'printf.c'; else $(CYGPATH_W) '$(srcdir)/printf.c'; fi`
+
+jkernel-panic.o: panic.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-panic.o -MD -MP -MF $(DEPDIR)/jkernel-panic.Tpo -c -o jkernel-panic.o `test -f 'panic.c' || echo '$(srcdir)/'`panic.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-panic.Tpo $(DEPDIR)/jkernel-panic.Po
+#	$(AM_V_CC)source='panic.c' object='jkernel-panic.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-panic.o `test -f 'panic.c' || echo '$(srcdir)/'`panic.c
+
+jkernel-panic.obj: panic.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-panic.obj -MD -MP -MF $(DEPDIR)/jkernel-panic.Tpo -c -o jkernel-panic.obj `if test -f 'panic.c'; then $(CYGPATH_W) 'panic.c'; else $(CYGPATH_W) '$(srcdir)/panic.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-panic.Tpo $(DEPDIR)/jkernel-panic.Po
+#	$(AM_V_CC)source='panic.c' object='jkernel-panic.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-panic.obj `if test -f 'panic.c'; then $(CYGPATH_W) 'panic.c'; else $(CYGPATH_W) '$(srcdir)/panic.c'; fi`
+
+jkernel-malloc.o: malloc.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-malloc.o -MD -MP -MF $(DEPDIR)/jkernel-malloc.Tpo -c -o jkernel-malloc.o `test -f 'malloc.c' || echo '$(srcdir)/'`malloc.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-malloc.Tpo $(DEPDIR)/jkernel-malloc.Po
+#	$(AM_V_CC)source='malloc.c' object='jkernel-malloc.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-malloc.o `test -f 'malloc.c' || echo '$(srcdir)/'`malloc.c
+
+jkernel-malloc.obj: malloc.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-malloc.obj -MD -MP -MF $(DEPDIR)/jkernel-malloc.Tpo -c -o jkernel-malloc.obj `if test -f 'malloc.c'; then $(CYGPATH_W) 'malloc.c'; else $(CYGPATH_W) '$(srcdir)/malloc.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-malloc.Tpo $(DEPDIR)/jkernel-malloc.Po
+#	$(AM_V_CC)source='malloc.c' object='jkernel-malloc.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-malloc.obj `if test -f 'malloc.c'; then $(CYGPATH_W) 'malloc.c'; else $(CYGPATH_W) '$(srcdir)/malloc.c'; fi`
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.

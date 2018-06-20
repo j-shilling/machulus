@@ -121,8 +121,8 @@ gdt_init (void)
     .offset = (uint32_t) gdt
   };
   
-  asm volatile (
-    "lgdt (%0)" : /* no output */ : "p" (&gdtp)
-  );
+//  asm volatile (
+//    "lgdt (%0)" : /* no output */ : "p" (&gdtp)
+//  );
 }
 
