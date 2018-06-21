@@ -32,6 +32,15 @@
 #define DPL_MODULE                              (2)
 #define DPL_USERSPACE                           (3)
 
+#define GDT_KERNEL_CODE                         (8)
+#define GDT_KERNEL_DATA                         (16)
+#define GDT_SERVER_CODE                         (24)
+#define GDT_SERVER_DATA                         (32)
+#define GDT_MODULE_CODE                         (40)
+#define GDT_MODULE_DATA                         (48)
+#define GDT_USER_CODE                           (56)
+#define GDT_USER_DATA                           (64)
+
 __BEGIN_DECLS
         
 void gdt_init (void);

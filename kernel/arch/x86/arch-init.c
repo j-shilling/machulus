@@ -19,6 +19,8 @@ arch_init (uint32_t mbi_addr, uint32_t mbi_magic)
   idt_init();
   tty_init();
   
+  asm ("int $0");
+  
   if (MULTIBOOT_BOOTLOADER_MAGIC != mbi_magic)
     panic ("We were not loaded by a multiboot compatible bootloader.");
   

@@ -16,6 +16,7 @@
  */
 
 #include <stdint.h>
+#include <stdio.h>
 
 #include "idt.h"
 #include "gdt.h"
@@ -43,10 +44,12 @@ __idt_entry (uint32_t isr_addr, uint16_t selector, uint8_t dpl, uint8_t type)
   return ret;
 }
 
+extern void test_handler (void);
+
 void
 idt_init (void)
 {
-  
+  idt[13] = __idt_entry ((uint32_t)test_handler, 8, DPL_KERNEL, TRAP_GATE);
   
   char idt_desc[6];
   uint16_t *idt_size = (uint16_t *)(idt_desc);

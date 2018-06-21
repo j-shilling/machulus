@@ -10,7 +10,8 @@ lib_a_SOURCES = boot.S \
 		tss.h \
 		tss.c \
 		gdt.h \
-		gdt.c \
+		gdt.S \
+		isr.S \
 		idt.h \
 		idt.c
 
