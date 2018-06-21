@@ -19,6 +19,10 @@ arch_init (uint32_t mbi_addr, uint32_t mbi_magic)
   idt_init();
   tty_init();
   
+  for (int i = 0; i < 256; i ++)
+    idt_register_trap (i, (uint32_t)test_handler);
+  
+  
   asm ("int $0");
   
   if (MULTIBOOT_BOOTLOADER_MAGIC != mbi_magic)
