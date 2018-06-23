@@ -8,61 +8,73 @@
 #include "frames.h"
 #include "multiboot.h"
 
-#define FRAME_MAX   (0xFFFFF000)
-#define	  __page_align(x)  (((x) + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1))
-
 extern uint32_t _kernel_start;
 extern uint32_t _kernel_end;
 
-static int sp = -1;
-static frame_t * const frame_stack = (frame_t *) (FRAME_STACK_VBASE);
+unsigned char frame_map[N_FRAMES / 8] = { 0 };
 
-uintptr_t kernel_phys_end;
-
-uintptr_t mmap_start;
-uintptr_t mmap_addr;
-uintptr_t mmap_end;
-
-uintptr_t block_addr;
-uintptr_t block_end;
-
-static inline int
-__next_block (void)
+static unsigned int
+__frame_to_index (frame_t frame)
 {
-  while (mmap_addr < mmap_end)
-    {
-      multiboot_memory_map_t *mmap = (multiboot_memory_map_t *) mmap_addr;
+  return (frame / FRAME_SIZE);
+}
 
-      if ((MULTIBOOT_MEMORY_AVAILABLE == mmap->type)
-          /* memory is available */
-          && (mmap->addr <= FRAME_MAX))
-        /* memory is addressable */
-        {
-          /* Set block_* vars */
-          block_addr = (mmap->addr & (PAGE_SIZE - 1)) ?
-                  ((mmap->addr & ~(PAGE_SIZE - 1)) + PAGE_SIZE) :
-                  (mmap->addr);
-          block_end = ((UINTPTR_MAX - mmap->len) < mmap->addr) ?
-                  (UINTPTR_MAX) :
-                  (mmap->addr + mmap->len);
+static frame_t
+__index_to_frame (size_t index)
+{
+  return (frame_t)(FRAME_SIZE * index);
+}
 
-          /* Check that this block is after the kernel */
-          if (block_addr < kernel_phys_end)
-            block_addr = (kernel_phys_end & ~(PAGE_SIZE - 1)) + PAGE_SIZE;
+static frame_t
+__phys_addr_to_frame (phys_addr_t addr)
+{
+  return (addr & FRAME_T_MAX);
+}
 
-          /* Check that this block works for a frame */
-          if ((block_end - PAGE_SIZE) >= block_addr)
-            {
-              mmap_addr += (mmap->size + sizeof (mmap->size));
-              return 0;
-            }
-        }
+static void
+__frame_set_available (phys_addr_t addr, size_t length)
+{
+  frame_t first_frame = __phys_addr_to_frame (addr);
+  frame_t last_frame  = __phys_addr_to_frame (addr + length - 1);
+  
+  unsigned int start = __frame_to_index (first_frame);
+  unsigned int end   = __frame_to_index (last_frame);
+  
+  unsigned int *__frame_map = (unsigned int *) frame_map;
+  size_t bits_per_int = sizeof (unsigned int) * 8;
+  
+  size_t index = start / bits_per_int;
+  for (int i = 0; i < (start % bits_per_int); i ++)
+    __frame_map[index] |= (1 << i);
+  
+  for (; index < (end / bits_per_int); index ++)
+    __frame_map[index] = ~(0);
+  
+  for (int i = 0; i < (end % bits_per_int); i ++)
+    __frame_map[index] |= (1 << i);
+}
 
-      mmap_addr += (mmap->size + sizeof (mmap->size));
-    }
-
-  /* Out of memory, no next block */
-  return 1;
+static void
+__frame_set_used (phys_addr_t addr, size_t length)
+{
+  frame_t first_frame = __phys_addr_to_frame (addr);
+  frame_t last_frame  = __phys_addr_to_frame (addr + length - 1);
+  
+  unsigned int start = __frame_to_index (first_frame);
+  unsigned int end   = __frame_to_index (last_frame);
+  
+  unsigned int *__frame_map = (unsigned int *) frame_map;
+  size_t bits_per_int = sizeof (unsigned int) * 8;
+  
+  size_t index = start / bits_per_int;
+  for (int i = 0; i < (start % bits_per_int); i ++)
+    __frame_map[index] &= ~(1 << i);
+  
+  for (; index < (end / bits_per_int); index ++)
+    __frame_map[index] = 0;
+  
+  for (int i = 0; i < (end % bits_per_int); i ++)
+    __frame_map[index] &= ~(1 << i);
 }
 
 void
@@ -70,15 +82,25 @@ frame_init (uint32_t _mmap_addr, uint32_t mmap_length)
 {
   if (0 == _mmap_addr)
     panic ("Boot loader did not give us a memory map");
+  
+  uintptr_t mmap_addr = (uintptr_t) _mmap_addr;
+  uintptr_t mmap_end = mmap_addr + mmap_length;
+  
+  while (mmap_addr < mmap_end)
+    {
+      multiboot_memory_map_t *mmap = (multiboot_memory_map_t *) mmap_addr;
 
-  kernel_phys_end = (uintptr_t) (&_kernel_end) - KERNEL_VBASE;
+      phys_addr_t addr = (phys_addr_t) mmap->addr;
+      size_t len = (size_t) mmap->len;
+      
+      if (MULTIBOOT_MEMORY_AVAILABLE == mmap->type)
+        __frame_set_available (addr, len);
 
-  mmap_addr = (uintptr_t) _mmap_addr;
-  mmap_start = mmap_addr;
-  mmap_end = mmap_addr + mmap_length;
+      mmap_addr += (mmap->size + sizeof (mmap->size));
+    }
 
-  if (__next_block ())
-    panic ("Could not find an initial free memory block");
+  __frame_set_used ((phys_addr_t)(&_kernel_start) - KERNEL_VBASE,
+                  (uintptr_t)(&_kernel_end) - (uintptr_t)(&_kernel_start));
 }
 
 int
@@ -87,11 +109,8 @@ frame_free (frame_t frame)
   if (!__frame_valid (frame))
     return EINVAL;
 
-  sp++;
-  if (0 == (sp % (PAGE_SIZE / sizeof (frame_t))))
-    return page_map (frame_stack + sp, frame);
-  else
-    frame_stack[sp] = frame;
+  size_t index = __frame_to_index (frame);
+  frame_map[index / 8] |= (1 << (index % 8));
 
   return 0;
 }
@@ -99,19 +118,23 @@ frame_free (frame_t frame)
 frame_t
 frame_alloc (void)
 {
-  if (0 == (sp % (PAGE_SIZE / sizeof (frame_t))))
-    return page_unmap (frame_stack + sp--);
-  else if (sp > 0)
-    return frame_stack[sp--];
-
-  /* No freed frames; create on from current memory block */
-  if ((block_end - PAGE_SIZE) < block_addr)
+  unsigned int *__frame_map = (unsigned int *)frame_map;
+  size_t bits_per_int = sizeof (unsigned int) * 8;
+  size_t frame_map_size = sizeof (frame_map) / sizeof (unsigned int);
+  
+  for (size_t i = 0; i < frame_map_size; i ++)
     {
-      if (__next_block ())
-        return (frame_t) ENOMEM;
+      if (__frame_map[i])
+        {
+          for (size_t j = 0; j < bits_per_int; j ++)
+            {
+              if (__frame_map[i] & (1 << j))
+                {
+                  return __index_to_frame ((i * bits_per_int) + j);
+                }
+            }
+        }
     }
-
-  frame_t ret = block_addr;
-  block_addr += PAGE_SIZE;
-  return ret;
+  
+  return (frame_t) ENOMEM;
 }

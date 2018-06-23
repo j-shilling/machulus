@@ -37,9 +37,8 @@
         push        %ebp
         movl        %esp, %ebp
 
-        movl        $8, %edi
-        imul        8(%ebp), %edi
-        addl        $idt, %edi
+        movl        8(%ebp), %edx
+        leal        idt(,%edx,8), %edi
 
         movl        12(%ebp), %edx
         andl        $0x0000FFFF, %edx
@@ -65,9 +64,8 @@
         push        %ebp
         movl        %esp, %ebp
 
-        movl        $8, %edi
-        imul        8(%ebp), %edi
-        addl        $idt, %edi
+        movl        8(%ebp), %edx
+        leal        idt(,%edx,8), %edi
 
         movl        12(%ebp), %edx
         andl        $0x0000FFFF, %edx
