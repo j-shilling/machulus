@@ -69,9 +69,7 @@
 	2:	/* Install page directory */
 		movl $(PHYS_ADDR(kernel_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory)
 		movl $(PHYS_ADDR(kernel_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (KPAGE_DIR_INDEX * 4)
-		movl $(PHYS_ADDR(frames_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (FRAME_STACK_DIR_INDEX * 4)
-		movl $(PHYS_ADDR(kheap_page_table) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (KHEAP_DIR_INDEX * 4)
-                movl $(PHYS_ADDR(kernel_page_directory) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (1023 * 4)
+		movl $(PHYS_ADDR(kernel_page_directory) + KPAGE_DIR_FLAGS), PHYS_ADDR(kernel_page_directory) + (1023 * 4)
 
 		movl $(PHYS_ADDR(kernel_page_directory)), %ecx
 		movl %ecx, %cr3

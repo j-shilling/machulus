@@ -23,9 +23,6 @@
 
 __BEGIN_DECLS
 
-void paging_map_frame_stack (uint32_t, uint32_t);
-uint32_t paging_unmap_frame_stack (uint32_t);
-
 int  paging_grow_heap (int);
 void paging_shrink_heap (int);
 

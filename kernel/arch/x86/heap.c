@@ -2,11 +2,25 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "frames.h"
 #include "paging.h"
 
-static void *const kheap_base = (void *)KHEAP_VBASE;
-static char *kheap_max = (char *)KHEAP_VBASE;
-static char *kheap_top = (char *)KHEAP_VBASE;
+extern uint32_t _kernel_end;
+
+/* Start of the heap */
+static void *const kheap_base = (void *)(&_kernel_end);
+
+/* End of the heap */
+static char *kheap_top;
+/* End of the virtual address space */
+static char *kheap_max;
+
+void
+heap_init (void)
+{
+  kheap_max = (char *)(((uintptr_t)kheap_base) | (FRAME_SIZE - 1));
+  kheap_top = (char *)kheap_base;
+}
 
 /* Sets the end of the heap to the value specified by addr,
    when that value is reasonable. On success returns 1, and
@@ -14,30 +28,46 @@ static char *kheap_top = (char *)KHEAP_VBASE;
 int
 brk (void *addr)
 {
-  if (NULL == addr)
+  if (addr < kheap_base)
     return -1;
 
   /* Do we need to grow */
   if ((char*)addr > kheap_max)
     {
       /* Figure out how many frames we need to get to addr */
-      intptr_t needed = (char *)addr - kheap_max;
-      int nframes = (int)(needed / PAGE_SIZE) + 1;
+      ptrdiff_t needed = (char *)addr - kheap_max;
+      int nframes = (int)(needed / FRAME_SIZE) + 1;
 
       /* Grow the heap */
-      if (paging_grow_heap (nframes))
-	return -1;
-
-      kheap_max += PAGE_SIZE * nframes;
+      for (int i = 0; i < nframes; i ++)
+        {
+          frame_t frame = frame_alloc();
+          if (!__frame_valid(frame))
+            return -1;
+           
+          if (page_map (kheap_max + 1, frame))
+            return -1;
+          
+          kheap_max += FRAME_SIZE;
+        }
     }
 
-  /* Do we need to strink */
-  else if ((char*)addr < (kheap_max - PAGE_SIZE))
+  /* Do we need to shrink */
+  else if ((char*)addr < (kheap_max - FRAME_SIZE))
     {
-      intptr_t extra = kheap_max - (char *)addr;
-      int nframes = (int)(extra / PAGE_SIZE);
-      paging_shrink_heap (nframes);
-      kheap_max -= PAGE_SIZE * nframes;
+      ptrdiff_t extra = kheap_max - (char *)addr;
+      int nframes = (int)(extra / FRAME_SIZE);
+      
+      for (int i = 0; i < nframes; i ++)
+        {
+          char *last_page = (char *)((intptr_t)kheap_max & ~(FRAME_SIZE - 1));
+          frame_t frame = page_unmap (last_page);
+          if (!__frame_valid (frame))
+            return -1;
+          
+          kheap_max = last_page - 1;
+          frame_free (frame);
+        }
     }
   
   kheap_top = addr;

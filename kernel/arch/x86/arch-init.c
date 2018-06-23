@@ -5,6 +5,7 @@
 #include "idt.h"
 #include "frames.h"
 #include "paging.h"
+#include "heap.h"
 #include "multiboot.h"
 
 #include <stdio.h>
@@ -36,4 +37,5 @@ arch_init (uint32_t mbi_addr, uint32_t mbi_magic)
   uint32_t mmap_length = mbi->mmap_length;
     
   frame_init (mmap_addr, mmap_length);
+  heap_init();
 }
