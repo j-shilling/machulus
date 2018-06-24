@@ -4,75 +4,119 @@
 #define	  ALIGNMENT   8
 #define	  __align(x)  (((x) + ALIGNMENT - 1) & ~(ALIGNMENT - 1))
 
-#define	  __block_size(x) (*(x) & 0xFFFFFFFE)
-#define	  __block_is_free(x)  ((*(x)) & 1)
-#define	  __block_next(x) ((size_t *)((char *)(x) + __block_size (x) + header_size))
-#define	  __block_addr(x) ((void *)((char *)(x) + header_size))
+typedef struct block_header_t
+{
+  size_t size;
+  struct block_header_t *prev;
+  struct block_header_t *next;
+} block_header_t;
+
+static const size_t header_size = __align (sizeof (block_header_t));
+
+static inline block_header_t *
+__block_header (void *block)
+{
+  return (block_header_t *)block - 1;
+}
+
+static inline void *
+__block_addr (block_header_t *header)
+{
+  return (void *)(header + 1);
+}
 
 void *
 malloc (size_t size)
 {
-  static size_t header_size = __align (sizeof (size_t));
-  static void *heap_start = NULL;
-  static void *heap_end;
-  if (NULL == heap_start)
-    {
-      heap_start = sbrk (0);
-      heap_end = heap_start;
-    }
-
-  if ((void *)-1 == heap_start)
-    return NULL; /* could not initialize the heap */
-
+  static block_header_t *heap_start = NULL;
+  static block_header_t *heap_end   = NULL;
+  
   size_t size_aligned = __align (size);
+  block_header_t *block = heap_start;
 
-  /* search heap for a free block */
-  size_t *block = heap_start;
-  while ((void *)block < heap_end)
+  while (NULL != block)
     {
-      size_t *next = __block_next (block);
-
-      /* last bit of the size_t marks freed */
-      if (__block_is_free (block))
-	{
-	  size_t available = __block_size (block);
-	  if (available >= size_aligned)
-	    {
-	      /* Is this worth breaking up */
-	      if ((available - size_aligned - header_size) > ALIGNMENT)
-		{
-		  (*block) = size_aligned;
-		  size_t *new_block = __block_next (block);
-		  (*new_block) = available - size_aligned - header_size;
-		}
-
-	      return __block_addr (block);
-	    }
-
-	  /* check if we can combine blocks */
-	  if (((void *)next < heap_end) && ((*next) & 1))
-	    (*block) += (__block_size (next) + header_size);
-	}
+      if (!(block->size & 1) && (block->size >= size_aligned))
+        {
+          /* Check if block is worth breaking */
+          if ((block->size - size_aligned - header_size) > ALIGNMENT)
+            {
+              block_header_t *next = 
+                (block_header_t *)((char *)__block_addr (block) + size_aligned);
+              next->prev = block;
+              next->next = block->next;
+              next->size = block->size - size_aligned - header_size;
+              block->next = next;
+              block->size = size_aligned;
+            }
+          
+          block->size |= 1;
+          return __block_addr (block);
+        }
       
-      block = next;
+      block = block->next;
     }
-
-  /* we need to grow the heap */
-  block= sbrk (size_aligned + header_size);
-  if ((void *)-1 == block)
-    return NULL;
-
-  heap_end = block;
-  (*block) = size_aligned;
-  return __block_addr (block);
+  
+  if (NULL == heap_end)
+    {
+      heap_end = sbrk (size_aligned + header_size);
+      if ((void *)-1 == heap_end)
+        {
+          heap_end = NULL;
+          return NULL;
+        }
+      
+      heap_start = heap_end;
+      heap_start->size = size_aligned | 1;
+      heap_start->next = NULL;
+      heap_start->prev = NULL;
+      return __block_addr (heap_start);
+    }
+  
+  heap_end->next = sbrk (size_aligned + header_size);
+  if ((void *)-1 == heap_end->next)
+    {
+      heap_end->next = NULL;
+      return NULL;
+    }
+  
+  heap_end->next->prev = heap_end;
+  heap_end = heap_end->next;
+  
+  heap_end->next = NULL;
+  heap_end->size = size_aligned | 1;
+  return __block_addr (heap_end);
 }
 
 void
 free (void *addr)
 {
-  if (NULL != addr)
+  if (NULL == addr)
+    return;
+  
+  block_header_t *block = __block_header (addr);
+  block->size &= ~(1);
+  
+  /* Check if this can be attached to the end of a free block */
+  if (!(block->prev->size & 1))
     {
-      size_t *header = ((size_t *)addr) - 1;
-      (*header) &= 0x00000001;
+      block->prev->size += block->size + header_size;
+      block->prev->next = block->next;
+      block = block->prev;
+    }
+  
+  /* Check if the next block can be added to the end of this one */
+  else if (!(block->next->size & 1))
+    {
+      block->size += block->next->size;
+      block->next = block->next->next;
+    }
+  
+  /* Check if we can shrink the heap */
+  if (NULL == block->next)
+    {
+      block_header_t *prev = block->prev;
+      if ((void *)-1 != sbrk (-(block->size + header_size)))
+        prev->next = NULL;
     }
 }
