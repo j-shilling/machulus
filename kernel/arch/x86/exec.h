@@ -16,26 +16,18 @@
  */
 
 /* 
- * File:   tss.h
+ * File:   exec.h
  * Author: Jake Shilling <shilling.jake@gmail.com>
  *
- * Created on June 20, 2018, 12:39 PM
+ * Created on June 24, 2018, 3:27 PM
  */
 
 #pragma once
 
 #include <sys/cdefs.h>
-#include <stddef.h>
-#include <stdint.h>
 
 __BEGIN_DECLS
-
-typedef struct _tss_t
-{
-  uint8_t bytes[0x68];
-} tss_t;
-
-void tss_init (tss_t *);
-void tss_set_stack (tss_t *, uint32_t);
+        
+void exec_usermode ();
 
 __END_DECLS

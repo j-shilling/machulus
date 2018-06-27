@@ -29,9 +29,5 @@
 __BEGIN_DECLS
         
 void idt_init (void);
-void idt_register_trap (int index, uint32_t handler_addr);
-void idt_register_interrupt (int index, uint32_t handler_addr);
-
-void test_handler(void);
 
 __END_DECLS

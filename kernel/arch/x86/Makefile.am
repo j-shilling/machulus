@@ -10,10 +10,14 @@ lib_a_SOURCES = boot.S \
 		tss.h \
 		tss.c \
 		gdt.h \
-		gdt.S \
+		gdt.c \
 		isr.S \
+		isr.h \
 		idt.h \
-		idt.S
+		idt.c \
+		interrupt-handler.c \
+		exec.h \
+		exec.S
 
 lib_a_CFLAGS = -I$(top_srcdir)/include $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
 lib_a_CCASFLAGS = $(ARCH_CFLAGS)
