@@ -18,13 +18,16 @@
 #include "gdt.h"
 #include "tss.h"
 
+char kstack[4096];
+
 void
 tss_init (tss_t *tss)
 {
   for (int i = 0; i < sizeof (tss_t); i ++)
     tss->bytes[i] = 0;
   
-  *((uint16_t *)(tss->bytes + 0x0A)) = GDT_KERNEL_DATA;
+  *((uint32_t *)(tss->bytes + 0x08)) = GDT_KERNEL_DATA;
+  tss_set_stack (tss, (uint32_t)kstack);
 }
 
 void 

@@ -5,14 +5,9 @@
     .global isr_\num
     .type isr_\num, @function
     isr_\num:
-        pusha
-        cld
-        push $0
-        push $\num
-        call interrupt_handler
-        addl $8, %esp
-        popa
-        iret
+        push    $0
+        push    $\num
+        jmp     isr_common
     .size isr_\num, . - isr_\num
 .endm
 
@@ -20,13 +15,8 @@
     .global isr_\num
     .type isr_\num, @function
     isr_\num:
-        pusha
-        cld
-        push $\num
-        call interrupt_handler
-        addl $8, %esp
-        popa
-        iret
+        push    $\num
+        jmp     isr_common
     .size isr_\num, . - isr_\num
 .endm
 
@@ -39,16 +29,16 @@
     ISR 5
     ISR 6
     ISR 7
-    ISR 8
+    ISR_WITH_ERR 8
     ISR 9
-    ISR 10
-    ISR 11
-    ISR 12
-    ISR 13
-    ISR 14
+    ISR_WITH_ERR 10
+    ISR_WITH_ERR 11
+    ISR_WITH_ERR 12
+    ISR_WITH_ERR 13
+    ISR_WITH_ERR 14
     ISR 15
     ISR 16
-    ISR 17
+    ISR_WITH_ERR 17
     ISR 18
     ISR 19
     ISR 20
@@ -61,5 +51,22 @@
     ISR 27
     ISR 28
     ISR 29
-    ISR 30
+    ISR_WITH_ERR 30
     ISR 31
+
+    isr_common:
+        /* This should only be reachable from a function defined by the ISR
+           or ISR_WITH_ERR macros. On the stack is an error code and interrupt
+           number */
+
+        pushal      /* Pushes all registers on top of our function parameters */
+        
+        cld
+        push        36(%esp)
+        push        36(%esp)
+        call        interrupt_handler
+        addl        $8, %esp
+
+        popal       /* Get all registers back */
+        addl        $8, %esp
+        iret

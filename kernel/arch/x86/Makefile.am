@@ -6,7 +6,6 @@ lib_a_SOURCES = boot.S \
 		paging.c \
 		frames.c \
 		heap.c \
-		acpi.c \
 		tss.h \
 		tss.c \
 		gdt.h \

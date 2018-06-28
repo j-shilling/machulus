@@ -192,7 +192,7 @@ vprintf (const char *format, va_list ap)
                   }
 
                 /* Check case */
-                if ((*format) == 'x')
+                if ((*format) == 'X')
                   flags |= UPPERCASE;
 
                 /* no signed or space for unsigned values */

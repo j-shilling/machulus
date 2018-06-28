@@ -18,8 +18,11 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <kernel/panic.h>
+
 void
 interrupt_handler (uint32_t err, uint32_t code)
 {
-  printf ("Interrupt %lu with error code %lx\n", err, code);
+  printf ("Interrupt %lu with error code %#010lx\n", err, code);
+  panic ("Interrupt not handled");
 }
