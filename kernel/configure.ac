@@ -15,6 +15,7 @@
 
 AC_INIT([machulus], [0.0.1])
 AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
+AC_CONFIG_HEADERS([./include/config.h])
 
 # We are always cross compiling. If no host has been specified then
 # we need to set it automatically based on the current build os.
