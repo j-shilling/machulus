@@ -22,48 +22,36 @@ AC_CONFIG_HEADERS([./include/config.h])
 
 AC_CANONICAL_BUILD
 if test -z "$host_alias"; then
-	if test "$build_cpu" = "x86_64"; then
-		build_cpu="i686"
-	fi
-	host_alias="$build_cpu-$build_vendor-elf"
+  host_alias="$build_cpu-$build_vendor-elf"
 fi
 AC_CANONICAL_HOST
 
 # We currently only support building elf
 
 if test "$host_os" != "elf"; then
-	AC_MSG_ERROR("$host_os is not supported")
+  AC_MSG_ERROR("$host_os is not supported")
 fi
 
 # Check the cpu type to find the arch directory
 
 AS_CASE([$host_cpu],
 	[i?86],		[ARCHDIR=x86],
+	[x86_64],	[ARCHDIR=x86],
 	[AC_MSG_ERROR("$host_cpu is not supported")])
 AC_SUBST([ARCHDIR])
 
-# Set arch CFLAGS
+# Set arch specific symbols
 
 AS_CASE([$host_cpu],
 	[i?86],	
-		[ARCH_CFLAGS="-ffreestanding -fno-pie"
-		 ARCH_LDFLAGS="-nostdlib -no-pie"],
+		 [AC_DEFINE([__x86_64__], [0], [64-bit kernel])
+		 AC_DEFINE_UNQUOTED([__CPU_VERSION__], [`echo $host_cpu | sed -e 's/i//'`], [x86 version])],
+	[x86_64],
+		 [AC_DEFINE([__x86_64__], [1], [64-bit kernel])],
 
 	[AC_MSG_ERROR("$host_cpu is not supported")])
 
-AC_SUBST([ARCH_CFLAGS])
-AC_SUBST([ARCH_LDFLAGS])
-
-# Preserve the user variable CFLAGS so we can change it
-# for the compiler tests
-
-CFLAGS_ORIG="$CLFAGS"
-CFLAGS="$ARCH_CFLAGS"
-LDFLAGS_ORIG="$LDFLAGS"
-LDFLAGS="$ARCH_LDFLAGS"
-cross_compiling=yes
-
-AC_PROG_CC([$host-gcc], [$host_cpu-elf-gcc])
+AC_PROG_CC
 AM_PROG_AS
 AC_PROG_RANLIB
 AM_PROG_AR
@@ -72,24 +60,34 @@ AM_PROG_AR
 
 AS_CASE([$host_cpu],
 	[i?86],		[AC_CHECK_LIB([gcc], [__umoddi3])],
-	[AC_MSG_ERROR("$host_cpu is not supported")])
-AC_SUBST([ARCHDIR])
 
-# Restore user CFLAGS
-
-CFLAGS="$CFLAGS_ORIG"
-LDFLAGS="$LDFLAGS_ORIG"
+	[])
 
 # Add --enable-debug option
 
 AC_ARG_ENABLE([debug], AS_HELP_STRING([--enable-debug], [build in debug mode]), [], [])
 AS_IF([test "$enable_debug" = "yes"], [
-  AC_DEFINE([DEBUG], [1], [debug mode])
+  AC_DEFINE([__DEBUG__], [1], [debug mode])
   DEBUG_CFLAGS="-ggdb -O0 -Werror"
 ], [
+  AC_DEFINE([__DEBUG__], [0], [debug mode])
   DEBUG_CFLAGS=""
 ])
 AC_SUBST([DEBUG_CFLAGS])
+
+# Add --enable-pae option
+
+AC_ARG_ENABLE([pae], AS_HELP_STRING([--enable-pae], [use physical address extension on x86 machines]), [], [])
+AS_IF([test "$enable_pae" = "yes" -o "$host_cpu" = "x86_64"], [
+
+  AS_IF([test "$enable_pae" = "no"], [
+    AC_MSG_WARN([PAE is required on x86_64])
+  ])
+
+  AC_DEFINE([__PAE__], [1], [use physical address extension])
+], [
+  AC_DEFINE([__PAE__], [0], [use physical address extension])
+])
 
 AC_CONFIG_FILES([Makefile
 		 arch/Makefile
