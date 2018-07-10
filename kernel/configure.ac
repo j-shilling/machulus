@@ -47,17 +47,28 @@ AS_CASE([$host_cpu],
 		 [AC_DEFINE([__x86_64__], [0], [64-bit kernel])
 		  AC_DEFINE_UNQUOTED([__CPU_VERSION__], [`echo $host_cpu | sed -e 's/i//'`], [x86 version])
       ARCH_CFLAGS="-ffreestanding -nostdlib"
-      ARCH_LDFLAGS="-T ./arch/${ARCHDIR}/linker32.ld"],
+      ARCH_LDFLAGS="-T ./arch/${ARCHDIR}/linker.ld"
+      
+      AC_PROG_GREP
+      if test -z $GREP; then
+        AC_MSG_ERROR(["grep is required to generate the x86 linker file"])
+      fi],
 	[x86_64],
 		 [AC_DEFINE([__x86_64__], [1], [64-bit kernel])
       ARCH_CFLAGS="-ffreestanding -nostdlib"
-      ARCH_LDFLAGS="-T ./arch/${ARCHDIR}/linker64.ld"],
+      ARCH_LDFLAGS="-T ./arch/${ARCHDIR}/linker.ld"
+      
+      AC_PROG_GREP
+      if test -z $GREP; then
+        AC_MSG_ERROR(["grep is required to generate the x86 linker file"])
+      fi],
 
 	[AC_MSG_ERROR("$host_cpu is not supported")])
 AC_SUBST([ARCH_CFLAGS])
 AC_SUBST([ARCH_LDFLAGS])
 
 AC_PROG_CC
+AC_PROG_CPP
 AM_PROG_AS
 AC_PROG_RANLIB
 AM_PROG_AR

@@ -13,7 +13,13 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+INC_DIRS = -I$(top_srcdir)/include -I$(srcdir)/include
 noinst_LIBRARIES = lib.a
+
+BUILT_SOURCES = linker.ld
+CLEANFILES = linker.ld
+linker.ld: Makefile
+	$(CPP) -x c $(INC_DIRS) linker.ld.in | $(GREP) -v '^#' > linker.ld
 
 lib_a_SOURCES = asm/boot.S \
                 asm/paging-init.S \
@@ -34,5 +40,5 @@ lib_a_SOURCES = asm/boot.S \
 		exec.h \
 		exec.S
 
-lib_a_CFLAGS = -I$(top_srcdir)/include -I$(srcdir) $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
+lib_a_CFLAGS = $(INC_DIRS) $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
 lib_a_CCASFLAGS = $(ARCH_CFLAGS)
