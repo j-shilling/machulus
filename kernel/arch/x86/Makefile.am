@@ -15,7 +15,8 @@
 
 noinst_LIBRARIES = lib.a
 
-lib_a_SOURCES = boot.S \
+lib_a_SOURCES = asm/boot.S \
+                asm/paging-init.S \
 		tty.c \
 		arch-init.c \
 		paging.c \
@@ -33,5 +34,5 @@ lib_a_SOURCES = boot.S \
 		exec.h \
 		exec.S
 
-lib_a_CFLAGS = -I$(top_srcdir)/include $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
+lib_a_CFLAGS = -I$(top_srcdir)/include -I$(srcdir) $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
 lib_a_CCASFLAGS = $(ARCH_CFLAGS)
