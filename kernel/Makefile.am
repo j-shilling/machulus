@@ -23,5 +23,5 @@ machulus_SOURCES = kmain.c \
 		  malloc.c
 
 machulus_LDADD = arch/@ARCHDIR@/lib.a
-machulus_LDFLAGS = -T $(srcdir)/arch/@ARCHDIR@/linker.ld $(ARCH_LDFLAGS)
+machulus_LDFLAGS = $(ARCH_LDFLAGS)
 machulus_CFLAGS = -I$(srcdir)/include $(ARCH_CFLAGS) $(DEBUG_CFLAGS)

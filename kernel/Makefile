@@ -14,6 +14,21 @@
 
 
 
+#  Copyright (C) 2018 Jake Shilling <shilling.jake@gmail.com>
+# 
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+# 
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -70,10 +85,10 @@ am__make_running_with_option = \
   test $$has_opt = yes
 am__make_dryrun = (target_option=n; $(am__make_running_with_option))
 am__make_keepgoing = (target_option=k; $(am__make_running_with_option))
-pkgdatadir = $(datadir)/jkernel
-pkgincludedir = $(includedir)/jkernel
-pkglibdir = $(libdir)/jkernel
-pkglibexecdir = $(libexecdir)/jkernel
+pkgdatadir = $(datadir)/machulus
+pkgincludedir = $(includedir)/machulus
+pkglibdir = $(libdir)/machulus
+pkglibexecdir = $(libexecdir)/machulus
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 install_sh_DATA = $(install_sh) -c -m 644
 install_sh_PROGRAM = $(install_sh) -c
@@ -88,7 +103,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = x86_64-pc-linux-gnu
 host_triplet = i686-pc-elf
-noinst_PROGRAMS = jkernel$(EXEEXT)
+noinst_PROGRAMS = machulus$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -99,15 +114,17 @@ DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = $(top_builddir)/./include/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am_jkernel_OBJECTS = jkernel-kmain.$(OBJEXT) jkernel-printf.$(OBJEXT) \
-	jkernel-panic.$(OBJEXT) jkernel-malloc.$(OBJEXT)
-jkernel_OBJECTS = $(am_jkernel_OBJECTS)
-jkernel_DEPENDENCIES = arch/x86/lib.a
-jkernel_LINK = $(CCLD) $(jkernel_CFLAGS) $(CFLAGS) $(jkernel_LDFLAGS) \
-	$(LDFLAGS) -o $@
+am_machulus_OBJECTS = machulus-kmain.$(OBJEXT) \
+	machulus-printf.$(OBJEXT) machulus-panic.$(OBJEXT) \
+	machulus-malloc.$(OBJEXT)
+machulus_OBJECTS = $(am_machulus_OBJECTS)
+machulus_DEPENDENCIES = arch/x86/lib.a
+machulus_LINK = $(CCLD) $(machulus_CFLAGS) $(CFLAGS) \
+	$(machulus_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
 am__v_P_0 = false
@@ -120,7 +137,7 @@ AM_V_at = $(am__v_at_$(V))
 am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
 am__v_at_0 = @
 am__v_at_1 = 
-DEFAULT_INCLUDES = -I.
+DEFAULT_INCLUDES = -I. -I$(top_builddir)/./include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -140,8 +157,8 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(jkernel_SOURCES)
-DIST_SOURCES = $(jkernel_SOURCES)
+SOURCES = $(machulus_SOURCES)
+DIST_SOURCES = $(machulus_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -184,7 +201,8 @@ ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
 DIST_SUBDIRS = $(SUBDIRS)
-am__DIST_COMMON = $(srcdir)/Makefile.in AUTHORS COPYING ChangeLog \
+am__DIST_COMMON = $(srcdir)/Makefile.in \
+	$(top_srcdir)/./include/config.h.in AUTHORS COPYING ChangeLog \
 	INSTALL NEWS README ar-lib compile config.guess config.sub \
 	depcomp install-sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -232,10 +250,10 @@ distcleancheck_listfiles = find . -type f -print
 ACLOCAL = ${SHELL} /home/jake/projects/jkernel/kernel/missing aclocal-1.15
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AR = ar
+AR = i686-pc-elf-ar
 ARCHDIR = x86
-ARCH_CFLAGS = -ffreestanding -fno-pie
-ARCH_LDFLAGS = -nostdlib -no-pie
+ARCH_CFLAGS = -ffreestanding -nostdlib
+ARCH_LDFLAGS = -T ./arch/x86/linker32.ld
 AUTOCONF = ${SHELL} /home/jake/projects/jkernel/kernel/missing autoconf
 AUTOHEADER = ${SHELL} /home/jake/projects/jkernel/kernel/missing autoheader
 AUTOMAKE = ${SHELL} /home/jake/projects/jkernel/kernel/missing automake-1.15
@@ -243,13 +261,13 @@ AWK = gawk
 CC = i686-pc-elf-gcc
 CCAS = i686-pc-elf-gcc
 CCASDEPMODE = depmode=gcc3
-CCASFLAGS = -ffreestanding -fno-pie
+CCASFLAGS = -ffreestanding -nostdlib
 CCDEPMODE = depmode=gcc3
-CFLAGS = 
+CFLAGS = -ffreestanding -nostdlib
 CPPFLAGS = 
 CYGPATH_W = echo
-DEBUG_CFLAGS = -ggdb -O0 -Werror
-DEFS = -DPACKAGE_NAME=\"jkernel\" -DPACKAGE_TARNAME=\"jkernel\" -DPACKAGE_VERSION=\"0.0.1\" -DPACKAGE_STRING=\"jkernel\ 0.0.1\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"jkernel\" -DVERSION=\"0.0.1\" -DHAVE_LIBGCC=1 -DDEBUG=1
+DEBUG_CFLAGS = 
+DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 ECHO_C = 
 ECHO_N = -n
@@ -265,27 +283,27 @@ LIBOBJS =
 LIBS = -lgcc 
 LTLIBOBJS = 
 MAKEINFO = ${SHELL} /home/jake/projects/jkernel/kernel/missing makeinfo
-MKDIR_P = /bin/mkdir -p
+MKDIR_P = /usr/bin/mkdir -p
 OBJEXT = o
-PACKAGE = jkernel
+PACKAGE = machulus
 PACKAGE_BUGREPORT = 
-PACKAGE_NAME = jkernel
-PACKAGE_STRING = jkernel 0.0.1
-PACKAGE_TARNAME = jkernel
+PACKAGE_NAME = machulus
+PACKAGE_STRING = machulus 0.0.1
+PACKAGE_TARNAME = machulus
 PACKAGE_URL = 
 PACKAGE_VERSION = 0.0.1
 PATH_SEPARATOR = :
-RANLIB = ranlib
+RANLIB = i686-pc-elf-ranlib
 SET_MAKE = 
 SHELL = /bin/sh
-STRIP = 
+STRIP = i686-pc-elf-strip
 VERSION = 0.0.1
 abs_builddir = /home/jake/projects/jkernel/kernel
 abs_srcdir = /home/jake/projects/jkernel/kernel
 abs_top_builddir = /home/jake/projects/jkernel/kernel
 abs_top_srcdir = /home/jake/projects/jkernel/kernel
-ac_ct_AR = ar
-ac_ct_CC = i686-pc-elf-gcc
+ac_ct_AR = 
+ac_ct_CC = 
 am__include = include
 am__leading_dot = .
 am__quote = 
@@ -294,7 +312,7 @@ am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
 build = x86_64-pc-linux-gnu
 build_alias = 
-build_cpu = i686
+build_cpu = x86_64
 build_os = linux-gnu
 build_vendor = pc
 builddir = .
@@ -333,14 +351,14 @@ top_builddir = .
 top_srcdir = .
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = arch
-jkernel_SOURCES = kmain.c \
+machulus_SOURCES = kmain.c \
 		  printf.c \
 		  panic.c \
 		  malloc.c
 
-jkernel_LDADD = arch/x86/lib.a
-jkernel_LDFLAGS = -T $(srcdir)/arch/x86/linker.ld $(ARCH_LDFLAGS)
-jkernel_CFLAGS = -I$(srcdir)/include $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
+machulus_LDADD = arch/x86/lib.a
+machulus_LDFLAGS = $(ARCH_LDFLAGS)
+machulus_CFLAGS = -I$(srcdir)/include $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
 all: all-recursive
 
 .SUFFIXES:
@@ -379,12 +397,27 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
 
+./include/config.h: ./include/stamp-h1
+	@test -f $@ || rm -f ./include/stamp-h1
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) ./include/stamp-h1
+
+./include/stamp-h1: $(top_srcdir)/./include/config.h.in $(top_builddir)/config.status
+	@rm -f ./include/stamp-h1
+	cd $(top_builddir) && $(SHELL) ./config.status ./include/config.h
+$(top_srcdir)/./include/config.h.in:  $(am__configure_deps) 
+	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
+	rm -f ./include/stamp-h1
+	touch $@
+
+distclean-hdr:
+	-rm -f ./include/config.h ./include/stamp-h1
+
 clean-noinstPROGRAMS:
 	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
 
-jkernel$(EXEEXT): $(jkernel_OBJECTS) $(jkernel_DEPENDENCIES) $(EXTRA_jkernel_DEPENDENCIES) 
-	@rm -f jkernel$(EXEEXT)
-	$(AM_V_CCLD)$(jkernel_LINK) $(jkernel_OBJECTS) $(jkernel_LDADD) $(LIBS)
+machulus$(EXEEXT): $(machulus_OBJECTS) $(machulus_DEPENDENCIES) $(EXTRA_machulus_DEPENDENCIES) 
+	@rm -f machulus$(EXEEXT)
+	$(AM_V_CCLD)$(machulus_LINK) $(machulus_OBJECTS) $(machulus_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -392,10 +425,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/jkernel-kmain.Po
-include ./$(DEPDIR)/jkernel-malloc.Po
-include ./$(DEPDIR)/jkernel-panic.Po
-include ./$(DEPDIR)/jkernel-printf.Po
+include ./$(DEPDIR)/machulus-kmain.Po
+include ./$(DEPDIR)/machulus-malloc.Po
+include ./$(DEPDIR)/machulus-panic.Po
+include ./$(DEPDIR)/machulus-printf.Po
 
 .c.o:
 	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -413,61 +446,61 @@ include ./$(DEPDIR)/jkernel-printf.Po
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-jkernel-kmain.o: kmain.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-kmain.o -MD -MP -MF $(DEPDIR)/jkernel-kmain.Tpo -c -o jkernel-kmain.o `test -f 'kmain.c' || echo '$(srcdir)/'`kmain.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-kmain.Tpo $(DEPDIR)/jkernel-kmain.Po
-#	$(AM_V_CC)source='kmain.c' object='jkernel-kmain.o' libtool=no \
+machulus-kmain.o: kmain.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-kmain.o -MD -MP -MF $(DEPDIR)/machulus-kmain.Tpo -c -o machulus-kmain.o `test -f 'kmain.c' || echo '$(srcdir)/'`kmain.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-kmain.Tpo $(DEPDIR)/machulus-kmain.Po
+#	$(AM_V_CC)source='kmain.c' object='machulus-kmain.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-kmain.o `test -f 'kmain.c' || echo '$(srcdir)/'`kmain.c
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-kmain.o `test -f 'kmain.c' || echo '$(srcdir)/'`kmain.c
 
-jkernel-kmain.obj: kmain.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-kmain.obj -MD -MP -MF $(DEPDIR)/jkernel-kmain.Tpo -c -o jkernel-kmain.obj `if test -f 'kmain.c'; then $(CYGPATH_W) 'kmain.c'; else $(CYGPATH_W) '$(srcdir)/kmain.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-kmain.Tpo $(DEPDIR)/jkernel-kmain.Po
-#	$(AM_V_CC)source='kmain.c' object='jkernel-kmain.obj' libtool=no \
+machulus-kmain.obj: kmain.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-kmain.obj -MD -MP -MF $(DEPDIR)/machulus-kmain.Tpo -c -o machulus-kmain.obj `if test -f 'kmain.c'; then $(CYGPATH_W) 'kmain.c'; else $(CYGPATH_W) '$(srcdir)/kmain.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-kmain.Tpo $(DEPDIR)/machulus-kmain.Po
+#	$(AM_V_CC)source='kmain.c' object='machulus-kmain.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-kmain.obj `if test -f 'kmain.c'; then $(CYGPATH_W) 'kmain.c'; else $(CYGPATH_W) '$(srcdir)/kmain.c'; fi`
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-kmain.obj `if test -f 'kmain.c'; then $(CYGPATH_W) 'kmain.c'; else $(CYGPATH_W) '$(srcdir)/kmain.c'; fi`
 
-jkernel-printf.o: printf.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-printf.o -MD -MP -MF $(DEPDIR)/jkernel-printf.Tpo -c -o jkernel-printf.o `test -f 'printf.c' || echo '$(srcdir)/'`printf.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-printf.Tpo $(DEPDIR)/jkernel-printf.Po
-#	$(AM_V_CC)source='printf.c' object='jkernel-printf.o' libtool=no \
+machulus-printf.o: printf.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-printf.o -MD -MP -MF $(DEPDIR)/machulus-printf.Tpo -c -o machulus-printf.o `test -f 'printf.c' || echo '$(srcdir)/'`printf.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-printf.Tpo $(DEPDIR)/machulus-printf.Po
+#	$(AM_V_CC)source='printf.c' object='machulus-printf.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-printf.o `test -f 'printf.c' || echo '$(srcdir)/'`printf.c
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-printf.o `test -f 'printf.c' || echo '$(srcdir)/'`printf.c
 
-jkernel-printf.obj: printf.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-printf.obj -MD -MP -MF $(DEPDIR)/jkernel-printf.Tpo -c -o jkernel-printf.obj `if test -f 'printf.c'; then $(CYGPATH_W) 'printf.c'; else $(CYGPATH_W) '$(srcdir)/printf.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-printf.Tpo $(DEPDIR)/jkernel-printf.Po
-#	$(AM_V_CC)source='printf.c' object='jkernel-printf.obj' libtool=no \
+machulus-printf.obj: printf.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-printf.obj -MD -MP -MF $(DEPDIR)/machulus-printf.Tpo -c -o machulus-printf.obj `if test -f 'printf.c'; then $(CYGPATH_W) 'printf.c'; else $(CYGPATH_W) '$(srcdir)/printf.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-printf.Tpo $(DEPDIR)/machulus-printf.Po
+#	$(AM_V_CC)source='printf.c' object='machulus-printf.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-printf.obj `if test -f 'printf.c'; then $(CYGPATH_W) 'printf.c'; else $(CYGPATH_W) '$(srcdir)/printf.c'; fi`
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-printf.obj `if test -f 'printf.c'; then $(CYGPATH_W) 'printf.c'; else $(CYGPATH_W) '$(srcdir)/printf.c'; fi`
 
-jkernel-panic.o: panic.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-panic.o -MD -MP -MF $(DEPDIR)/jkernel-panic.Tpo -c -o jkernel-panic.o `test -f 'panic.c' || echo '$(srcdir)/'`panic.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-panic.Tpo $(DEPDIR)/jkernel-panic.Po
-#	$(AM_V_CC)source='panic.c' object='jkernel-panic.o' libtool=no \
+machulus-panic.o: panic.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-panic.o -MD -MP -MF $(DEPDIR)/machulus-panic.Tpo -c -o machulus-panic.o `test -f 'panic.c' || echo '$(srcdir)/'`panic.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-panic.Tpo $(DEPDIR)/machulus-panic.Po
+#	$(AM_V_CC)source='panic.c' object='machulus-panic.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-panic.o `test -f 'panic.c' || echo '$(srcdir)/'`panic.c
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-panic.o `test -f 'panic.c' || echo '$(srcdir)/'`panic.c
 
-jkernel-panic.obj: panic.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-panic.obj -MD -MP -MF $(DEPDIR)/jkernel-panic.Tpo -c -o jkernel-panic.obj `if test -f 'panic.c'; then $(CYGPATH_W) 'panic.c'; else $(CYGPATH_W) '$(srcdir)/panic.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-panic.Tpo $(DEPDIR)/jkernel-panic.Po
-#	$(AM_V_CC)source='panic.c' object='jkernel-panic.obj' libtool=no \
+machulus-panic.obj: panic.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-panic.obj -MD -MP -MF $(DEPDIR)/machulus-panic.Tpo -c -o machulus-panic.obj `if test -f 'panic.c'; then $(CYGPATH_W) 'panic.c'; else $(CYGPATH_W) '$(srcdir)/panic.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-panic.Tpo $(DEPDIR)/machulus-panic.Po
+#	$(AM_V_CC)source='panic.c' object='machulus-panic.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-panic.obj `if test -f 'panic.c'; then $(CYGPATH_W) 'panic.c'; else $(CYGPATH_W) '$(srcdir)/panic.c'; fi`
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-panic.obj `if test -f 'panic.c'; then $(CYGPATH_W) 'panic.c'; else $(CYGPATH_W) '$(srcdir)/panic.c'; fi`
 
-jkernel-malloc.o: malloc.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-malloc.o -MD -MP -MF $(DEPDIR)/jkernel-malloc.Tpo -c -o jkernel-malloc.o `test -f 'malloc.c' || echo '$(srcdir)/'`malloc.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-malloc.Tpo $(DEPDIR)/jkernel-malloc.Po
-#	$(AM_V_CC)source='malloc.c' object='jkernel-malloc.o' libtool=no \
+machulus-malloc.o: malloc.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-malloc.o -MD -MP -MF $(DEPDIR)/machulus-malloc.Tpo -c -o machulus-malloc.o `test -f 'malloc.c' || echo '$(srcdir)/'`malloc.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-malloc.Tpo $(DEPDIR)/machulus-malloc.Po
+#	$(AM_V_CC)source='malloc.c' object='machulus-malloc.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-malloc.o `test -f 'malloc.c' || echo '$(srcdir)/'`malloc.c
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-malloc.o `test -f 'malloc.c' || echo '$(srcdir)/'`malloc.c
 
-jkernel-malloc.obj: malloc.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -MT jkernel-malloc.obj -MD -MP -MF $(DEPDIR)/jkernel-malloc.Tpo -c -o jkernel-malloc.obj `if test -f 'malloc.c'; then $(CYGPATH_W) 'malloc.c'; else $(CYGPATH_W) '$(srcdir)/malloc.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/jkernel-malloc.Tpo $(DEPDIR)/jkernel-malloc.Po
-#	$(AM_V_CC)source='malloc.c' object='jkernel-malloc.obj' libtool=no \
+machulus-malloc.obj: malloc.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-malloc.obj -MD -MP -MF $(DEPDIR)/machulus-malloc.Tpo -c -o machulus-malloc.obj `if test -f 'malloc.c'; then $(CYGPATH_W) 'malloc.c'; else $(CYGPATH_W) '$(srcdir)/malloc.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-malloc.Tpo $(DEPDIR)/machulus-malloc.Po
+#	$(AM_V_CC)source='malloc.c' object='machulus-malloc.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(jkernel_CFLAGS) $(CFLAGS) -c -o jkernel-malloc.obj `if test -f 'malloc.c'; then $(CYGPATH_W) 'malloc.c'; else $(CYGPATH_W) '$(srcdir)/malloc.c'; fi`
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-malloc.obj `if test -f 'malloc.c'; then $(CYGPATH_W) 'malloc.c'; else $(CYGPATH_W) '$(srcdir)/malloc.c'; fi`
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -807,7 +840,7 @@ distclean: distclean-recursive
 	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-tags
+	distclean-hdr distclean-tags
 
 dvi: dvi-recursive
 
@@ -877,16 +910,17 @@ uninstall-am:
 	clean-noinstPROGRAMS cscope cscopelist-am ctags ctags-am dist \
 	dist-all dist-bzip2 dist-gzip dist-lzip dist-shar dist-tarZ \
 	dist-xz dist-zip distcheck distclean distclean-compile \
-	distclean-generic distclean-tags distcleancheck distdir \
-	distuninstallcheck dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
-	ps ps-am tags tags-am uninstall uninstall-am
+	distclean-generic distclean-hdr distclean-tags distcleancheck \
+	distdir distuninstallcheck dvi dvi-am html html-am info \
+	info-am install install-am install-data install-data-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am
 
 .PRECIOUS: Makefile
 

@@ -42,5 +42,5 @@ arch_init (uint32_t mbi_addr, uint32_t mbi_magic)
   gdt_init ();
   idt_init ();
   
-  exec_usermode ();
+  //exec_usermode ();
 }

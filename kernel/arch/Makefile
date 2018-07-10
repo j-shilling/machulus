@@ -14,6 +14,21 @@
 
 
 
+#  Copyright (C) 2018 Jake Shilling <shilling.jake@gmail.com>
+# 
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+# 
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
     false; \
@@ -69,10 +84,10 @@ am__make_running_with_option = \
   test $$has_opt = yes
 am__make_dryrun = (target_option=n; $(am__make_running_with_option))
 am__make_keepgoing = (target_option=k; $(am__make_running_with_option))
-pkgdatadir = $(datadir)/jkernel
-pkgincludedir = $(includedir)/jkernel
-pkglibdir = $(libdir)/jkernel
-pkglibexecdir = $(libexecdir)/jkernel
+pkgdatadir = $(datadir)/machulus
+pkgincludedir = $(includedir)/machulus
+pkglibdir = $(libdir)/machulus
+pkglibexecdir = $(libexecdir)/machulus
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 install_sh_DATA = $(install_sh) -c -m 644
 install_sh_PROGRAM = $(install_sh) -c
@@ -94,6 +109,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = $(top_builddir)/./include/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_$(V))
@@ -180,10 +196,10 @@ am__relativize = \
 ACLOCAL = ${SHELL} /home/jake/projects/jkernel/kernel/missing aclocal-1.15
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AR = ar
+AR = i686-pc-elf-ar
 ARCHDIR = x86
-ARCH_CFLAGS = -ffreestanding -fno-pie
-ARCH_LDFLAGS = -nostdlib -no-pie
+ARCH_CFLAGS = -ffreestanding -nostdlib
+ARCH_LDFLAGS = -T ./arch/x86/linker32.ld
 AUTOCONF = ${SHELL} /home/jake/projects/jkernel/kernel/missing autoconf
 AUTOHEADER = ${SHELL} /home/jake/projects/jkernel/kernel/missing autoheader
 AUTOMAKE = ${SHELL} /home/jake/projects/jkernel/kernel/missing automake-1.15
@@ -191,13 +207,13 @@ AWK = gawk
 CC = i686-pc-elf-gcc
 CCAS = i686-pc-elf-gcc
 CCASDEPMODE = depmode=gcc3
-CCASFLAGS = -ffreestanding -fno-pie
+CCASFLAGS = -ffreestanding -nostdlib
 CCDEPMODE = depmode=gcc3
-CFLAGS = 
+CFLAGS = -ffreestanding -nostdlib
 CPPFLAGS = 
 CYGPATH_W = echo
-DEBUG_CFLAGS = -ggdb -O0 -Werror
-DEFS = -DPACKAGE_NAME=\"jkernel\" -DPACKAGE_TARNAME=\"jkernel\" -DPACKAGE_VERSION=\"0.0.1\" -DPACKAGE_STRING=\"jkernel\ 0.0.1\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"jkernel\" -DVERSION=\"0.0.1\" -DHAVE_LIBGCC=1 -DDEBUG=1
+DEBUG_CFLAGS = 
+DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 ECHO_C = 
 ECHO_N = -n
@@ -213,27 +229,27 @@ LIBOBJS =
 LIBS = -lgcc 
 LTLIBOBJS = 
 MAKEINFO = ${SHELL} /home/jake/projects/jkernel/kernel/missing makeinfo
-MKDIR_P = /bin/mkdir -p
+MKDIR_P = /usr/bin/mkdir -p
 OBJEXT = o
-PACKAGE = jkernel
+PACKAGE = machulus
 PACKAGE_BUGREPORT = 
-PACKAGE_NAME = jkernel
-PACKAGE_STRING = jkernel 0.0.1
-PACKAGE_TARNAME = jkernel
+PACKAGE_NAME = machulus
+PACKAGE_STRING = machulus 0.0.1
+PACKAGE_TARNAME = machulus
 PACKAGE_URL = 
 PACKAGE_VERSION = 0.0.1
 PATH_SEPARATOR = :
-RANLIB = ranlib
+RANLIB = i686-pc-elf-ranlib
 SET_MAKE = 
 SHELL = /bin/sh
-STRIP = 
+STRIP = i686-pc-elf-strip
 VERSION = 0.0.1
 abs_builddir = /home/jake/projects/jkernel/kernel/arch
 abs_srcdir = /home/jake/projects/jkernel/kernel/arch
 abs_top_builddir = /home/jake/projects/jkernel/kernel
 abs_top_srcdir = /home/jake/projects/jkernel/kernel
-ac_ct_AR = ar
-ac_ct_CC = i686-pc-elf-gcc
+ac_ct_AR = 
+ac_ct_CC = 
 am__include = include
 am__leading_dot = .
 am__quote = 
@@ -242,7 +258,7 @@ am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
 build = x86_64-pc-linux-gnu
 build_alias = 
-build_cpu = i686
+build_cpu = x86_64
 build_os = linux-gnu
 build_vendor = pc
 builddir = .

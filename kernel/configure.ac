@@ -45,11 +45,17 @@ AC_SUBST([ARCHDIR])
 AS_CASE([$host_cpu],
 	[i?86],	
 		 [AC_DEFINE([__x86_64__], [0], [64-bit kernel])
-		 AC_DEFINE_UNQUOTED([__CPU_VERSION__], [`echo $host_cpu | sed -e 's/i//'`], [x86 version])],
+		  AC_DEFINE_UNQUOTED([__CPU_VERSION__], [`echo $host_cpu | sed -e 's/i//'`], [x86 version])
+      ARCH_CFLAGS="-ffreestanding -nostdlib"
+      ARCH_LDFLAGS="-T ./arch/${ARCHDIR}/linker32.ld"],
 	[x86_64],
-		 [AC_DEFINE([__x86_64__], [1], [64-bit kernel])],
+		 [AC_DEFINE([__x86_64__], [1], [64-bit kernel])
+      ARCH_CFLAGS="-ffreestanding -nostdlib"
+      ARCH_LDFLAGS="-T ./arch/${ARCHDIR}/linker64.ld"],
 
 	[AC_MSG_ERROR("$host_cpu is not supported")])
+AC_SUBST([ARCH_CFLAGS])
+AC_SUBST([ARCH_LDFLAGS])
 
 AC_PROG_CC
 AM_PROG_AS
