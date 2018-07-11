@@ -14,14 +14,13 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = arch
+SUBDIRS = common arch
 
 noinst_PROGRAMS = machulus
-machulus_SOURCES = kmain.c \
-		  printf.c \
-		  panic.c \
-		  malloc.c
 
-machulus_LDADD = arch/@ARCHDIR@/lib.a
-machulus_LDFLAGS = $(ARCH_LDFLAGS)
-machulus_CFLAGS = -I$(srcdir)/include $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
+machulus_SOURCES =
+
+machulus_LDADD = $(top_srcdir)/arch/@ARCHDIR@/lib.a \
+                 $(top_srcdir)/common/libmachulus.a
+                 
+machulus_LDFLAGS = $(ARCH_LDFLAGS) $(LDFLAGS)

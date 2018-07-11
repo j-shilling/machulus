@@ -23,37 +23,53 @@
 #  define FORMAT  "elf32-i386"
 #endif /* __x86_64__ */
 
+#define ASM_FILE 1
+#include <multiboot.h>
+#define MULTIBOOT_HEADER_FLAGS \
+  (MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_VIDEO_MODE)
+
 OUTPUT_FORMAT(FORMAT)
 ENTRY(_start)
-SECTIONS {
-  . = KERNEL_VMA;
-  _kernel_start = .;
 
-  .text ALIGN (4K) : AT(ADDR(.text)-KERNEL_VBASE) 
+mb_magic = MULTIBOOT_HEADER_MAGIC;
+mb_flags = MULTIBOOT_HEADER_FLAGS;
+mb_checksum = -(mb_magic + mb_flags);
+
+PHDRS
+{
+  init PT_LOAD FILEHDR;
+}
+
+SECTIONS {
+
+  _kernel_start = KERNEL_VMA;
+  .init (KERNEL_VMA + SIZEOF_HEADERS) : AT(ADDR(.init) - KERNEL_VBASE)
   {
-    *(.multiboot)
+    . = ALIGN(16);
+    LONG(mb_magic);
+    LONG(mb_flags);
+    LONG(mb_checksum);
+  } :init
+
+  .text ALIGN(4K):
+  {
     *(.text)
   }
 
-  .rodata ALIGN (4K) : AT(ADDR(.rodata)-KERNEL_VBASE)
+  .rodata ALIGN(4K):
   {
     *(.rodata)
   }
 
-  .data ALIGN (4K) : AT(ADDR(.data)-KERNEL_VBASE)
+  .data ALIGN(4K):
   {
     *(.data)
   }
 
-  .bss ALIGN (4K): AT(ADDR(.bss)-KERNEL_VBASE)
+  .bss ALIGN(4K):
   {
     *(COMMON)
     *(.bss)
-  }
-  
-  /DISCARD/ :
-  {
-    *(*)
   }
 
   _kernel_end = .;

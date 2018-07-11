@@ -393,7 +393,7 @@ on `(hostname || uname -n) 2>/dev/null | sed 1q`
 "
 
 # Files that config.status was made for.
-config_files=" Makefile arch/Makefile arch/x86/Makefile"
+config_files=" Makefile arch/Makefile arch/x86/Makefile common/Makefile"
 config_headers=" ./include/config.h"
 config_commands=" depfiles"
 
@@ -551,6 +551,7 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "arch/Makefile") CONFIG_FILES="$CONFIG_FILES arch/Makefile" ;;
     "arch/x86/Makefile") CONFIG_FILES="$CONFIG_FILES arch/x86/Makefile" ;;
+    "common/Makefile") CONFIG_FILES="$CONFIG_FILES common/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -629,6 +630,7 @@ S["am__fastdepCCAS_TRUE"]=""
 S["CCASDEPMODE"]="depmode=gcc3"
 S["CCASFLAGS"]="-ffreestanding -nostdlib"
 S["CCAS"]="i686-pc-elf-gcc"
+S["CPP"]="i686-pc-elf-gcc -E"
 S["am__fastdepCC_FALSE"]="#"
 S["am__fastdepCC_TRUE"]=""
 S["CCDEPMODE"]="depmode=gcc3"
@@ -646,8 +648,9 @@ S["CPPFLAGS"]=""
 S["LDFLAGS"]=""
 S["CFLAGS"]="-ffreestanding -nostdlib"
 S["CC"]="i686-pc-elf-gcc"
-S["ARCH_LDFLAGS"]="-T ./arch/x86/linker32.ld"
+S["ARCH_LDFLAGS"]="-T ./arch/x86/linker.ld -n"
 S["ARCH_CFLAGS"]="-ffreestanding -nostdlib"
+S["GREP"]="/usr/bin/grep"
 S["ARCHDIR"]="x86"
 S["host_os"]="elf"
 S["host_vendor"]="pc"

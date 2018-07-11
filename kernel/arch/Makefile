@@ -199,7 +199,7 @@ AM_DEFAULT_VERBOSITY = 1
 AR = i686-pc-elf-ar
 ARCHDIR = x86
 ARCH_CFLAGS = -ffreestanding -nostdlib
-ARCH_LDFLAGS = -T ./arch/x86/linker32.ld
+ARCH_LDFLAGS = -T ./arch/x86/linker.ld -n
 AUTOCONF = ${SHELL} /home/jake/projects/jkernel/kernel/missing autoconf
 AUTOHEADER = ${SHELL} /home/jake/projects/jkernel/kernel/missing autoheader
 AUTOMAKE = ${SHELL} /home/jake/projects/jkernel/kernel/missing automake-1.15
@@ -210,6 +210,7 @@ CCASDEPMODE = depmode=gcc3
 CCASFLAGS = -ffreestanding -nostdlib
 CCDEPMODE = depmode=gcc3
 CFLAGS = -ffreestanding -nostdlib
+CPP = i686-pc-elf-gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
 DEBUG_CFLAGS = 
@@ -219,6 +220,7 @@ ECHO_C =
 ECHO_N = -n
 ECHO_T = 
 EXEEXT = 
+GREP = /usr/bin/grep
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}

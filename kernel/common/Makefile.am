@@ -13,33 +13,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-INC_DIRS = -I$(top_srcdir)/include -I$(srcdir)/include -I$(srcdir)
+noinst_LIBRARIES = libmachulus.a
+libmachulus_a_SOURCES = kmain.c \
+		  printf.c \
+		  panic.c \
+		  malloc.c
 
-noinst_LIBRARIES = lib.a
-
-BUILT_SOURCES = linker.ld
-CLEANFILES = linker.ld
-linker.ld: Makefile
-	$(CPP) -x c $(INC_DIRS) linker.ld.in | $(GREP) -v '^#' > linker.ld
-
-lib_a_SOURCES = asm/boot.S \
-                asm/paging-init.S \
-		tty.c \
-		arch-init.c \
-		paging.c \
-		frames.c \
-		heap.c \
-		tss.h \
-		tss.c \
-		gdt.h \
-		gdt.c \
-		isr.S \
-		isr.h \
-		idt.h \
-		idt.c \
-		interrupt-handler.c \
-		exec.h \
-		exec.S
-
-lib_a_CFLAGS = $(INC_DIRS) $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
-lib_a_CCASFLAGS = $(ARCH_CFLAGS)
+libmachulus_a_CFLAGS = -I$(srcdir)/include $(ARCH_CFLAGS) $(DEBUG_CFLAGS)

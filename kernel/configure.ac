@@ -47,7 +47,7 @@ AS_CASE([$host_cpu],
 		 [AC_DEFINE([__x86_64__], [0], [64-bit kernel])
 		  AC_DEFINE_UNQUOTED([__CPU_VERSION__], [`echo $host_cpu | sed -e 's/i//'`], [x86 version])
       ARCH_CFLAGS="-ffreestanding -nostdlib"
-      ARCH_LDFLAGS="-T ./arch/${ARCHDIR}/linker.ld"
+      ARCH_LDFLAGS="-T ./arch/${ARCHDIR}/linker.ld -n"
       
       AC_PROG_GREP
       if test -z $GREP; then
@@ -56,7 +56,7 @@ AS_CASE([$host_cpu],
 	[x86_64],
 		 [AC_DEFINE([__x86_64__], [1], [64-bit kernel])
       ARCH_CFLAGS="-ffreestanding -nostdlib"
-      ARCH_LDFLAGS="-T ./arch/${ARCHDIR}/linker.ld"
+      ARCH_LDFLAGS="-T ./arch/${ARCHDIR}/linker.ld -n"
       
       AC_PROG_GREP
       if test -z $GREP; then
@@ -108,5 +108,6 @@ AS_IF([test "$enable_pae" = "yes" -o "$host_cpu" = "x86_64"], [
 
 AC_CONFIG_FILES([Makefile
 		 arch/Makefile
-		 arch/x86/Makefile])
+		 arch/x86/Makefile
+                 common/Makefile])
 AC_OUTPUT

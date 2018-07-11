@@ -118,13 +118,12 @@ CONFIG_HEADER = $(top_builddir)/./include/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am_machulus_OBJECTS = machulus-kmain.$(OBJEXT) \
-	machulus-printf.$(OBJEXT) machulus-panic.$(OBJEXT) \
-	machulus-malloc.$(OBJEXT)
+am_machulus_OBJECTS =
 machulus_OBJECTS = $(am_machulus_OBJECTS)
-machulus_DEPENDENCIES = arch/x86/lib.a
-machulus_LINK = $(CCLD) $(machulus_CFLAGS) $(CFLAGS) \
-	$(machulus_LDFLAGS) $(LDFLAGS) -o $@
+machulus_DEPENDENCIES = $(top_srcdir)/arch/x86/lib.a \
+	$(top_srcdir)/common/libmachulus.a
+machulus_LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(machulus_LDFLAGS) \
+	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
 am__v_P_0 = false
@@ -138,13 +137,6 @@ am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
 am__v_at_0 = @
 am__v_at_1 = 
 DEFAULT_INCLUDES = -I. -I$(top_builddir)/./include
-depcomp = $(SHELL) $(top_srcdir)/depcomp
-am__depfiles_maybe = depfiles
-am__mv = mv -f
-AM_V_lt = $(am__v_lt_$(V))
-am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
-am__v_lt_0 = --silent
-am__v_lt_1 = 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_$(V))
@@ -253,7 +245,7 @@ AM_DEFAULT_VERBOSITY = 1
 AR = i686-pc-elf-ar
 ARCHDIR = x86
 ARCH_CFLAGS = -ffreestanding -nostdlib
-ARCH_LDFLAGS = -T ./arch/x86/linker32.ld
+ARCH_LDFLAGS = -T ./arch/x86/linker.ld -n
 AUTOCONF = ${SHELL} /home/jake/projects/jkernel/kernel/missing autoconf
 AUTOHEADER = ${SHELL} /home/jake/projects/jkernel/kernel/missing autoheader
 AUTOMAKE = ${SHELL} /home/jake/projects/jkernel/kernel/missing automake-1.15
@@ -264,6 +256,7 @@ CCASDEPMODE = depmode=gcc3
 CCASFLAGS = -ffreestanding -nostdlib
 CCDEPMODE = depmode=gcc3
 CFLAGS = -ffreestanding -nostdlib
+CPP = i686-pc-elf-gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
 DEBUG_CFLAGS = 
@@ -273,6 +266,7 @@ ECHO_C =
 ECHO_N = -n
 ECHO_T = 
 EXEEXT = 
+GREP = /usr/bin/grep
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
@@ -350,19 +344,15 @@ top_build_prefix =
 top_builddir = .
 top_srcdir = .
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = arch
-machulus_SOURCES = kmain.c \
-		  printf.c \
-		  panic.c \
-		  malloc.c
+SUBDIRS = common arch
+machulus_SOURCES = 
+machulus_LDADD = $(top_srcdir)/arch/x86/lib.a \
+                 $(top_srcdir)/common/libmachulus.a
 
-machulus_LDADD = arch/x86/lib.a
-machulus_LDFLAGS = $(ARCH_LDFLAGS)
-machulus_CFLAGS = -I$(srcdir)/include $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
+machulus_LDFLAGS = $(ARCH_LDFLAGS) $(LDFLAGS)
 all: all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .c .o .obj
 am--refresh: Makefile
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -424,83 +414,6 @@ mostlyclean-compile:
 
 distclean-compile:
 	-rm -f *.tab.c
-
-include ./$(DEPDIR)/machulus-kmain.Po
-include ./$(DEPDIR)/machulus-malloc.Po
-include ./$(DEPDIR)/machulus-panic.Po
-include ./$(DEPDIR)/machulus-printf.Po
-
-.c.o:
-	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
-	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-	$(am__mv) $$depbase.Tpo $$depbase.Po
-#	$(AM_V_CC)source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(COMPILE) -c -o $@ $<
-
-.c.obj:
-	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
-	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
-	$(am__mv) $$depbase.Tpo $$depbase.Po
-#	$(AM_V_CC)source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-machulus-kmain.o: kmain.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-kmain.o -MD -MP -MF $(DEPDIR)/machulus-kmain.Tpo -c -o machulus-kmain.o `test -f 'kmain.c' || echo '$(srcdir)/'`kmain.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-kmain.Tpo $(DEPDIR)/machulus-kmain.Po
-#	$(AM_V_CC)source='kmain.c' object='machulus-kmain.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-kmain.o `test -f 'kmain.c' || echo '$(srcdir)/'`kmain.c
-
-machulus-kmain.obj: kmain.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-kmain.obj -MD -MP -MF $(DEPDIR)/machulus-kmain.Tpo -c -o machulus-kmain.obj `if test -f 'kmain.c'; then $(CYGPATH_W) 'kmain.c'; else $(CYGPATH_W) '$(srcdir)/kmain.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-kmain.Tpo $(DEPDIR)/machulus-kmain.Po
-#	$(AM_V_CC)source='kmain.c' object='machulus-kmain.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-kmain.obj `if test -f 'kmain.c'; then $(CYGPATH_W) 'kmain.c'; else $(CYGPATH_W) '$(srcdir)/kmain.c'; fi`
-
-machulus-printf.o: printf.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-printf.o -MD -MP -MF $(DEPDIR)/machulus-printf.Tpo -c -o machulus-printf.o `test -f 'printf.c' || echo '$(srcdir)/'`printf.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-printf.Tpo $(DEPDIR)/machulus-printf.Po
-#	$(AM_V_CC)source='printf.c' object='machulus-printf.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-printf.o `test -f 'printf.c' || echo '$(srcdir)/'`printf.c
-
-machulus-printf.obj: printf.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-printf.obj -MD -MP -MF $(DEPDIR)/machulus-printf.Tpo -c -o machulus-printf.obj `if test -f 'printf.c'; then $(CYGPATH_W) 'printf.c'; else $(CYGPATH_W) '$(srcdir)/printf.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-printf.Tpo $(DEPDIR)/machulus-printf.Po
-#	$(AM_V_CC)source='printf.c' object='machulus-printf.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-printf.obj `if test -f 'printf.c'; then $(CYGPATH_W) 'printf.c'; else $(CYGPATH_W) '$(srcdir)/printf.c'; fi`
-
-machulus-panic.o: panic.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-panic.o -MD -MP -MF $(DEPDIR)/machulus-panic.Tpo -c -o machulus-panic.o `test -f 'panic.c' || echo '$(srcdir)/'`panic.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-panic.Tpo $(DEPDIR)/machulus-panic.Po
-#	$(AM_V_CC)source='panic.c' object='machulus-panic.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-panic.o `test -f 'panic.c' || echo '$(srcdir)/'`panic.c
-
-machulus-panic.obj: panic.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-panic.obj -MD -MP -MF $(DEPDIR)/machulus-panic.Tpo -c -o machulus-panic.obj `if test -f 'panic.c'; then $(CYGPATH_W) 'panic.c'; else $(CYGPATH_W) '$(srcdir)/panic.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-panic.Tpo $(DEPDIR)/machulus-panic.Po
-#	$(AM_V_CC)source='panic.c' object='machulus-panic.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-panic.obj `if test -f 'panic.c'; then $(CYGPATH_W) 'panic.c'; else $(CYGPATH_W) '$(srcdir)/panic.c'; fi`
-
-machulus-malloc.o: malloc.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-malloc.o -MD -MP -MF $(DEPDIR)/machulus-malloc.Tpo -c -o machulus-malloc.o `test -f 'malloc.c' || echo '$(srcdir)/'`malloc.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-malloc.Tpo $(DEPDIR)/machulus-malloc.Po
-#	$(AM_V_CC)source='malloc.c' object='machulus-malloc.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-malloc.o `test -f 'malloc.c' || echo '$(srcdir)/'`malloc.c
-
-machulus-malloc.obj: malloc.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -MT machulus-malloc.obj -MD -MP -MF $(DEPDIR)/machulus-malloc.Tpo -c -o machulus-malloc.obj `if test -f 'malloc.c'; then $(CYGPATH_W) 'malloc.c'; else $(CYGPATH_W) '$(srcdir)/malloc.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/machulus-malloc.Tpo $(DEPDIR)/machulus-malloc.Po
-#	$(AM_V_CC)source='malloc.c' object='machulus-malloc.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(machulus_CFLAGS) $(CFLAGS) -c -o machulus-malloc.obj `if test -f 'malloc.c'; then $(CYGPATH_W) 'malloc.c'; else $(CYGPATH_W) '$(srcdir)/malloc.c'; fi`
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -837,7 +750,6 @@ clean-am: clean-generic clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -885,7 +797,6 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

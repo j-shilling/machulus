@@ -40,38 +40,40 @@ PATH: /usr/bin/core_perl
 ## Core tests. ##
 ## ----------- ##
 
-configure:1906: checking for a BSD-compatible install
-configure:1974: result: /usr/bin/install -c
-configure:1985: checking whether build environment is sane
-configure:2040: result: yes
-configure:2099: checking for i686-pc-elf-strip
-configure:2115: found /usr/local/bin/i686-pc-elf-strip
-configure:2126: result: i686-pc-elf-strip
-configure:2191: checking for a thread-safe mkdir -p
-configure:2230: result: /usr/bin/mkdir -p
-configure:2237: checking for gawk
-configure:2253: found /usr/bin/gawk
-configure:2264: result: gawk
-configure:2275: checking whether make sets $(MAKE)
-configure:2297: result: yes
-configure:2326: checking whether make supports nested variables
-configure:2343: result: yes
-configure:2479: checking build system type
-configure:2493: result: x86_64-pc-linux-gnu
-configure:2516: checking host system type
-configure:2529: result: i686-pc-elf
-configure:2602: checking for i686-pc-elf-gcc
-configure:2618: found /usr/local/bin/i686-pc-elf-gcc
-configure:2629: result: i686-pc-elf-gcc
-configure:2898: checking for C compiler version
-configure:2907: i686-pc-elf-gcc --version >&5
+configure:1948: checking for a BSD-compatible install
+configure:2016: result: /usr/bin/install -c
+configure:2027: checking whether build environment is sane
+configure:2082: result: yes
+configure:2141: checking for i686-pc-elf-strip
+configure:2157: found /usr/local/bin/i686-pc-elf-strip
+configure:2168: result: i686-pc-elf-strip
+configure:2233: checking for a thread-safe mkdir -p
+configure:2272: result: /usr/bin/mkdir -p
+configure:2279: checking for gawk
+configure:2295: found /usr/bin/gawk
+configure:2306: result: gawk
+configure:2317: checking whether make sets $(MAKE)
+configure:2339: result: yes
+configure:2368: checking whether make supports nested variables
+configure:2385: result: yes
+configure:2521: checking build system type
+configure:2535: result: x86_64-pc-linux-gnu
+configure:2558: checking host system type
+configure:2571: result: i686-pc-elf
+configure:2625: checking for grep that handles long lines and -e
+configure:2683: result: /usr/bin/grep
+configure:2778: checking for i686-pc-elf-gcc
+configure:2794: found /usr/local/bin/i686-pc-elf-gcc
+configure:2805: result: i686-pc-elf-gcc
+configure:3074: checking for C compiler version
+configure:3083: i686-pc-elf-gcc --version >&5
 i686-pc-elf-gcc (GCC) 8.1.0
 Copyright (C) 2018 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-configure:2918: $? = 0
-configure:2907: i686-pc-elf-gcc -v >&5
+configure:3094: $? = 0
+configure:3083: i686-pc-elf-gcc -v >&5
 Using built-in specs.
 COLLECT_GCC=i686-pc-elf-gcc
 COLLECT_LTO_WRAPPER=/usr/local/libexec/gcc/i686-pc-elf/8.1.0/lto-wrapper
@@ -79,89 +81,135 @@ Target: i686-pc-elf
 Configured with: ../gcc-8.1.0/configure --target i686-pc-elf --prefix /usr/local --enable-languages=c,c++ --with-newlib --without-headers --disable-shared --with-gnu-as --with-gnu-ld
 Thread model: single
 gcc version 8.1.0 (GCC) 
-configure:2918: $? = 0
-configure:2907: i686-pc-elf-gcc -V >&5
+configure:3094: $? = 0
+configure:3083: i686-pc-elf-gcc -V >&5
 i686-pc-elf-gcc: error: unrecognized command line option '-V'
 i686-pc-elf-gcc: fatal error: no input files
 compilation terminated.
-configure:2918: $? = 1
-configure:2907: i686-pc-elf-gcc -qversion >&5
+configure:3094: $? = 1
+configure:3083: i686-pc-elf-gcc -qversion >&5
 i686-pc-elf-gcc: error: unrecognized command line option '-qversion'; did you mean '--version'?
 i686-pc-elf-gcc: fatal error: no input files
 compilation terminated.
-configure:2918: $? = 1
-configure:2938: checking whether the C compiler works
-configure:2960: i686-pc-elf-gcc -ffreestanding -nostdlib   conftest.c  >&5
+configure:3094: $? = 1
+configure:3114: checking whether the C compiler works
+configure:3136: i686-pc-elf-gcc -ffreestanding -nostdlib   conftest.c  >&5
 /usr/local/lib/gcc/i686-pc-elf/8.1.0/../../../../i686-pc-elf/bin/ld: warning: cannot find entry symbol _start; defaulting to 0000000008048054
-configure:2964: $? = 0
-configure:3012: result: yes
-configure:3015: checking for C compiler default output file name
-configure:3017: result: a.out
-configure:3023: checking for suffix of executables
-configure:3030: i686-pc-elf-gcc -o conftest -ffreestanding -nostdlib   conftest.c  >&5
+configure:3140: $? = 0
+configure:3188: result: yes
+configure:3191: checking for C compiler default output file name
+configure:3193: result: a.out
+configure:3199: checking for suffix of executables
+configure:3206: i686-pc-elf-gcc -o conftest -ffreestanding -nostdlib   conftest.c  >&5
 /usr/local/lib/gcc/i686-pc-elf/8.1.0/../../../../i686-pc-elf/bin/ld: warning: cannot find entry symbol _start; defaulting to 0000000008048054
-configure:3034: $? = 0
-configure:3056: result: 
-configure:3078: checking whether we are cross compiling
-configure:3086: i686-pc-elf-gcc -o conftest -ffreestanding -nostdlib   conftest.c  >&5
+configure:3210: $? = 0
+configure:3232: result: 
+configure:3254: checking whether we are cross compiling
+configure:3262: i686-pc-elf-gcc -o conftest -ffreestanding -nostdlib   conftest.c  >&5
 /usr/local/lib/gcc/i686-pc-elf/8.1.0/../../../../i686-pc-elf/bin/ld: warning: cannot find entry symbol _start; defaulting to 0000000008048054
-/tmp/cc1TQBoV.o: In function `main':
+/tmp/cchdlUUi.o: In function `main':
 conftest.c:(.text+0x1f): undefined reference to `fopen'
 conftest.c:(.text+0x3f): undefined reference to `fclose'
 collect2: error: ld returned 1 exit status
-configure:3090: $? = 1
-configure:3097: ./conftest
-./configure: line 3099: ./conftest: No such file or directory
-configure:3101: $? = 127
-configure:3116: result: yes
-configure:3121: checking for suffix of object files
-configure:3143: i686-pc-elf-gcc -c -ffreestanding -nostdlib  conftest.c >&5
-configure:3147: $? = 0
-configure:3168: result: o
-configure:3172: checking whether we are using the GNU C compiler
-configure:3191: i686-pc-elf-gcc -c -ffreestanding -nostdlib  conftest.c >&5
-configure:3191: $? = 0
-configure:3200: result: yes
-configure:3209: checking whether i686-pc-elf-gcc accepts -g
-configure:3229: i686-pc-elf-gcc -c -g  conftest.c >&5
-configure:3229: $? = 0
-configure:3270: result: yes
-configure:3287: checking for i686-pc-elf-gcc option to accept ISO C89
-configure:3350: i686-pc-elf-gcc  -c -ffreestanding -nostdlib  conftest.c >&5
-configure:3350: $? = 0
-configure:3363: result: none needed
-configure:3388: checking whether i686-pc-elf-gcc understands -c and -o together
-configure:3410: i686-pc-elf-gcc -c conftest.c -o conftest2.o
-configure:3413: $? = 0
-configure:3410: i686-pc-elf-gcc -c conftest.c -o conftest2.o
-configure:3413: $? = 0
-configure:3425: result: yes
-configure:3453: checking for style of include used by make
-configure:3481: result: GNU
-configure:3507: checking dependency style of i686-pc-elf-gcc
-configure:3618: result: gcc3
-configure:3642: checking dependency style of i686-pc-elf-gcc
-configure:3751: result: gcc3
-configure:3769: checking for i686-pc-elf-ranlib
-configure:3785: found /usr/local/bin/i686-pc-elf-ranlib
-configure:3796: result: i686-pc-elf-ranlib
-configure:3864: checking for i686-pc-elf-ar
-configure:3880: found /usr/local/bin/i686-pc-elf-ar
-configure:3891: result: i686-pc-elf-ar
-configure:3961: checking the archiver (i686-pc-elf-ar) interface
-configure:3977: i686-pc-elf-gcc -c -ffreestanding -nostdlib  conftest.c >&5
-configure:3977: $? = 0
-configure:3979: i686-pc-elf-ar cru libconftest.a conftest.o >&5
-configure:3982: $? = 0
-configure:4010: result: ar
-configure:4035: checking for __umoddi3 in -lgcc
-configure:4060: i686-pc-elf-gcc -o conftest -ffreestanding -nostdlib   conftest.c -lgcc   >&5
+configure:3266: $? = 1
+configure:3273: ./conftest
+./configure: line 3275: ./conftest: No such file or directory
+configure:3277: $? = 127
+configure:3292: result: yes
+configure:3297: checking for suffix of object files
+configure:3319: i686-pc-elf-gcc -c -ffreestanding -nostdlib  conftest.c >&5
+configure:3323: $? = 0
+configure:3344: result: o
+configure:3348: checking whether we are using the GNU C compiler
+configure:3367: i686-pc-elf-gcc -c -ffreestanding -nostdlib  conftest.c >&5
+configure:3367: $? = 0
+configure:3376: result: yes
+configure:3385: checking whether i686-pc-elf-gcc accepts -g
+configure:3405: i686-pc-elf-gcc -c -g  conftest.c >&5
+configure:3405: $? = 0
+configure:3446: result: yes
+configure:3463: checking for i686-pc-elf-gcc option to accept ISO C89
+configure:3526: i686-pc-elf-gcc  -c -ffreestanding -nostdlib  conftest.c >&5
+configure:3526: $? = 0
+configure:3539: result: none needed
+configure:3564: checking whether i686-pc-elf-gcc understands -c and -o together
+configure:3586: i686-pc-elf-gcc -c conftest.c -o conftest2.o
+configure:3589: $? = 0
+configure:3586: i686-pc-elf-gcc -c conftest.c -o conftest2.o
+configure:3589: $? = 0
+configure:3601: result: yes
+configure:3629: checking for style of include used by make
+configure:3657: result: GNU
+configure:3683: checking dependency style of i686-pc-elf-gcc
+configure:3794: result: gcc3
+configure:3814: checking how to run the C preprocessor
+configure:3845: i686-pc-elf-gcc -E  conftest.c
+configure:3845: $? = 0
+configure:3859: i686-pc-elf-gcc -E  conftest.c
+conftest.c:13:10: fatal error: ac_nonexistent.h: No such file or directory
+ #include <ac_nonexistent.h>
+          ^~~~~~~~~~~~~~~~~~
+compilation terminated.
+configure:3859: $? = 1
+configure: failed program was:
+| /* confdefs.h */
+| #define PACKAGE_NAME "machulus"
+| #define PACKAGE_TARNAME "machulus"
+| #define PACKAGE_VERSION "0.0.1"
+| #define PACKAGE_STRING "machulus 0.0.1"
+| #define PACKAGE_BUGREPORT ""
+| #define PACKAGE_URL ""
+| #define PACKAGE "machulus"
+| #define VERSION "0.0.1"
+| #define __x86_64__ 0
+| #define __CPU_VERSION__ 686
+| /* end confdefs.h.  */
+| #include <ac_nonexistent.h>
+configure:3884: result: i686-pc-elf-gcc -E
+configure:3904: i686-pc-elf-gcc -E  conftest.c
+configure:3904: $? = 0
+configure:3918: i686-pc-elf-gcc -E  conftest.c
+conftest.c:13:10: fatal error: ac_nonexistent.h: No such file or directory
+ #include <ac_nonexistent.h>
+          ^~~~~~~~~~~~~~~~~~
+compilation terminated.
+configure:3918: $? = 1
+configure: failed program was:
+| /* confdefs.h */
+| #define PACKAGE_NAME "machulus"
+| #define PACKAGE_TARNAME "machulus"
+| #define PACKAGE_VERSION "0.0.1"
+| #define PACKAGE_STRING "machulus 0.0.1"
+| #define PACKAGE_BUGREPORT ""
+| #define PACKAGE_URL ""
+| #define PACKAGE "machulus"
+| #define VERSION "0.0.1"
+| #define __x86_64__ 0
+| #define __CPU_VERSION__ 686
+| /* end confdefs.h.  */
+| #include <ac_nonexistent.h>
+configure:3955: checking dependency style of i686-pc-elf-gcc
+configure:4064: result: gcc3
+configure:4082: checking for i686-pc-elf-ranlib
+configure:4098: found /usr/local/bin/i686-pc-elf-ranlib
+configure:4109: result: i686-pc-elf-ranlib
+configure:4177: checking for i686-pc-elf-ar
+configure:4193: found /usr/local/bin/i686-pc-elf-ar
+configure:4204: result: i686-pc-elf-ar
+configure:4274: checking the archiver (i686-pc-elf-ar) interface
+configure:4290: i686-pc-elf-gcc -c -ffreestanding -nostdlib  conftest.c >&5
+configure:4290: $? = 0
+configure:4292: i686-pc-elf-ar cru libconftest.a conftest.o >&5
+configure:4295: $? = 0
+configure:4323: result: ar
+configure:4348: checking for __umoddi3 in -lgcc
+configure:4373: i686-pc-elf-gcc -o conftest -ffreestanding -nostdlib   conftest.c -lgcc   >&5
 /usr/local/lib/gcc/i686-pc-elf/8.1.0/../../../../i686-pc-elf/bin/ld: warning: cannot find entry symbol _start; defaulting to 0000000008048060
-configure:4060: $? = 0
-configure:4069: result: yes
-configure:4248: checking that generated files are newer than configure
-configure:4254: result: done
-configure:4281: creating ./config.status
+configure:4373: $? = 0
+configure:4382: result: yes
+configure:4561: checking that generated files are newer than configure
+configure:4567: result: done
+configure:4594: creating ./config.status
 
 ## ---------------------- ##
 ## Running config.status. ##
@@ -178,11 +226,13 @@ generated by GNU Autoconf 2.69.  Invocation command line was
 
 on mercurius
 
-config.status:866: creating Makefile
-config.status:866: creating arch/Makefile
-config.status:866: creating arch/x86/Makefile
-config.status:866: creating ./include/config.h
-config.status:1095: executing depfiles commands
+config.status:869: creating Makefile
+config.status:869: creating arch/Makefile
+config.status:869: creating arch/x86/Makefile
+config.status:869: creating common/Makefile
+config.status:869: creating ./include/config.h
+config.status:1050: ./include/config.h is unchanged
+config.status:1098: executing depfiles commands
 
 ## ---------------- ##
 ## Cache variables. ##
@@ -200,6 +250,8 @@ ac_cv_env_CFLAGS_set=set
 ac_cv_env_CFLAGS_value='-ffreestanding -nostdlib'
 ac_cv_env_CPPFLAGS_set=
 ac_cv_env_CPPFLAGS_value=
+ac_cv_env_CPP_set=
+ac_cv_env_CPP_value=
 ac_cv_env_LDFLAGS_set=
 ac_cv_env_LDFLAGS_value=
 ac_cv_env_LIBS_set=
@@ -213,11 +265,13 @@ ac_cv_env_target_alias_value=
 ac_cv_host=i686-pc-elf
 ac_cv_lib_gcc___umoddi3=yes
 ac_cv_objext=o
+ac_cv_path_GREP=/usr/bin/grep
 ac_cv_path_install='/usr/bin/install -c'
 ac_cv_path_mkdir=/usr/bin/mkdir
 ac_cv_prog_AR=i686-pc-elf-ar
 ac_cv_prog_AWK=gawk
 ac_cv_prog_CC=i686-pc-elf-gcc
+ac_cv_prog_CPP='i686-pc-elf-gcc -E'
 ac_cv_prog_RANLIB=i686-pc-elf-ranlib
 ac_cv_prog_STRIP=i686-pc-elf-strip
 ac_cv_prog_cc_c89=
@@ -245,7 +299,7 @@ AM_V='$(V)'
 AR='i686-pc-elf-ar'
 ARCHDIR='x86'
 ARCH_CFLAGS='-ffreestanding -nostdlib'
-ARCH_LDFLAGS='-T ./arch/x86/linker32.ld'
+ARCH_LDFLAGS='-T ./arch/x86/linker.ld -n'
 AUTOCONF='${SHELL} /home/jake/projects/jkernel/kernel/missing autoconf'
 AUTOHEADER='${SHELL} /home/jake/projects/jkernel/kernel/missing autoheader'
 AUTOMAKE='${SHELL} /home/jake/projects/jkernel/kernel/missing automake-1.15'
@@ -256,6 +310,7 @@ CCASDEPMODE='depmode=gcc3'
 CCASFLAGS='-ffreestanding -nostdlib'
 CCDEPMODE='depmode=gcc3'
 CFLAGS='-ffreestanding -nostdlib'
+CPP='i686-pc-elf-gcc -E'
 CPPFLAGS=''
 CYGPATH_W='echo'
 DEBUG_CFLAGS=''
@@ -265,6 +320,7 @@ ECHO_C=''
 ECHO_N='-n'
 ECHO_T=''
 EXEEXT=''
+GREP='/usr/bin/grep'
 INSTALL_DATA='${INSTALL} -m 644'
 INSTALL_PROGRAM='${INSTALL}'
 INSTALL_SCRIPT='${INSTALL}'
@@ -376,203 +432,5 @@ generated by GNU Autoconf 2.69.  Invocation command line was
 
 on mercurius
 
-config.status:866: creating Makefile
-config.status:1095: executing depfiles commands
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by machulus config.status 0.0.1, which was
-generated by GNU Autoconf 2.69.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status arch/x86/Makefile depfiles
-
-on mercurius
-
-config.status:866: creating arch/x86/Makefile
-config.status:1095: executing depfiles commands
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by machulus config.status 0.0.1, which was
-generated by GNU Autoconf 2.69.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status arch/x86/Makefile depfiles
-
-on mercurius
-
-config.status:866: creating arch/x86/Makefile
-config.status:1095: executing depfiles commands
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by machulus config.status 0.0.1, which was
-generated by GNU Autoconf 2.69.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status arch/x86/Makefile depfiles
-
-on mercurius
-
-config.status:866: creating arch/x86/Makefile
-config.status:1095: executing depfiles commands
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by machulus config.status 0.0.1, which was
-generated by GNU Autoconf 2.69.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status arch/x86/Makefile depfiles
-
-on mercurius
-
-config.status:866: creating arch/x86/Makefile
-config.status:1095: executing depfiles commands
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by machulus config.status 0.0.1, which was
-generated by GNU Autoconf 2.69.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status arch/x86/Makefile depfiles
-
-on mercurius
-
-config.status:866: creating arch/x86/Makefile
-config.status:1095: executing depfiles commands
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by machulus config.status 0.0.1, which was
-generated by GNU Autoconf 2.69.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status arch/x86/Makefile depfiles
-
-on mercurius
-
-config.status:866: creating arch/x86/Makefile
-config.status:1095: executing depfiles commands
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by machulus config.status 0.0.1, which was
-generated by GNU Autoconf 2.69.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status arch/x86/Makefile depfiles
-
-on mercurius
-
-config.status:866: creating arch/x86/Makefile
-config.status:1095: executing depfiles commands
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by machulus config.status 0.0.1, which was
-generated by GNU Autoconf 2.69.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status arch/x86/Makefile depfiles
-
-on mercurius
-
-config.status:866: creating arch/x86/Makefile
-config.status:1095: executing depfiles commands
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by machulus config.status 0.0.1, which was
-generated by GNU Autoconf 2.69.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status arch/x86/Makefile depfiles
-
-on mercurius
-
-config.status:866: creating arch/x86/Makefile
-config.status:1095: executing depfiles commands
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by machulus config.status 0.0.1, which was
-generated by GNU Autoconf 2.69.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status arch/x86/Makefile depfiles
-
-on mercurius
-
-config.status:866: creating arch/x86/Makefile
-config.status:1095: executing depfiles commands
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by machulus config.status 0.0.1, which was
-generated by GNU Autoconf 2.69.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status arch/x86/Makefile depfiles
-
-on mercurius
-
-config.status:866: creating arch/x86/Makefile
-config.status:1095: executing depfiles commands
+config.status:869: creating Makefile
+config.status:1098: executing depfiles commands

@@ -16,7 +16,6 @@
  */
 
 #define ASM_FILE    1
-#include <multiboot.h>
 #include <paging.h>
 #include <config.h>
 
@@ -26,17 +25,8 @@
 #  define EXT_C(sym)    sym
 #endif
 
-#define MULTIBOOT_HEADER_FLAGS \
-  (MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_VIDEO_MODE)
-
 .extern kmain
-.extern arch_init
-
-.section .multiboot
-  .align 4
-  .long    MULTIBOOT_HEADER_MAGIC
-  .long    MULTIBOOT_HEADER_FLAGS
-  .long    -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
+.extern arch_init  
 
 .section .bss, "aw", @nobits
 
