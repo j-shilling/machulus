@@ -35,41 +35,44 @@ mb_magic = MULTIBOOT_HEADER_MAGIC;
 mb_flags = MULTIBOOT_HEADER_FLAGS;
 mb_checksum = -(mb_magic + mb_flags);
 
-PHDRS
-{
-  init PT_LOAD FILEHDR;
-}
-
 SECTIONS {
 
   _kernel_start = KERNEL_VMA;
-  .init (KERNEL_VMA + SIZEOF_HEADERS) : AT(ADDR(.init) - KERNEL_VBASE)
+
+  .multiboot_header KERNEL_LMA:
   {
     . = ALIGN(16);
     LONG(mb_magic);
     LONG(mb_flags);
     LONG(mb_checksum);
-  } :init
+  }
 
-  .text ALIGN(4K):
+  . = KERNEL_VMA + SIZEOF(.multiboot_header);
+
+  .text ALIGN(4K): AT(ADDR(.text) - KERNEL_VBASE)
   {
     *(.text)
   }
 
-  .rodata ALIGN(4K):
+  .rodata ALIGN(4K): AT(ADDR(.rodata) - KERNEL_VBASE)
   {
     *(.rodata)
   }
 
-  .data ALIGN(4K):
+  .data ALIGN(4K): AT(ADDR(.data) - KERNEL_VBASE)
   {
     *(.data)
   }
 
-  .bss ALIGN(4K):
+  .bss ALIGN(4K): AT(ADDR(.bss) - KERNEL_VBASE)
   {
     *(COMMON)
     *(.bss)
+  }
+
+  .gdt ALIGN(4K): AT(ADDR(.gdt) - KERNEL_VBASE)
+  {
+    *(.gdt)
   }
 
   _kernel_end = .;

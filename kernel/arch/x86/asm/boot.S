@@ -28,6 +28,10 @@
 .extern kmain
 .extern arch_init  
 
+.global stack_bottom
+.global stack_top
+.global higher_half
+
 .section .bss, "aw", @nobits
 
   .type stack, @object
@@ -39,18 +43,8 @@
   .size stack, . - stack
 
 .section .text
-  .global _start
-  .type _start, @function
-
-    _start:
-      movl $(PHYS_ADDR(stack_top)), %esp
-      movl $(PHYS_ADDR(stack_bottom)), %ebp
-      
-      call paging_init
-
-      lea higher_half, %ecx
-      jmp *%ecx
-
+  .global higher_half
+  .type higher_half, @function
     higher_half:
       /* Set up the stack */
       movl $stack_top, %esp
@@ -69,4 +63,4 @@
     inf_loop:
       hlt
       jmp inf_loop
-.size _start, . - _start
+.size higher_half, . - higher_half

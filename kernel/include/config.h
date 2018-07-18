@@ -32,7 +32,7 @@
 #define __CPU_VERSION__ 686
 
 /* debug mode */
-#define __DEBUG__ 0
+#define __DEBUG__ 1
 
 /* use physical address extension */
 #define __PAE__ 0
