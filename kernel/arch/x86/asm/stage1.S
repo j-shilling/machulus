@@ -23,6 +23,7 @@
 .extern paging_init
 .extern higher_half
 .extern start_initial_gdt
+.extern start_initial_tss
 
 .section .text
   .global _start
@@ -35,6 +36,7 @@
       
       cli
       call start_initial_gdt
+      call start_initial_tss
       call paging_init
 
       pop %ebx

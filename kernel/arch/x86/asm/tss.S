@@ -14,31 +14,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+#define ASM_FILE 1
+#include <arch/cdefs.h>
 
-#ifndef __ARCH_CDEFS_H__
-#define __ARCH_CDEFS_H__
-
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#else
-#  define __x86_64__  0
-#endif /* HAVE_CONFIG_H */
-
-/* Kernel loads at 1MB */
-#define KERNEL_LMA    (0x100000)
-
-/* Kernel's virtual address depends on processor mode */
 #if __x86_64__
-#  define KERNEL_VMA  (0xFFFFFFFF80100000)
+#  define TSS_SEL	(8 * 4)
 #else
-#  define KERNEL_VMA  (0xC0100000)
-#endif /* __x86_64__ */
+#  define TSS_SEL	(8 * 3)
+#endif
 
-/* Kernels virtual address offset */
-#define KERNEL_VBASE  (KERNEL_VMA - KERNEL_LMA)
-#define PHYS_ADDR(x)	    ((x) - KERNEL_VBASE)
+.section .tss, "wda", @progbits
+.align PAGE_SIZE
+  .type initial_tss, @object
+  .global initial_tss
+  initial_tss:
+    .skip SIZEOF_TSS, 0
+  end_initialtss:
 
-#define PAGE_SIZE (4096)
-#define SIZEOF_TSS (0x68)
+  initial_tss_stack:
+    .skip (PAGE_SIZE - SIZEOF_TSS), 0
+  end_initial_tss_stack:
 
-#endif /* __ARCH_CDEFS_H__ */
+.section .text
+  .type start_initial_tss, @function
+  .global start_initial_tss
+  start_initial_tss:
+    mov	    $PHYS_ADDR(initial_tss), %eax
+    mov	    $PHYS_ADDR(initial_tss_stack), %ebx
+    mov	    %ebx, 4(%eax)
+    mov	    $TSS_SEL, %ax
+    ltr	    %ax
+    ret
+  .size start_initial_tss, . - start_initial_tss

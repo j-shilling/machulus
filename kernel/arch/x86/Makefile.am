@@ -25,7 +25,9 @@ linker.ld: Makefile
 lib_a_SOURCES = asm/boot.S \
                 asm/paging-init.S \
                 asm/stage1.S \
+		asm/tss.S \
                 asm/gdt.S \
+		asm/idt.S \
 		tty.c \
 		arch-init.c \
 		paging.c \
@@ -44,4 +46,4 @@ lib_a_SOURCES = asm/boot.S \
 		exec.S
 
 lib_a_CFLAGS = $(INC_DIRS) $(ARCH_CFLAGS) $(DEBUG_CFLAGS)
-lib_a_CCASFLAGS = $(INC_DIRS) $(ARCH_CFLAGS) -ggdb 
+lib_a_CCASFLAGS = $(INC_DIRS) $(ARCH_CFLAGS)

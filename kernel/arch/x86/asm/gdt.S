@@ -18,8 +18,6 @@
 #define ASM_FILE 1
 #include <arch/cdefs.h>
 
-#define PHYS_ADDR(x)	    ((x) - KERNEL_VBASE)
- 
 .section .gdt, "wda", @progbits
 .align 8
   .type initial_gdt, @object
@@ -57,6 +55,15 @@
       .byte         0x00
 #endif
 
+    /* base = initial_tss; limit = SIZEOF_TSS */
+    initial_tss_entry:
+      .2byte        (SIZEOF_TSS & 0xFFFF)
+      .2byte        0x0000
+      .byte         0x00
+      .byte         0b10001001
+      .byte         ((SIZEOF_TSS & 0xFF0000) >> 16)
+      .byte         0x00
+ 
   end_initial_gdt:
   
   .type initial_gdtr, @object
@@ -69,13 +76,33 @@
     .4byte        PHYS_ADDR(initial_gdt)
 #endif
 
+.extern initial_tss
+
 .section .text
   .type start_initial_gdt, @function
   .global start_initial_gdt
   start_initial_gdt:
+    /* Add initial TSS entry */
+    mov           $PHYS_ADDR(initial_tss_entry), %edx
+    mov           $PHYS_ADDR(initial_tss), %eax
+
+    mov           %eax, %ebx
+    shl           $16, %ebx
+    or            %ebx, (%edx)
+    add           $4, %edx
+  
+    mov           %eax, %ebx
+    shr           $16, %ebx
+    and           $0xFF, %ebx
+    and           $0xFF000000, %eax
+    or            %eax, %ebx
+    or            %ebx, (%edx)
+
+    /* Load GDT */
     mov           $PHYS_ADDR(initial_gdtr), %eax
     lgdt          (%eax)
     
+    /* Switch selector registers */
     mov           $0x10, %ax
     mov           %ax, %ds
     mov           %ax, %es
