@@ -20,14 +20,9 @@ noinst_LIBRARIES = lib.a
 BUILT_SOURCES = linker.ld
 CLEANFILES = linker.ld
 linker.ld: Makefile
-	$(CPP) -x c $(INC_DIRS) linker.ld.in | $(GREP) -v '^#' > linker.ld
+	$(CPP) -x c $(INC_DIRS) -DHAVE_CONFIG_H linker.ld.in | $(GREP) -v '^#' > linker.ld
 
-lib_a_SOURCES = asm/boot.S \
-                asm/paging-init.S \
-                asm/stage1.S \
-		asm/tss.S \
-                asm/gdt.S \
-		asm/idt.S \
+lib_a_SOURCES = asm/boot32.S \
 		tty.c \
 		arch-init.c \
 		paging.c \

@@ -1,3 +1,4 @@
+#include <arch/cdefs.h>
 
 .extern interrupt_handler
 
@@ -55,6 +56,9 @@
     ISR 31
 
     isr_common:
+#if __x86_64__
+	iret
+#else
         /* This should only be reachable from a function defined by the ISR
            or ISR_WITH_ERR macros. On the stack is an error code and interrupt
            number */
@@ -70,3 +74,4 @@
         popal       /* Get all registers back */
         addl        $8, %esp
         iret
+#endif

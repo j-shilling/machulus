@@ -37,9 +37,10 @@ mb_checksum = -(mb_magic + mb_flags);
 
 SECTIONS {
 
-  _kernel_start = KERNEL_VMA;
+  . = KERNEL_LMA;
+  _kernel_start = . + KERNEL_VBASE;
 
-  .multiboot_header KERNEL_LMA:
+  .multiboot_header :
   {
     . = ALIGN(16);
     LONG(mb_magic);
@@ -47,7 +48,17 @@ SECTIONS {
     LONG(mb_checksum);
   }
 
-  . = KERNEL_VMA + SIZEOF(.multiboot_header);
+  .bootstrap.text ALIGN(4K) :
+  {
+      *(.bootstrap.text)
+  }
+
+  .boostrap.data ALIGN(4K) :
+  {
+      *(.bootstrap.data)
+  }
+
+  . += KERNEL_VBASE;
 
   .text ALIGN(4K): AT(ADDR(.text) - KERNEL_VBASE)
   {
@@ -70,11 +81,33 @@ SECTIONS {
     *(.bss)
   }
 
-  .gdt ALIGN(4K): AT(ADDR(.gdt) - KERNEL_VBASE)
-  {
-    *(.gdt)
-  }
-
   _kernel_end = .;
   kernel_size = _kernel_end - _kernel_start;
+
+  .paging ALIGN(4K): AT(ADDR(.paging) - KERNEL_VBASE)
+  {
+    /* We need enough page tables for the entire kernel twice. Each page
+     * has 1024 entries pointing to 4086 bytes of space. */
+#define N_PAGE_TABLES (2 * (1 + (kernel_size / (1024 * 4086))))
+    /* We now need enough page directories to hole all of our page tables */
+#define N_PAGE_DIRS   (1 + (N_PAGE_TABLES / 1024))
+
+    initial_page_tables = .;
+    . += 4096 * N_PAGE_TABLES;
+    initial_page_directories = .;
+    . += 4096 * N_PAGE_DIRS;
+
+#if __x86_86__
+
+    /* In 64-bit paging we also need page directory pointers and a PML4 */
+#define N_PAGE_DIR_PTRS (1 + (N_PAGE_DIRS / 1024))
+#define N_PML4          (1 + (N_PAGE_DIR_PTRS))
+
+    initial_page_director_pointers = .;
+    . += 4096 * N_PAGE_DIR_PTRS;
+    initial_pml4 = .;
+    . += 4096 * N_PML4;
+
+#endif 
+  }
 }

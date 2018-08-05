@@ -1,3 +1,5 @@
+#include <arch/cdefs.h>
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -47,6 +49,22 @@ tty_init (void)
   tty_cur = tty_start;
 
   /* disable curser */
+#if __x86_64__
+  asm (
+    "pushf;"
+    "push %rax;"
+    "push %rdx;"
+    "mov $0x3D4, %dx;"
+    "mov $0xA, %al;"
+    "out %al, %dx;"
+    "inc %dx;"
+    "mov $0x20, %al;"
+    "out %al, %dx;"
+    "pop %rdx;"
+    "pop %rax;"
+    "popf;"
+  );
+#else
   asm (
     "pushf;"
     "push %eax;"
@@ -61,6 +79,7 @@ tty_init (void)
     "pop %eax;"
     "popf;"
   );
+#endif
 
 }
 

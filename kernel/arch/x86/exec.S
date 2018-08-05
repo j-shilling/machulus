@@ -1,5 +1,5 @@
 #define ASM_FILE                        1
-
+#include <arch/cdefs.h>
 #include "gdt.h"
 
 #define USER_DATA_SELECTOR             (GDT_USER_DATA | DPL_USER)
@@ -13,7 +13,9 @@
     .type exec_usermode, @function
     /* void exec_usermode (void (*func_ptr)(void)) */
     exec_usermode:
-
+#if __x86_64__
+        iret
+#else
         mov         $USER_DATA_SELECTOR, %ax
         mov         %ax, %ds
         mov         %ax, %es
@@ -21,11 +23,12 @@
         mov         %ax, %gs
 
         mov         %esp, %eax
-        pushl       $USER_DATA_SELECTOR
-        pushl       %eax
+        push       $USER_DATA_SELECTOR
+        push       %eax
         pushf
-        pushl       $USER_CODE_SELECTOR
-        pushl       $test_func
+        push       $USER_CODE_SELECTOR
+        push       $test_func
         iret
+#endif
 
     .size exec_usermode, . - exec_usermode

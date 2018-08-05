@@ -55,7 +55,7 @@ AS_CASE([$host_cpu],
       fi],
 	[x86_64],
 		 [AC_DEFINE([__x86_64__], [1], [64-bit kernel])
-      ARCH_CFLAGS="-ffreestanding -nostdlib"
+      ARCH_CFLAGS="-ffreestanding -nostdlib -mcmodel=kernel -fno-pie"
       ARCH_LDFLAGS="-T ./arch/${ARCHDIR}/linker.ld -n"
       
       AC_PROG_GREP
@@ -77,6 +77,7 @@ AM_PROG_AR
 
 AS_CASE([$host_cpu],
 	[i?86],		[AC_CHECK_LIB([gcc], [__umoddi3])],
+	[x86_64],		[AC_CHECK_LIB([gcc_s], [__umoddi3])],
 
 	[])
 
