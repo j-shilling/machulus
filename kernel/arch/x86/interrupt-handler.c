@@ -20,9 +20,8 @@
 
 #include <kernel/panic.h>
 
-void
-interrupt_handler (uint32_t err, uint32_t code)
+void interrupt_handler(uint32_t err, uint32_t code)
 {
-  printf ("Interrupt %lu with error code %#010lx\n", err, code);
-  panic ("Interrupt not handled");
+    printf("Interrupt %lu with error code %#010lx\n", err, code);
+    panic("Interrupt not handled");
 }

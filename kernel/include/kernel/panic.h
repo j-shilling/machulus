@@ -4,6 +4,6 @@
 
 __BEGIN_DECLS
 
-void panic (const char *, ...);
+void panic(const char*, ...);
 
 __END_DECLS

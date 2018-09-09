@@ -19,24 +19,24 @@
 #define __ARCH_CDEFS_H__
 
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #else
-#  define __x86_64__  0
+#define __x86_64__ 0
 #endif /* HAVE_CONFIG_H */
 
 /* Kernel loads at 1MB */
-#define KERNEL_LMA    (0x100000)
+#define KERNEL_LMA (0x100000)
 
 /* Kernel's virtual address depends on processor mode */
 #if __x86_64__
-#  define KERNEL_VMA  (0xFFFFFFFF80100000)
+#define KERNEL_VMA (0xFFFFFFFF80100000)
 #else
-#  define KERNEL_VMA  (0xC0100000)
+#define KERNEL_VMA (0xC0100000)
 #endif /* __x86_64__ */
 
 /* Kernels virtual address offset */
-#define KERNEL_VBASE  (KERNEL_VMA - KERNEL_LMA)
-#define PHYS_ADDR(x)	    ((x) - KERNEL_VBASE)
+#define KERNEL_VBASE (KERNEL_VMA - KERNEL_LMA)
+#define PHYS_ADDR(x) ((x)-KERNEL_VBASE)
 
 #define PAGE_SIZE (4096)
 #define SIZEOF_TSS (0x68)

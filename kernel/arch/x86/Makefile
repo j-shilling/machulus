@@ -13,14 +13,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = common arch
+#  Taken mostly from linux/arch/x86/Makefile
 
-noinst_PROGRAMS = machulus
-
-machulus_SOURCES =
-
-machulus_LDADD = $(top_srcdir)/arch/@ARCHDIR@/lib.a \
-                 $(top_srcdir)/common/libmachulus.a
-                 
-machulus_LDFLAGS = $(ARCH_LDFLAGS) $(LDFLAGS)
+core-y += arch/x86/

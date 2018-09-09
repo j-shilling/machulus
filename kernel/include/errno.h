@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
  * File:   errno.h
  * Author: Jake Shilling <shilling.jake@gmail.com>
  *
@@ -27,10 +27,10 @@
 #include <sys/cdefs.h>
 
 __BEGIN_DECLS
-        
-#define ENOMEM      (1)
-#define EADDRINUSE  (2)
-#define EINVAL      (3)
-#define EADDRNOTAVAIL   (4)
+
+#define ENOMEM (1)
+#define EADDRINUSE (2)
+#define EINVAL (3)
+#define EADDRNOTAVAIL (4)
 
 __END_DECLS

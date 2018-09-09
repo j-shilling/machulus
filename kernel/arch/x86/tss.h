@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
  * File:   tss.h
  * Author: Jake Shilling <shilling.jake@gmail.com>
  *
@@ -30,12 +30,11 @@
 
 __BEGIN_DECLS
 
-typedef struct _tss_t
-{
-  uint8_t bytes[0x68];
+typedef struct _tss_t {
+    uint8_t bytes[0x68];
 } tss_t;
 
-void tss_init (tss_t *);
-void tss_set_stack (tss_t *, uint32_t);
+void tss_init(tss_t*);
+void tss_set_stack(tss_t*, uint32_t);
 
 __END_DECLS

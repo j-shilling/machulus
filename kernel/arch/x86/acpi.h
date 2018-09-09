@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
  * File:   acpi.h
  * Author: Jake Shilling <shilling.jake@gmail.com>
  *
@@ -27,10 +27,10 @@
 #include <sys/cdefs.h>
 
 __BEGIN_DECLS
-        
+
 typedef struct rsdp_v1 rsdp_v1_t;
 typedef struct rsdp_v2 rsdp_v2_t;
 
-void acpi_init (void);
+void acpi_init(void);
 
 __END_DECLS

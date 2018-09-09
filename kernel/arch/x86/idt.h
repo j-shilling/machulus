@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
  * File:   idt.h
  * Author: Jake Shilling <shilling.jake@gmail.com>
  *
@@ -27,7 +27,7 @@
 #include <sys/cdefs.h>
 
 __BEGIN_DECLS
-        
-void idt_init (void);
+
+void idt_init(void);
 
 __END_DECLS

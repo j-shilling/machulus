@@ -5,7 +5,7 @@
 
 __BEGIN_DECLS
 
-int brk (void *);
-void *sbrk (intptr_t);
+int brk(void*);
+void* sbrk(intptr_t);
 
 __END_DECLS

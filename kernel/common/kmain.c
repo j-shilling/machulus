@@ -5,8 +5,7 @@
 extern int _kernel_start;
 extern int _kernel_end;
 
-void
-kmain(void)
+void kmain(void)
 {
-  printf ("OK\n");
+    printf("OK\n");
 }

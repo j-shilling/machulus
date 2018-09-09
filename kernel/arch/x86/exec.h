@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
  * File:   exec.h
  * Author: Jake Shilling <shilling.jake@gmail.com>
  *
@@ -27,7 +27,7 @@
 #include <sys/cdefs.h>
 
 __BEGIN_DECLS
-        
-void exec_usermode ();
+
+void exec_usermode();
 
 __END_DECLS

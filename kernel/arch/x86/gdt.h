@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
  * File:   gdt.h
  * Author: Jake Shilling <shilling.jake@gmail.com>
  *
@@ -25,28 +25,28 @@
 #pragma once
 
 /* Descriptor Privilege Levels */
-#define DPL_KERNEL                              (0)
-#define DPL_SERVER                              (1)
-#define DPL_MODULE                              (2)
-#define DPL_USER                                (3)
+#define DPL_KERNEL (0)
+#define DPL_SERVER (1)
+#define DPL_MODULE (2)
+#define DPL_USER (3)
 
-#define GDT_KERNEL_CODE                         (8)
-#define GDT_KERNEL_DATA                         (16)
-#define GDT_SERVER_CODE                         (24)
-#define GDT_SERVER_DATA                         (32)
-#define GDT_MODULE_CODE                         (40)
-#define GDT_MODULE_DATA                         (48)
-#define GDT_USER_CODE                           (56)
-#define GDT_USER_DATA                           (64)
-#define GDT_TSS                                 (72)
+#define GDT_KERNEL_CODE (8)
+#define GDT_KERNEL_DATA (16)
+#define GDT_SERVER_CODE (24)
+#define GDT_SERVER_DATA (32)
+#define GDT_MODULE_CODE (40)
+#define GDT_MODULE_DATA (48)
+#define GDT_USER_CODE (56)
+#define GDT_USER_DATA (64)
+#define GDT_TSS (72)
 
 #ifndef ASM_FILE
 
 #include <sys/cdefs.h>
 
 __BEGIN_DECLS
-        
-void gdt_init (void);
+
+void gdt_init(void);
 
 __END_DECLS
 
