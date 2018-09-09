@@ -43,7 +43,7 @@ ldflags-y  :=
 subdir-asflags-y :=
 subdir-ccflags-y :=
 
-include scripts/Kbuild.include
+include scripts/KBuild.include
 
 kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
 kbuild-file := $(if $(wildcard $(kbuild-dir)/Kbuild),$(kbuild-dir)/Kbuild,$(kbuild-dir)/Makefile)

@@ -102,8 +102,9 @@ srctree		:= .
 objtree		:= .
 src		:= $(srctree)
 obj		:= $(objtree)
+VPATH		:= $(srctree)
 
-export srctree objtree
+export srctree objtree VPATH
 
 #  Do not display message when we enter a subdirector. This line is down here
 #  away from the others in case we want to add in the same KBUILD_OUTPUT support
@@ -113,8 +114,8 @@ export srctree objtree
 MAKEFLAGS += --no-print-directory
 
 #  Copied from linux/Makefile. KBuild.include sets up the KBuild system
-scripts/Kbuild.include: ;
-include scripts/Kbuild.include
+scripts/KBuild.include: ;
+include scripts/KBuild.include
 
 #  From linux/Makefile
 #  SUBARCH tells the usermode build what the underlying arch is.  That is set
@@ -182,11 +183,7 @@ USERINCLUDE    :=
 KERNELINCLUDE  := $(USERINCLUDE)
 
 KBUILD_AFLAGS   := -D__ASSEMBLY__
-KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-		   -fno-strict-aliasing -fno-common -fshort-wchar \
-		   -Werror-implicit-function-declaration \
-		   -Wno-format-security \
-		   -std=gnu89
+KBUILD_CFLAGS   := 
 KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
@@ -238,7 +235,7 @@ export	INSTALL_PATH ?= /boot
 core-y		+=
 
 vmkernel-dirs	 := $(patsubst %/,%,$(filter %/, $(init-y) $(core-y) $(libs-y)))
-vmkernel-alldirs := $(sort $(vmlinux-dirs) $(patsubst %/,%,$(filter %/, \
+vmkernel-alldirs := $(sort $(kernel-dirs) $(patsubst %/,%,$(filter %/, \
 		     $(init-) $(core-) $(libs-))))
 
 init-y		:= $(patsubst %/, %/built-in.a, $(init-y))
@@ -249,10 +246,10 @@ libs-y2		:= $(patsubst %/, %/built-in.a, $(filter-out %.a, $(libs-y)))
 export KBUILD_VMKERNEL_INIT := $(head-y) $(init-y)
 export KBUILD_VMKERNEL_MAIN := $(core-y) $(libs-y2) $(drivers-y) $(virt-y)
 export KBUILD_VMKERNEL_LIBS := $(libs-y1)
-export KBUILD_LDS          := arch/$(SRCARCH)/kernel/vmlinux.lds
-export LDFLAGS_vmlinux
+export KBUILD_LDS          := arch/$(SRCARCH)/kernel/vmkernel.lds
+export LDFLAGS_vmkernel
 
-export KBUILD_ALLDIRS := $(sort $(filter-out arch/%,$(vmlinux-alldirs)) \
+export KBUILD_ALLDIRS := $(sort $(filter-out arch/%,$(vmkernel-alldirs)) \
 	arch include)
 
 vmkernel-deps := $(KBUILD_LDS) $(KBUILD_VMKERNEL_INIT) $(KBUILD_VMKERNEL_MAIN) \
@@ -276,7 +273,7 @@ clean: rm-dirs  := $(CLEAN_DIRS)
 clean: rm-files := $(CLEAN_FILES)
 clean-dirs      := $(addprefix _clean_, . $(vmkernel-alldirs))
 
-PHONY += $(clean-dirs) clean archclean vmlinuxclean
+PHONY += $(clean-dirs) clean archclean vmkernelclean
 $(clean-dirs):
 	$(Q)$(MAKE) $(clean)=$(patsubst _clean_%,%,$@)
 
