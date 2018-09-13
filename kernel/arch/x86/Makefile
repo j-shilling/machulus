@@ -13,6 +13,27 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#  Taken mostly from linux/arch/x86/Makefile
+#
+# DETECT 64 VS 32 BITS
+#
 
-core-y += arch/x86/
+ifeq ($(ARCH),x86)
+    ifeq ($(shell uname -m),x86_64)
+	BITS := 64
+    else
+	BITS := 32
+    endif
+else
+    ifeq ($(ARCH),x86_64)
+	BITS := 64
+    else
+	BITS := 32
+    endif
+endif
+
+PHONY += bits
+
+bits:
+	@echo BITS = $(BITS)
+
+export BITS
