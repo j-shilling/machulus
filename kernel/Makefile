@@ -20,6 +20,8 @@
 PHONY := all
 all:
 
+MAKEFLAGS += -rR --include-dir=$(CURDIR) --no-print-directory
+
 #
 #  VERSION AND NAMING
 #
@@ -69,6 +71,55 @@ srcarch:
 
 export SUBARCH ARCH SRCARCH
 
+# 
+# DETECT BUILD TOOLS
+#
+
+AS		= $(CROSS_COMPILE)as
+LD		= $(CROSS_COMPILE)ld
+CC		= $(CROSS_COMPILE)gcc
+CPP		= $(CC) -E
+AR		= $(CROSS_COMPILE)ar
+
+export AS LD CC CPP AR
+
+# 
+# VARS TO TRACK BUILD MODULES
+#
+
+init            :=
+core            :=
+lib             :=
+
 include arch/$(SRCARCH)/Makefile
+
+#
+# GET A LIST OF SUBDIRS TO GO THROUGH
+#
+
+vmkernel-dirs   := $(patsubst %/,%,$(filter %/, $(init) $(core) %(lib)))
+PHONY += $(vmkernel-dirs)
+$(vmkernel-dirs):
+	@$(MAKE) -f $(CURDIR)/scripts/Makefile.build obj=$@
+
+# 
+# RULES TO BUILD THE KERNEL
+#
+
+init             := $(patsubst %/, %/module.a, $(init))
+core             := $(patsubst %/, %/module.a, $(core))
+lib              := $(patsubst %/, %/module.a, $(lib))
+
+export KBUILD_VMKERNEL_INIT := $(init)
+export KBUILD_VMKERNEL_MAIN := $(core)
+export KBUILD_VMKERNEL_LIBS := $(lib)
+export KBUILD_LDS           := arch/$(SRCARCH)/vmkernel.lds
+
+vmkernel-deps := $(KBUILD_LDS) $(KBUILD_VMKERNEL_INIT) $(KBUILD_VMKERNEL_MAIN) $(KBUILD_VMKERNEL_LIBS)
+$(sort $(vmkernel-deps)): $(vmkernel-dirs) ;
+
+all: $(KERNELIMAGE)
+$(KERNELIMAGE): $(vmkernel-deps)
+	@echo $(KERNELIMAGE) depends on $(vmkernel-deps)
 
 .PHONY: $(PHONY)
