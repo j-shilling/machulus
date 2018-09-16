@@ -17,6 +17,7 @@
 #  heavily on the Linux kernel's build system. We will likely only test this
 #  build system with GNU tools (i.e. GNU make and GCC)
 
+INFO_TARGETS :=
 PHONY := all
 all:
 
@@ -33,7 +34,7 @@ SUBLEVEL = 1
 KERNELVERSION := $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)
 KERNELIMAGE   := machulus-$(KERNELVERSION)
 
-PHONY += kernelversion kernelimage
+INFO_TARGETS += kernelversion kernelimage
 
 kernelversion:
 	@echo KERNELVERSION = $(KERNELVERSION)
@@ -42,6 +43,19 @@ kernelimage:
 	@echo KERNELIMAGE = $(KERNELIMAGE)
 
 export VERSION PATCHLEVEL SUBLEVEL KERNELVERSION
+
+#
+# SET SRCTREE
+#
+
+srctree := $(CURDIR)
+
+INFO_TARGETS += srctree
+
+srctree:
+	@echo srctree = $(srctree)
+
+export srctree := $(CURDIR)
 
 #
 # DETECT ARCH AND FIND SUBDIRECTORY
@@ -58,7 +72,7 @@ ifeq ($(ARCH),x86_64)
     SRCARCH := x86
 endif
 
-PHONY += subarch arch srcarch
+INFO_TARGETS += subarch arch srcarch
 
 subarch:
 	@echo SUBARCH = $(SUBARCH)
@@ -81,7 +95,34 @@ CC		= $(CROSS_COMPILE)gcc
 CPP		= $(CC) -E
 AR		= $(CROSS_COMPILE)ar
 
+INFO_TARGETS += as ld cc cpp ar
+
+as:
+	@echo AS = $(AS)
+
+ld:
+	@echo LD = $(LD)
+
+cc:
+	@echo CC = $(CC)
+
+cpp:
+	@echo CPP = $(CPP)
+
+ar:
+	@echo AR = $(AR)
+
 export AS LD CC CPP AR
+
+#
+# SET GLOBAL FLAGS
+#
+
+KBUILD_AFLAGS  :=
+KBUILD_CFLAGS  :=
+KBUILD_LDFLAGS :=
+
+export KBUILD_AFLAGS KBUILD_CFLAGS KBUILD_LDFLAGS
 
 # 
 # VARS TO TRACK BUILD MODULES
@@ -100,7 +141,7 @@ include arch/$(SRCARCH)/Makefile
 vmkernel-dirs   := $(patsubst %/,%,$(filter %/, $(init) $(core) %(lib)))
 PHONY += $(vmkernel-dirs)
 $(vmkernel-dirs):
-	@$(MAKE) -f $(CURDIR)/scripts/Makefile.build obj=$@
+	@$(MAKE) -f $(srctree)/scripts/Makefile.build obj=$@
 
 # 
 # RULES TO BUILD THE KERNEL
@@ -122,4 +163,6 @@ all: $(KERNELIMAGE)
 $(KERNELIMAGE): $(vmkernel-deps)
 	@echo $(KERNELIMAGE) depends on $(vmkernel-deps)
 
-.PHONY: $(PHONY)
+.PHONY: $(PHONY) info $(INFO_TARGETS)
+
+info: $(INFO_TARGETS)

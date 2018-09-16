@@ -1,24 +1,69 @@
-#  Copyright (C) 2018 Jake Shilling <shilling.jake@gmail.com>
+# Copyright (C) 2018 Jake Shilling <shilling.jake@gmail.com>
 # 
-#  This program is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 # 
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 # 
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-$(warning Makefile.build called obj = $(obj))
+# This file is executed by the top-level Makefile, which should pass in one of
+# the modules in $(init), $(core), or $(lib) as the value of $(obj). We then
+# need to read from a Kbuild file to find out what .o files are used for constructing
+# $(obj)/modules.a
+
+# Check that we were given a module to work with
+ifndef obj
+$(warning kbuild: Makefile.build is included improperly)
+endif
+
+# Read the Kbuild file for $(obj)'s directory
+kbuild-dir := $(if $(filter /%,$(obj)),$(obj),$(srctree)/$(obj))
+kbuild-file := $(kbuild-dir)/Kbuild
+include $(kbuild-file)
+
+# The Kbuild file should have listed the module's dependencies in $(obj-m) and
+# any library objects in $(lib-m). If something was listed twice, it goes with
+# $(obj-m)
+lib-m := $(filter-out $(obj-m), $(lib-m))
+
+# Look for any directory foo/ in $(obj-m) with foo/module.a and add foo to a list
+# in $(subdir-m). Do not override this variable.
+__subdir-m	:= $(patsubst %/,%,$(filter %/, $(obj-m)))
+subdir-m	+= $(__subdir-m)
+obj-m		:= $(patsubst %/, %/module.a, $(obj-y))
+
+# Composite objects can be defined in $(foo-objs)
+multi-used  := $(sort $(foreach m,$(obj-m), $(if $(strip $($(m:.o=-objs))), $(m))))
+single-used := $(sort $(filter-out $(multi-used),$(obj-m)))
+
+# List any object which tells us to descend in $(subdir-obj)
+subdir-obj := $(filter %/module.a, $(obj-m))
+
+# Replace composite objects w/ single part objects
+real-obj := $(foreach m, $(obj-m), $(if $(strip $($(m:.o=-objs))),$($(m:.o=-objs))),$(m)))
+
+# The Kbuild file may have defined lib objects for this module
+ifneq ($(strip $(lib-m)),)
+  lib-target := $(obj)/lib.a
+endif
+
+# This module's .a file
+ifneq ($(strip $(real-obj)),)
+  builtin-target := $(obj)/module.a
+endif
 
 PHONY := __build
-__build: $(obj)
+__build: $(builtin-target) $(lib-target)
 	@:
 
+PHONY += $(obj)
 $(obj):
 	@echo Parsing $(obj)
 
