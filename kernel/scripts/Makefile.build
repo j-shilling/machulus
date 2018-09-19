@@ -20,10 +20,20 @@
 
 # Check that we were given a module to work with
 ifndef obj
-$(warning kbuild: Makefile.build is included improperly)
+    $(error kbuild: Makefile.build is included improperly)
 endif
 
-# Read the Kbuild file for $(obj)'s directory
+src := $(obj)
+
+ifndef srctree
+    srctree := $(CURDIR)
+endif
+
+obj-m :=
+lib-m :=
+subdir-m :=
+
+# Find and include the Kbuild file for $(obj)'s directory
 kbuild-dir := $(if $(filter /%,$(obj)),$(obj),$(srctree)/$(obj))
 kbuild-file := $(kbuild-dir)/Kbuild
 include $(kbuild-file)
@@ -33,21 +43,28 @@ include $(kbuild-file)
 # $(obj-m)
 lib-m := $(filter-out $(obj-m), $(lib-m))
 
-# Look for any directory foo/ in $(obj-m) with foo/module.a and add foo to a list
+# Replace any directory foo/ in $(obj-m) with foo/module.a and add foo to a list
 # in $(subdir-m). Do not override this variable.
 __subdir-m	:= $(patsubst %/,%,$(filter %/, $(obj-m)))
 subdir-m	+= $(__subdir-m)
-obj-m		:= $(patsubst %/, %/module.a, $(obj-y))
+obj-m		:= $(patsubst %/, %/module.a, $(obj-m))
 
-# Composite objects can be defined in $(foo-objs)
+# If any objects are listed in $(foo-objs) then foo is a composite object.
 multi-used  := $(sort $(foreach m,$(obj-m), $(if $(strip $($(m:.o=-objs))), $(m))))
+# Otherwise its not
 single-used := $(sort $(filter-out $(multi-used),$(obj-m)))
 
 # List any object which tells us to descend in $(subdir-obj)
 subdir-obj := $(filter %/module.a, $(obj-m))
 
 # Replace composite objects w/ single part objects
-real-obj := $(foreach m, $(obj-m), $(if $(strip $($(m:.o=-objs))),$($(m:.o=-objs))),$(m)))
+real-obj := $(foreach m, $(obj-m), $(if $(strip $($(m:.o=-objs))),$($(m:.o=-objs)),$(m)))
+
+# Add subdir path
+obj-m             := $(addprefix $(obj)/,$(obj-m))
+subdir-obj        := $(addprefix $(obj)/,$(subdir-obj))
+real-obj          := $(addprefix $(obj)/,$(real-obj))
+subdir-m          := $(addprefix $(obj)/,$(subdir-m))
 
 # The Kbuild file may have defined lib objects for this module
 ifneq ($(strip $(lib-m)),)
@@ -60,11 +77,16 @@ ifneq ($(strip $(real-obj)),)
 endif
 
 PHONY := __build
-__build: $(builtin-target) $(lib-target)
+__build: $(builtin-target) $(lib-target) $(subdir-m)
 	@:
 
-PHONY += $(obj)
-$(obj):
-	@echo Parsing $(obj)
+# Objects in subdirectories depend on those subdirectories
+$(sort $(subdir-obj)): $(subdir-m) ;
+
+ifdef builtin-target
+endif
+
+ifdef lib-target
+endif
 
 .PHONY: $(PHONY)
