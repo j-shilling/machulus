@@ -13,43 +13,14 @@ dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-dnl
-dnl INITIALIZE AUTOTOOLS
-dnl
+dnl Add --enable-debug option
 
-AC_INIT([machulus], [0.0.1])
-AC_CONFIG_HEADERS([./config.h])
-AC_CONFIG_AUX_DIR([build-aux])
-
-AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
-
-AM_SILENT_RULES([yes])
-
-dnl
-dnl GET CPU TYPE
-dnl
-
-AC_CANONICAL_HOST
-AS_CASE([$host_cpu],
-	[i?86],		[systype=i386],
-	[systype=$(host_cpu)])
-AC_SUBST([systype])
-
-dnl
-dnl FIND PROGRAMS
-dnl
-
-AM_PROG_AS
-AC_PROG_CC
-AC_PROG_CPP
-AC_PROG_RANLIB
-AM_PROG_AR
-
-dnl ADD GLOBAL CONFIG OPTIONS
-m4_include([configfrag.ac])
-
-dnl ADD AMD64 CONFIG OPTIONS
-m4_include([x86_64/configfrag.ac])
-
-AC_CONFIG_FILES([Makefile])
-AC_OUTPUT
+AC_ARG_ENABLE([debug], AS_HELP_STRING([--enable-debug], [build in debug mode]), [], [])
+AS_IF([test "$enable_debug" = "yes"], [
+  AC_DEFINE([__DEBUG__], [1], [debug mode])
+  DEBUG_CFLAGS="-ggdb -O0 -Werror"
+], [
+  AC_DEFINE([__DEBUG__], [0], [debug mode])
+  DEBUG_CFLAGS=""
+])
+AC_SUBST([DEBUG_CFLAGS])
