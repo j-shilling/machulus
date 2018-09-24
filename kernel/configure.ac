@@ -32,7 +32,7 @@ dnl
 AC_CANONICAL_HOST
 AS_CASE([$host_cpu],
 	[i?86],		[systype=i386],
-	[systype=$(host_cpu)])
+	[systype=$host_cpu])
 AC_SUBST([systype])
 
 dnl
