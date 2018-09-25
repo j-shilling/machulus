@@ -13,10 +13,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# file: x86_64/Makefrag.am
+#
+#   This file is included by Makefrag.am and appends any x86_64 specific
+# sources onto libkernel_a_SOURCES. This is also where we need to add
+# flags to machulus_LINKFLAGS to let the linker know about our linker
+# script.
+
 if BITS32
-AM_CFLAGS += -m32
-AM_CCASFLAGS += -m32
-machulus_LINKFLAGS += -melf_i386
+
+  AM_CFLAGS += -m32
+  AM_CCASFLAGS += -m32
+  machulus_LINKFLAGS += -melf_i386
+
 endif
 
 libkernel_a_SOURCES +=\

@@ -13,6 +13,13 @@ dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+dnl file: configure.ac
+dnl
+dnl   This is the main file used by autoconf to generate the configure
+dnl script. It initializes autoconf and automake, checks for programs
+dnl relevant to all system types, then includes other configfrag.ac files
+dnl do to more specialized tasks.
+
 dnl
 dnl INITIALIZE AUTOTOOLS
 dnl

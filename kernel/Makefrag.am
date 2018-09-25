@@ -13,6 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# file: Makefrag.am
+#
+#   This file is included by Makefrag and should in turn include other
+# Makefrag.am files for each specific system type. Here we add the
+# sourcefiles common to all systems to our libkernel_a_SOURCES variable.
+
 libkernel_a_SOURCES += \
     kernel.c
 
