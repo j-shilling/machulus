@@ -28,6 +28,8 @@ AM_CFLAGS =
 AM_CCASFLAGS =
 AM_LDFLAGS =
 
+CLEANFILES =
+
 #
 # Compilation Flags
 #
@@ -67,3 +69,20 @@ machulus_LDADD = libkernel.a
 
 exec_bootdir = $(exec_prefix)/boot
 exec_boot_PROGRAMS = machulus
+
+#
+# Misc build targets
+#
+
+if HAVE_GRUB_MKRESCUE
+
+.PHONY: iso
+iso: machulus.iso
+
+machulus.iso: machulus iso/boot/grub/grub.cfg
+	cp machulus iso/boot/machulus
+	$(GRUB_MKRESCUE) -o $@ iso
+
+CLEANFILES += iso/boot/machulus machulus.iso
+
+endif

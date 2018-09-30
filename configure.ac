@@ -52,6 +52,13 @@ AC_PROG_CPP
 AC_PROG_RANLIB
 AM_PROG_AR
 
+dnl grub-mkrescue IS USED TO GENERATE AN ISO FILE
+AC_CHECK_PROG([GRUB_MKRESCUE], [grub-mkrescue], [grub-mkrescue], [no])
+AS_IF([test "x$GRUB_MKRESCUE" = "xno"],
+        [AC_CHECK_PROG([GRUB_MKRESCUE], [grub2-mkrescue], [grub2-mkrescue], [no])]
+     )
+AM_CONDITIONAL([HAVE_GRUB_MKRESCUE], [test "x$GRUB_MKRESCUE" != "xno"])
+
 dnl ADD GLOBAL CONFIG OPTIONS
 m4_include([configfrag.ac])
 
