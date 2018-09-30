@@ -76,7 +76,6 @@ exec_boot_PROGRAMS = machulus
 
 if HAVE_GRUB_MKRESCUE
 
-.PHONY: iso
 iso: machulus.iso
 
 machulus.iso: machulus iso/boot/grub/grub.cfg
@@ -85,4 +84,21 @@ machulus.iso: machulus iso/boot/grub/grub.cfg
 
 CLEANFILES += iso/boot/machulus machulus.iso
 
-endif
+# only add qemu taget if we also have grub-mkrescue
+if HAVE_QEMU
+
+qemu: machulus.iso
+	$(QEMU) -cdrom machulus.iso
+
+# This is a little hacky. If we add to .PHONY twice, Automake complains.
+# So we add both phony targets in this block and add an else which only
+# adds one.
+.PHONY: iso qemu
+
+else
+
+.PHONY: iso
+
+endif # HAVE_QEMU
+
+endif # HAVE_GRUB_MKRESCUE

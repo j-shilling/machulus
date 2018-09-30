@@ -59,6 +59,10 @@ AS_IF([test "x$GRUB_MKRESCUE" = "xno"],
      )
 AM_CONDITIONAL([HAVE_GRUB_MKRESCUE], [test "x$GRUB_MKRESCUE" != "xno"])
 
+dnl qemu-system-$(systype) IS USED TO RUN THE IMAGE
+AC_CHECK_PROG([QEMU], [qemu-system-${systype}], [qemu-system-${systype}], [no])
+AM_CONDITIONAL([HAVE_QEMU], [test "x$QEMU" != "xno"])
+
 dnl ADD GLOBAL CONFIG OPTIONS
 m4_include([configfrag.ac])
 
