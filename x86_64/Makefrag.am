@@ -33,3 +33,8 @@ libkernel_a_SOURCES +=\
 
 machulus_LINKFLAGS +=\
     -T x86_64/ldscript
+
+machulus: x86_64/ldscript
+
+x86_64/ldscript: x86_64/ldscript.S
+	$(CPP) $(AM_CPPFLAGS) -P -o $@ $<
