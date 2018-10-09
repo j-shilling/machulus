@@ -52,6 +52,9 @@ AC_PROG_CPP
 AC_PROG_RANLIB
 AM_PROG_AR
 
+dnl LET USERS SET LD
+AC_ARG_VAR([LD], [linker command])
+
 dnl grub-mkrescue IS USED TO GENERATE AN ISO FILE
 AC_CHECK_PROG([GRUB_MKRESCUE], [grub-mkrescue], [grub-mkrescue], [no])
 AS_IF([test "x$GRUB_MKRESCUE" = "xno"],
