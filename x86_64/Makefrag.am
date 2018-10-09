@@ -33,7 +33,7 @@ else
 endif
 
 libkernel_a_SOURCES +=\
-    x86_64/boot.s
+    x86_64/boot.S
 
 machulus_LINKFLAGS +=\
     -T x86_64/ldscript
