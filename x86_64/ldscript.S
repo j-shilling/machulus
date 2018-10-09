@@ -13,12 +13,8 @@ SECTIONS
   /* Load kernel at KERNEL_OFFSET + 1MiB VMA */
   . = KERNEL_OFFSET + 0x00100000;
 
-  /* Next Comes the multiboot headers. Must be at the begining of the image */
-  .multiboot_header : AT(ADDR(.multiboot_header) - KERNEL_OFFSET) {
-    KEEP(*(.multiboot_header))
-  }
-
   .text : AT(ADDR(.text) - KERNEL_OFFSET) {
+    KEEP(*(.multiboot_header))
     *(.text)
   }
 

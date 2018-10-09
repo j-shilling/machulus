@@ -1,23 +1,19 @@
+#define ASM_FILE 1
 #include <ldscript.h>
-/* Declare constants for the multiboot header. */
-.set ALIGN,    1<<0             /* align loaded modules on page boundaries */
-.set MEMINFO,  1<<1             /* provide memory map */
-.set FLAGS,    ALIGN | MEMINFO  /* this is the Multiboot 'flag' field */
-.set MAGIC,    0x1BADB002       /* 'magic number' lets bootloader find the header */
-.set CHECKSUM, -(MAGIC + FLAGS) /* checksum of above, to prove we are multiboot */
- 
-/* 
-Declare a multiboot header that marks the program as a kernel. These are magic
-values that are documented in the multiboot standard. The bootloader will
-search for this signature in the first 8 KiB of the kernel file, aligned at a
-32-bit boundary. The signature is in its own section so the header can be
-forced to be within the first 8 KiB of the kernel file.
-*/
-.section .multiboot
-.align 4
-.long MAGIC
-.long FLAGS
-.long CHECKSUM
+#include <multiboot2.h>
+
+.section .multiboot_header
+.align 8
+multiboot_header_start:
+  .long MULTIBOOT2_HEADER_MAGIC
+  .long MULTIBOOT_ARCHITECTURE_I386
+  .long multiboot_header_end - multiboot_header_start
+  .long -(MULTIBOOT2_HEADER_MAGIC + MULTIBOOT_ARCHITECTURE_I386 + (multiboot_header_end - multiboot_header_start))
+  
+  .short MULTIBOOT_HEADER_TAG_END
+  .short 0
+  .long 8
+multiboot_header_end:
  
 /*
 The multiboot standard does not define the value of the stack pointer register
