@@ -26,6 +26,10 @@ if BITS32
   AM_CCASFLAGS += -m32
   machulus_LINKFLAGS += -melf_i386
 
+else
+
+  AM_CFLAGS += -mcmodel=kernel -mno-red-zone
+
 endif
 
 libkernel_a_SOURCES +=\
