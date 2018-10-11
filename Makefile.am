@@ -48,6 +48,13 @@ AM_CFLAGS += \
 
 AM_LDFLAGS += -nostdlib
 
+if DEBUG
+
+AM_CFLAGS += \
+   -ggdb -O0
+
+endif
+
 #
 # Main stuff
 #
@@ -87,8 +94,19 @@ CLEANFILES += iso/boot/machulus machulus.iso
 # only add qemu taget if we also have grub-mkrescue
 if HAVE_QEMU
 
+if DEBUG
+
+# debugging is enabled; start with gdb server
+qemu: machulus.iso
+	$(QEMU) -cdrom machulus.iso -monitor stdio -d int -s -S
+
+else
+
+# debugging is disabled; start without gdb server
 qemu: machulus.iso
 	$(QEMU) -cdrom machulus.iso
+
+endif
 
 # This is a little hacky. If we add to .PHONY twice, Automake complains.
 # So we add both phony targets in this block and add an else which only
