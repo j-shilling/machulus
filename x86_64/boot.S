@@ -59,6 +59,7 @@ boot_stack_top:
 welcome_msg:		.asciz PACKAGE_STRING
 err_no_cpuid_msg:	.asciz "Cannot detect system features."
 err_no_long_mode_msg:	.asciz "Cannot start long mode on this system."
+err_no_huge_pages_msg:	.asciz "Cannot enable 1GiB pages on this system."
  
 /*
 The linker script specifies _start as the entry point to the kernel and the
@@ -120,6 +121,11 @@ cs_set:
 	cpuid
 	test	$(1 << 29),%edx
 	jz	err_no_long_mode
+
+	/* Check whether 1GiB pages are supported. This information already stored in
+	   bit 26 of edx from the last cpuid call */
+	test	$(1 << 26),%edx
+	jz	err_no_huge_pages
 	
 halt:
 	cli
@@ -135,6 +141,13 @@ err_no_cpuid:
 
 err_no_long_mode:
 	mov	$(err_no_long_mode_msg - KERNEL_OFFSET),%eax
+	push	%eax
+	call	_boot_puts
+	add	$4,%esp
+	jmp	halt
+
+err_no_huge_pages:
+	mov	$(err_no_huge_pages_msg - KERNEL_OFFSET),%eax
 	push	%eax
 	call	_boot_puts
 	add	$4,%esp
