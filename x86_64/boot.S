@@ -56,7 +56,9 @@ boot_stack_bottom:
 boot_stack_top:
 
 .section .rodata
-welcome_msg:	.asciz PACKAGE_STRING
+welcome_msg:		.asciz PACKAGE_STRING
+err_no_cpuid_msg:	.asciz "Cannot detect system features."
+err_no_long_mode_msg:	.asciz "Cannot start long mode on this system."
  
 /*
 The linker script specifies _start as the entry point to the kernel and the
@@ -119,12 +121,24 @@ cs_set:
 	test	$(1 << 29),%edx
 	jz	err_no_long_mode
 	
+halt:
 	cli
 1:	hlt
 	jmp 1b
 
 err_no_cpuid:
+	mov	$(err_no_cpuid_msg - KERNEL_OFFSET),%eax
+	push	%eax
+	call	_boot_puts
+	add	$4,%esp
+	jmp	halt
+
 err_no_long_mode:
+	mov	$(err_no_long_mode_msg - KERNEL_OFFSET),%eax
+	push	%eax
+	call	_boot_puts
+	add	$4,%esp
+	jmp	halt
  
 .size _start, . - _start
 
