@@ -104,7 +104,7 @@ else
 
 # debugging is disabled; start without gdb server
 qemu: machulus.iso
-	$(QEMU) -cdrom machulus.iso
+	$(QEMU) -cpu host -enable-kvm -cdrom machulus.iso
 
 endif
 
