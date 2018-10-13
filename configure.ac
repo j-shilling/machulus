@@ -53,6 +53,7 @@ AC_PROG_RANLIB
 AM_PROG_AR
 
 dnl LET USERS SET LD
+AS_IF([test -z "$LD"], LD=ld)
 AC_ARG_VAR([LD], [linker command])
 
 dnl grub-mkrescue IS USED TO GENERATE AN ISO FILE
