@@ -29,6 +29,7 @@ if BITS32
 else
 
   AM_CFLAGS += -mcmodel=kernel -mno-red-zone
+  machulus_LINKFLAGS += -n
 
 endif
 

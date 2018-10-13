@@ -22,11 +22,7 @@ dnl should be added here.
 dnl Add --enable-debug option
 
 AC_ARG_ENABLE([debug], AS_HELP_STRING([--enable-debug], [build in debug mode]), [], [])
-AS_IF([test "$enable_debug" = "yes"], [
-  AC_DEFINE([__DEBUG__], [1], [debug mode])
-  DEBUG_CFLAGS="-ggdb -O0 -Werror"
-], [
-  AC_DEFINE([__DEBUG__], [0], [debug mode])
-  DEBUG_CFLAGS=""
-])
-AC_SUBST([DEBUG_CFLAGS])
+AM_CONDITIONAL([DEBUG], [test "x$enable_debug" = "xyes"])
+AM_COND_IF([DEBUG],
+           [AC_DEFINE([__debug__], [1], [debug mode enabled])],
+           [AC_DEFINE([__debug__], [0], [debug mode disabled])])

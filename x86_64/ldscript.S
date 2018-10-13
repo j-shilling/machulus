@@ -1,3 +1,5 @@
+#define ASM_FILE 1
+#include <multiboot2.h>
 #include <ldscript.h>
 
 #if __64bits__
@@ -23,6 +25,7 @@ SECTIONS
   }
 
   .data ALIGN(4K) : AT(ADDR(.data) - KERNEL_OFFSET) {
+    *(.boot_gdt)
     *(.data)
   }
  
