@@ -1,3 +1,24 @@
+/* Copyright (C) 2018 Jake Shilling <shilling.jake@gmail.com>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>. */
+
+/* file: x86_64/boot.S
+ *
+ *   This is where we define the entry point for our kernel. Execution
+ * starts with the _start function in protected mode. From there we set
+ * up paging and activate long mode */
+
 #define ASM_FILE 1
 #include <ldscript.h>
 #include <multiboot2.h>
@@ -17,6 +38,9 @@ multiboot_header_start:
 	.long	8
 multiboot_header_end:
 
+/* Multiboot does not necessarily leave us with a valide GDT. This is a
+   temporary one before we can figure out how many TSS entries we will
+   need */
 .section .boot_gdt
 .align 16
 boot_gdt:
@@ -49,6 +73,9 @@ boot_gdt_descr:
 	.word boot_gdt - boot_gdt_end
 	.long boot_gdt - KERNEL_OFFSET
 
+/* We will start of my mapping a single 1GiB page. This should be more
+   than enough for everything we need before we can use the Multiboot
+   information to map out available memory. */
 .section .boot_paging
 .align 0x1000
 .type boot_pdpt, @object
@@ -112,7 +139,7 @@ cs_set:
 	/* First get the EFLAGS in eax, save a copy in ecx, then try to change bit 21 */
 	pushf
 	pop	%eax
-	mov	%eax,%ecx
+	movl	%eax,%ecx
 	xor	$(1 << 21),%eax
 	push	%eax
 	popf
@@ -129,11 +156,11 @@ cs_set:
 	/* Now use CPUID to check whether long mode is supported. Long mode is checked
 	   by using by calling cpuid with eax = 0x80000001, so we first check that functions
 	   > 0x80000000 are supported. */
-	mov	$0x80000000,%eax
+	movl	$0x80000000,%eax
 	cpuid
-	cmp	$0x80000001,%eax
+	cmpl	$0x80000001,%eax
 	jl	err_no_long_mode
-	mov	$0x80000001,%eax
+	movl	$0x80000001,%eax
 	cpuid
 	test	$(1 << 29),%edx
 	jz	err_no_long_mode
@@ -144,38 +171,38 @@ cs_set:
 	jz	err_no_huge_pages
 
 	/* Set the address of boot_pml4 in cr3 */
-	mov	$(boot_pml4 - KERNEL_OFFSET),%edi
-	mov	%edi,%cr3
+	movl	$(boot_pml4 - KERNEL_OFFSET),%edi
+	movl	%edi,%cr3
 
 	/* Add the boot_pdpt to boot_pml4 index 0 */
-	mov	$(boot_pdpt - KERNEL_OFFSET),%edx
+	movl	$(boot_pdpt - KERNEL_OFFSET),%edx
 	or	$0x03,%edx
-	mov	%edx,(%edi)
+	movl	%edx,(%edi)
 
 	/* Add the boot_pdpt to boot_pml4 index 511 */
 	add	$(511 * 8),%edi
 	or	$0x03,%edx
-	mov	%edx,(%edi)
+	movl	%edx,(%edi)
 
 	/* Enable PAE */
-	mov	%cr4,%eax
+	movl	%cr4,%eax
 	or	$(1 << 5),%eax
-	mov	%eax,%cr4
+	movl	%eax,%cr4
 
 	/* Switch to compatibility mode */
-	mov	$0xc0000080,%ecx
+	movl	$0xc0000080,%ecx
 	rdmsr
 	or	$(1 << 8),%eax
 	wrmsr
 
 	/* Enable paging */
-	mov	%cr0,%eax
+	movl	%cr0,%eax
 	or	$(1 << 31),%eax
-	mov	%eax,%cr0
+	movl	%eax,%cr0
 
 	ljmp	$16,$(_64bit_entry - KERNEL_OFFSET)
 
-halt:
+halt32:
 	cli
 1:	hlt
 	jmp 1b
@@ -186,21 +213,21 @@ err_no_cpuid:
 	push	%eax
 	call	_boot_puts
 	add	$4,%esp
-	jmp	halt
+	jmp	halt32
 
 err_no_long_mode:
 	mov	$(err_no_long_mode_msg - KERNEL_OFFSET),%eax
 	push	%eax
 	call	_boot_puts
 	add	$4,%esp
-	jmp	halt
+	jmp	halt32
 
 err_no_huge_pages:
 	mov	$(err_no_huge_pages_msg - KERNEL_OFFSET),%eax
 	push	%eax
 	call	_boot_puts
 	add	$4,%esp
-	jmp	halt
+	jmp	halt32
  
 .size _start, . - _start
 
@@ -215,23 +242,23 @@ err_no_huge_pages:
 .type _boot_puts, @function
 _boot_puts:
 	push	%ebp
-	mov	%esp,%ebp
+	movl	%esp,%ebp
 
 	/* First clear the screen, i.e. fill with spaces (ascii = 0x20) */
 	/* Use the 4-byte register to write two spaces at a time. Loop over video
 	   memory (80 * 25) / 2 times (1000) */
-	mov	$0xb8000,%edi
-	mov	$0x07200720,%edx
-	mov	$1000,%ecx
+	movl	$0xb8000,%edi
+	movl	$0x07200720,%edx
+	movl	$1000,%ecx
 clear_screen:
-	mov	%edx,(%edi)
+	movl	%edx,(%edi)
 	add	$4,%edi
 	loop	clear_screen
 
 	/* Next get the physical address of the string passed on the stack */
-	mov	8(%esp),%esi
+	movl	8(%esp),%esi
 	/* Set up for the loop */
-	mov	$0xb8000,%edi
+	movl	$0xb8000,%edi
 	mov	$0x07,%ah
 putchar:
 	mov	(%esi),%al
