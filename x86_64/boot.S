@@ -172,11 +172,14 @@ cs_set:
 	mov	%cr0,%eax
 	or	$(1 << 31),%eax
 	mov	%eax,%cr0
-	
+
+	ljmp	$16,$(_64bit_entry - KERNEL_OFFSET)
+
 halt:
 	cli
 1:	hlt
 	jmp 1b
+
 
 err_no_cpuid:
 	mov	$(err_no_cpuid_msg - KERNEL_OFFSET),%eax
@@ -247,3 +250,32 @@ end:
 	pop	%ebp
 	ret
 .size _boot_puts, . - _boot_puts
+
+.type _64bit_entry, @function
+.code64
+_64bit_entry:
+	movabs	$higher_half,%rax
+	jmp	*%rax
+higher_half:
+	/* Adjust the stack to point to kernel memory */
+	movq	%rsp,%rax
+	addq	$KERNEL_OFFSET,%rax
+	movq	%rax,%rsp
+	movq	$boot_stack_bottom,%rbp
+
+	/* Remove the lower memory mapings from pml4 */
+	movq	$boot_pml4,%rdi
+	movq	$0x0,(%rdi)
+	movq	$boot_pdpt,%rdi
+	movq	$0x0,(%rdi)
+	invlpg	0
+
+	/* Enter C code */
+	call	kernel_main
+halt64:
+	cli
+1:	hlt
+	jmp 1b
+
+
+.size _64bit_entry, . - _64bit_entry
