@@ -98,7 +98,7 @@ if DEBUG
 
 # debugging is enabled; start with gdb server
 qemu: machulus.iso
-	$(QEMU) -cdrom machulus.iso -monitor stdio -d int -s -S
+	$(QEMU) -cpu host -enable-kvm -cdrom machulus.iso -monitor stdio -d int -s -S
 
 else
 

@@ -49,6 +49,22 @@ boot_gdt_descr:
 	.word boot_gdt - boot_gdt_end
 	.long boot_gdt - KERNEL_OFFSET
 
+.section .boot_paging
+.align 0x1000
+.type boot_pdpt, @object
+boot_pdpt:
+	.long 0x83
+	.long 0x0
+	.skip (509 * 8), 0
+	.long 0x83
+	.long 0x0
+	.skip 8, 0
+
+.align 0x1000
+.type boot_pml4, @object
+boot_pml4:
+	.skip (512 * 8), 0
+
 .section .bss
 .align 16
 boot_stack_bottom:
@@ -126,6 +142,36 @@ cs_set:
 	   bit 26 of edx from the last cpuid call */
 	test	$(1 << 26),%edx
 	jz	err_no_huge_pages
+
+	/* Set the address of boot_pml4 in cr3 */
+	mov	$(boot_pml4 - KERNEL_OFFSET),%edi
+	mov	%edi,%cr3
+
+	/* Add the boot_pdpt to boot_pml4 index 0 */
+	mov	$(boot_pdpt - KERNEL_OFFSET),%edx
+	or	$0x03,%edx
+	mov	%edx,(%edi)
+
+	/* Add the boot_pdpt to boot_pml4 index 511 */
+	add	$(511 * 8),%edi
+	or	$0x03,%edx
+	mov	%edx,(%edi)
+
+	/* Enable PAE */
+	mov	%cr4,%eax
+	or	$(1 << 5),%eax
+	mov	%eax,%cr4
+
+	/* Switch to compatibility mode */
+	mov	$0xc0000080,%ecx
+	rdmsr
+	or	$(1 << 8),%eax
+	wrmsr
+
+	/* Enable paging */
+	mov	%cr0,%eax
+	or	$(1 << 31),%eax
+	mov	%eax,%cr0
 	
 halt:
 	cli
