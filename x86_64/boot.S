@@ -99,7 +99,7 @@ boot_stack_bottom:
 boot_stack_top:
 
 .section .rodata
-welcome_msg:		.asciz PACKAGE_STRING
+err_no_multiboot_msg:	.asciz "This was not booted from a Multiboot2 bootloader."
 err_no_cpuid_msg:	.asciz "Cannot detect system features."
 err_no_long_mode_msg:	.asciz "Cannot start long mode on this system."
 err_no_huge_pages_msg:	.asciz "Cannot enable 1GiB pages on this system."
@@ -114,6 +114,10 @@ doesn't make sense to return from this function as the bootloader is gone.
 .global _start
 .type _start, @function
 _start:
+	/* Check Multiboot2 magic number */
+	cmpl	$(MULTIBOOT2_BOOTLOADER_MAGIC),%eax
+	jne	err_no_multiboot
+
 	/* Multiboot2 does not gaurentee a valid gdt, so we need to load our own */
 	lgdt	boot_gdt_descr - KERNEL_OFFSET
 	ljmp	$8,$(cs_set - KERNEL_OFFSET)
@@ -130,10 +134,6 @@ cs_set:
 
 	/* Set up a stack */
 	movl	$(boot_stack_top - KERNEL_OFFSET),%esp
-	movl	$(welcome_msg - KERNEL_OFFSET),%eax
-	push	%eax
-	call	_boot_puts
-	add	$4,%esp
 
 	/* Check for the existance of CPUID by seeing if we can flip bit 21 in EFLAGS */
 	/* First get the EFLAGS in eax, save a copy in ecx, then try to change bit 21 */
@@ -207,6 +207,12 @@ halt32:
 1:	hlt
 	jmp 1b
 
+err_no_multiboot:
+	mov	$(err_no_multiboot_msg - KERNEL_OFFSET),%eax
+	push	%eax
+	call	_boot_puts
+	add	$4,%esp
+	jmp	halt32
 
 err_no_cpuid:
 	mov	$(err_no_cpuid_msg - KERNEL_OFFSET),%eax
