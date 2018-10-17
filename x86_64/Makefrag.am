@@ -26,15 +26,18 @@ if BITS32
   AM_CCASFLAGS += -m32
   machulus_LINKFLAGS += -melf_i386
 
+  libkernel_a_SOURCES +=\
+    i386/boot.S
+
 else
 
   AM_CFLAGS += -mcmodel=kernel -mno-red-zone
   machulus_LINKFLAGS += -n
 
-endif
-
-libkernel_a_SOURCES +=\
+  libkernel_a_SOURCES +=\
     x86_64/boot.S
+
+endif
 
 machulus_LINKFLAGS +=\
     -T x86_64/ldscript

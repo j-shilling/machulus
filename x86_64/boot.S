@@ -73,7 +73,7 @@ boot_gdt_descr:
 	.word boot_gdt - boot_gdt_end
 	.long boot_gdt - KERNEL_OFFSET
 
-/* We will start of my mapping a single 1GiB page. This should be more
+/* We will start by mapping a single 1GiB page. This should be more
    than enough for everything we need before we can use the Multiboot
    information to map out available memory. */
 .section .boot_paging
