@@ -80,12 +80,10 @@ boot_gdt_descr:
 .align 0x1000
 .type boot_pdpt, @object
 boot_pdpt:
-	.long 0x83
-	.long 0x0
-	.skip (509 * 8), 0
-	.long 0x83
-	.long 0x0
-	.skip 8, 0
+	.quad 0x83
+        .skip (509 * 8), 0
+	.quad 0x83
+        .skip (1 * 8), 0
 
 .align 0x1000
 .type boot_pml4, @object
