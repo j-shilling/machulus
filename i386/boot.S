@@ -673,7 +673,24 @@ cs_set:
 	jmp	*%eax
 
 higher_half:
-	
+	/* Re-setup the stack */
+	movl	%esp,%eax
+	addl	$KERNEL_OFFSET,%eax
+	movl	%eax,%esp
+	movl	$boot_stack_bottom,%ebp
+
+ 	/* Remove lower half memory mappings */
+	movl	$boot_pd,%edi
+	movl	$256,%ecx
+0:	movl    $0,(%edi)
+	addl	$4,%edi
+	loop	0b
+
+	/* Flush the TLB */
+	movl	%cr3,%eax
+	movl	%eax,%cr3
+
+	call	kernel_main
 
 halt:
 	cli
