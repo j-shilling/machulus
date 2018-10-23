@@ -90,7 +90,9 @@ boot_pdpt:
 .align 0x1000
 .type boot_pml4, @object
 boot_pml4:
-	.skip (512 * 8), 0
+	.quad ((boot_pdpt - KERNEL_OFFSET) + 0x03)
+	.skip (510 * 8), 0
+	.quad ((boot_pdpt - KERNEL_OFFSET) + 0x03)
 
 .section .bss
 .align 16
@@ -173,16 +175,6 @@ cs_set:
 	/* Set the address of boot_pml4 in cr3 */
 	movl	$(boot_pml4 - KERNEL_OFFSET),%edi
 	movl	%edi,%cr3
-
-	/* Add the boot_pdpt to boot_pml4 index 0 */
-	movl	$(boot_pdpt - KERNEL_OFFSET),%edx
-	or	$0x03,%edx
-	movl	%edx,(%edi)
-
-	/* Add the boot_pdpt to boot_pml4 index 511 */
-	add	$(511 * 8),%edi
-	or	$0x03,%edx
-	movl	%edx,(%edi)
 
 	/* Enable PAE */
 	movl	%cr4,%eax
