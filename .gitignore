@@ -1,3 +1,8 @@
+machulus
+machulus.iso
+iso/boot/machulus
+**/ldscript
+
 # Autotools stuff
 build-aux
 **/Makefile
@@ -11,6 +16,7 @@ config.status
 configure
 stamp-h1
 **/.deps
+**/.dirstamp
 
 # vim stuff
 *~
