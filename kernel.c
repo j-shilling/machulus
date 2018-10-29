@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <ldscript.h>
+#include <framebuffer.h>
  
 /* Hardware text mode color constants. */
 enum vga_color {
@@ -87,7 +88,7 @@ void terminal_putchar(char c)
 void terminal_write(const char* data, size_t size) 
 {
 	for (size_t i = 0; i < size; i++)
-		terminal_putchar(data[i]);
+		framebuffer_putchar(data[i]);
 }
  
 void terminal_writestring(const char* data) 

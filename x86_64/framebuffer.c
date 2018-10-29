@@ -21,7 +21,7 @@
 
 /* The framebuffer is really just an array of 2-byte entries. Visually it has 
    80 columns and 25 rows. */
-static const uint16_t *framebuffer = (uint16_t *)FRAMEBUFFER_ADDR;
+static uint16_t *const framebuffer = (uint16_t *)FRAMEBUFFER_ADDR;
 static const int FB_COLUMNS = 80;
 static const int FB_ROWS    = 25;
 /* Keep track of the current cursor position. Initialize to an invalid value so 
@@ -35,7 +35,7 @@ static const uint8_t FB_COLOR_LIGHT_GREY = 7;
 
 /* The style part of a character is 1 byte: bits 0-4 are the foreground and the
    rest are background */
-static const uint16_t FB_ENTRY_STYLE = FB_COLOR_BLACK | (FB_COLOR_LIGHT_GREY << 4);
+static const uint16_t FB_ENTRY_STYLE = FB_COLOR_LIGHT_GREY | (FB_COLOR_BLACK << 4);
 
 /* It will be useful to have a constant value for a blank character, so we don't
    need to calculate it every time we clear the screen. This is just a space. */
@@ -53,6 +53,25 @@ fb_entry(int c)
 static int
 fb_update_cursor(int delta_x, int delta_y)
 {
+  /* Do the update */
+  fb_cur_column += delta_x;
+  fb_cur_row    += delta_y;
+  
+  /* Check if we moved to the previous lines */
+  if (fb_cur_column < 0)
+    {
+      fb_cur_row    -= (-fb_cur_column / FB_COLUMNS) + 1;
+      fb_cur_column  = FB_COLUMNS + (fb_cur_column % FB_COLUMNS);
+    }
+  /* Check if we moved to the next lines */
+  else if (fb_cur_column >= FB_COLUMNS)
+    {
+      fb_cur_row    += (fb_cur_column / FB_COLUMNS) + 1;
+      fb_cur_column %= FB_COLUMNS;
+    }
+  
+  /* TODO: Update row and handle scrolling */
+  
   return -1;
 }
 
@@ -60,21 +79,62 @@ fb_update_cursor(int delta_x, int delta_y)
 static int
 fb_clear(void)
 {
-  return -1;
+  /* Add blank entries to framebuffer */
+  for (int i = 0; i < (FB_COLUMNS * FB_ROWS); i++) 
+    framebuffer[i] = FB_BLANK_ENTRY;
+  return 0;
 }
 
 /* Initialize the framebuffer. Return 0 on success and -1 on failure. */
 static int
 fb_init(void)
 {
-  return -1;
+  if (fb_cur_column >= 0)
+    return 0;
+  
+  fb_cur_column = 0;
+  fb_cur_row = 0;
+  
+  fb_clear();
+  
+  /* Disable cursor */
+  asm (
+    "pushf;"
+#if __32bits__
+    "push %eax;"
+    "push %edx;"
+#else
+    "push %rax;"
+    "push %rdx;"
+#endif
+  
+    "mov  $0x3d4,%dx;"
+    "mov  $0xa,%al;"
+    "out  %al,%dx;"
+  
+    "inc  %dx;"
+    "mov  $0x20,%al;"
+    "out  %al,%dx;"
+  
+#if __32bits__
+    "pop  %edx;"
+    "pop  %eax;"
+#else
+    "pop  %rdx;"
+    "pop  %rax;"
+#endif
+    "popf;"
+  );
+  
+  return 0;
 }
 
 /* Write the character to the screen. Return 0 on success and -1 on failure */
 static int
 fb_write(int c)
 {
-  return -1;
+  framebuffer[(fb_cur_row * FB_COLUMNS) + fb_cur_column] = fb_entry(c);
+  return fb_update_cursor(1, 0);
 }
 
 /* This is the only public interface with the framebuffer. It needs decide when
