@@ -22,4 +22,5 @@ libkernel_a_SOURCES += \
     stdlib/errno/errno.c \
     stdlib/stdio/printf.c \
     stdlib/stdio/putchar.c \
-    stdlib/stdio/puts.c
+    stdlib/stdio/puts.c \
+    stdlib/stdio/snprintf.c
