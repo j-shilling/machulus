@@ -67,14 +67,6 @@ extern "C"
   int snprintf (char *, size_t, const char *, ...);
 #endif
   
-  /* Print a formated string to the given buffer. On success return the number
-     of bytes transmitted; on failure return a negative value. */
-#ifdef __GNUC__
-#  define sprintf(__buf, __fmt, ...) __builtin_sprintf(__buf, __fmt, ##__VA_ARGS__
-#else
-  int sprintf (char *, const char *, ...);
-#endif
-  
   /* Print a formated string to the screen. On success return the number of
      bytes transmitted; on failure return a negative value. */
 #ifdef __GNUC__
@@ -90,14 +82,6 @@ extern "C"
 #  define vsnprintf(__buf, __size, __fmt, __args) __builtin_vsnprintf(__buf, __size, __fmt, __args)
 #else
   int vsnprintf (char *, size_t, const char *, va_list);
-#endif
-  
-  /* Print a formated string to the given buffer. On success return the number
-     of bytes transmitted; on failure return a negative value. */
-#ifdef __GNUC__
-#  define vsprintf(__buf, __fmt, __args) __builtin_vsprintf(__buf, __fmt, __args)
-#else
-  int vsprintf (char *, const char *, va_list);
 #endif
 
 
