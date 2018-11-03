@@ -34,5 +34,9 @@ puts (const char *s)
         }
     }
   
-  return 0;
+  /* Now print the newline */
+  if (putchar('\n') == EOF)
+    return EOF;
+  else
+    return 0;
 }
