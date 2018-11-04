@@ -41,6 +41,7 @@ typedef struct
     long as_long;
     long long as_long_long;
     intmax_t as_intmax_t;
+    ptrdiff_t as_ptrdiff_t;
     
     /* Unsigned Integer Values */
     unsigned char as_unsigned_char;
