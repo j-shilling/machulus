@@ -326,7 +326,10 @@ read_flags:
       break;
     case 'a':
       fs->flags |= FLOAT_HEX_DOWNCASE_FLAG;
-      __assign_float_argument(fs, ap);
+      if (fs->flags & LONG_DOUBLE_FLAG)
+        fs->argument.as_long_double = va_arg (ap, long double);
+      else
+        fs->argument.as_double = va_arg (ap, double);
       break;
     case 'A':
       fs->flags |= FLOAT_HEX_UPCASE_FLAG;
