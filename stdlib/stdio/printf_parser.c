@@ -103,6 +103,57 @@ __get_width_or_precision (char **__fmt, va_list ap)
   return ret;
 }
 
+static void
+__assign_signed_integer_argument (__format_string *fs, va_list ap)
+{
+  if (fs->flags & CHAR_SIZE_FLAG)
+    fs->argument.as_char = (char) va_arg (ap, int);
+  else if (fs->flags & SHORT_FLAG)
+    fs->argument.as_short = (short) va_arg (ap, int);
+  else if (fs->flags & LONG_FLAG)
+    fs->argument.as_long = va_arg (ap, long);
+  else if (fs->flags & LONG_LONG_FLAG)
+    fs->argument.as_long_long = va_arg (ap, long long);
+  else if (fs->flags & SIZE_T_FLAG)
+    fs->argument.as_size_t = va_arg (ap, size_t);
+  else if (fs->flags & INTMAX_T_FLAG)
+    fs->argument.as_intmax_t = va_arg (ap, intmax_t);
+  else if (fs->flags & PTRDIFF_T_FLAG)
+    fs->argument.as_ptrdiff_t = va_arg (ap, ptrdiff_t);
+  else
+    fs->argument.as_int = va_arg (ap, int);
+}
+
+static void
+__assign_unsigned_integer_argument (__format_string *fs, va_list ap)
+{
+  if (fs->flags & CHAR_SIZE_FLAG)
+    fs->argument.as_unsigned_char = (unsigned char) va_arg (ap, unsigned int);
+  else if (fs->flags & SHORT_FLAG)
+    fs->argument.as_unsigned_short = (short) va_arg (ap, unsigned int);
+  else if (fs->flags & LONG_FLAG)
+    fs->argument.as_unsigned_long = va_arg (ap, unsigned long);
+  else if (fs->flags & LONG_LONG_FLAG)
+    fs->argument.as_unsigned_long_long = va_arg (ap, unsigned long long);
+  else if (fs->flags & SIZE_T_FLAG)
+    fs->argument.as_size_t = va_arg (ap, size_t);
+  else if (fs->flags & INTMAX_T_FLAG)
+    fs->argument.as_uintmax_t = va_arg (ap, uintmax_t);
+  else if (fs->flags & PTRDIFF_T_FLAG)
+    fs->argument.as_ptrdiff_t = va_arg (ap, ptrdiff_t);
+  else
+    fs->argument.as_unsigned_int = va_arg (ap, unsigned int);
+}
+
+static void
+__assign_float_argument (__format_string *fs, va_list ap)
+{
+  if (fs->flags & LONG_DOUBLE_FLAG)
+    fs->argument.as_long_double = va_arg (ap, long double);
+  else
+    fs->argument.as_double = va_arg (ap, double);
+}
+
 /* Compile a formatted section of a printf-string. fmt should point to the beginning
    of the formatted section and (*fmt) should equal '%'. We will start parsing the
    string from that point, taking any necessary argumenst from ap if necessary, and
@@ -219,170 +270,71 @@ read_flags:
     case 'd':
     case 'i':
       fs->flags |= SIGNED_DECIMAL_FLAG;
-      if (fs->flags & CHAR_SIZE_FLAG)
-        fs->argument.as_char = (char)va_arg(ap, int);
-      else if (fs->flags & SHORT_FLAG)
-        fs->argument.as_short = (short)va_arg(ap, int);
-      else if (fs->flags & LONG_FLAG)
-        fs->argument.as_long = va_arg(ap, long);
-      else if (fs->flags & LONG_LONG_FLAG)
-        fs->argument.as_long_long = va_arg(ap, long long);
-      else if (fs->flags & SIZE_T_FLAG)
-        fs->argument.as_size_t = va_arg(ap, size_t);
-      else if (fs->flags & INTMAX_T_FLAG)
-        fs->argument.as_intmax_t = va_arg(ap, intmax_t);
-      else if (fs->flags & PTRDIFF_T_FLAG)
-        fs->argument.as_ptrdiff_t = va_arg(ap, ptrdiff_t);
-      else
-        fs->argument.as_int = va_arg(ap, int);
+      __assign_signed_integer_argument(fs, ap);
       break;
     case 'u':
       fs->flags |= UNSIGNED_DECIMAL_FLAG;
-      if (fs->flags & CHAR_SIZE_FLAG)
-        fs->argument.as_unsigned_char = (unsigned char)va_arg(ap, unsigned int);
-      else if (fs->flags & SHORT_FLAG)
-        fs->argument.as_unsigned_short = (short)va_arg(ap, unsigned int);
-      else if (fs->flags & LONG_FLAG)
-        fs->argument.as_unsigned_long = va_arg(ap, unsigned long);
-      else if (fs->flags & LONG_LONG_FLAG)
-        fs->argument.as_unsigned_long_long = va_arg(ap, unsigned long long);
-      else if (fs->flags & SIZE_T_FLAG)
-        fs->argument.as_size_t = va_arg(ap, size_t);
-      else if (fs->flags & INTMAX_T_FLAG)
-        fs->argument.as_uintmax_t = va_arg(ap, uintmax_t);
-      else if (fs->flags & PTRDIFF_T_FLAG)
-        fs->argument.as_ptrdiff_t = va_arg(ap, ptrdiff_t);
-      else
-        fs->argument.as_unsigned_int = va_arg(ap, unsigned int);
+      __assign_unsigned_integer_argument(fs, ap);
       break;
     case 'f':
       fs->flags |= FLOAT_NORMAL_DOWNCASE_FLAG;
-      if (fs->flags & LONG_DOUBLE_FLAG)
-        fs->argument.as_long_double = va_arg(ap, long double);
-      else
-        fs->argument.as_double = va_arg(ap, double);
+      __assign_float_argument(fs, ap);
       break;
     case 'F':
       fs->flags |= FLOAT_NORMAL_UPCASE_FLAG;
-      if (fs->flags & LONG_DOUBLE_FLAG)
-        fs->argument.as_long_double = va_arg(ap, long double);
-      else
-        fs->argument.as_double = va_arg(ap, double);
+      __assign_float_argument(fs, ap);
       break;
     case 'e':
       fs->flags |= FLOAT_EXPONENT_DOWNCASE_FLAG;
-      if (fs->flags & LONG_DOUBLE_FLAG)
-        fs->argument.as_long_double = va_arg(ap, long double);
-      else
-        fs->argument.as_double = va_arg(ap, double);
+      __assign_float_argument(fs, ap);
       break;
     case 'E':
       fs->flags |= FLOAT_EXPONENT_UPCASE_FLAG;
-      if (fs->flags & LONG_DOUBLE_FLAG)
-        fs->argument.as_long_double = va_arg(ap, long double);
-      else
-        fs->argument.as_double = va_arg(ap, double);
+      __assign_float_argument(fs, ap);
       break;
     case 'g':
       fs->flags |= FLOAT_CHOOSE_DOWNCASE_FLAG;
-      if (fs->flags & LONG_DOUBLE_FLAG)
-        fs->argument.as_long_double = va_arg(ap, long double);
-      else
-        fs->argument.as_double = va_arg(ap, double);
+      __assign_float_argument(fs, ap);
       break;
     case 'G':
       fs->flags |= FLOAT_CHOOSE_UPCASE_FLAG;
-      if (fs->flags & LONG_DOUBLE_FLAG)
-        fs->argument.as_long_double = va_arg(ap, long double);
-      else
-        fs->argument.as_double = va_arg(ap, double);
+      __assign_float_argument(fs, ap);
       break;
     case 'x':
       fs->flags |= INT_HEX_DOWNCASE_FLAG;
-      if (fs->flags & CHAR_SIZE_FLAG)
-        fs->argument.as_unsigned_char = (unsigned char)va_arg(ap, unsigned int);
-      else if (fs->flags & SHORT_FLAG)
-        fs->argument.as_unsigned_short = (short)va_arg(ap, unsigned int);
-      else if (fs->flags & LONG_FLAG)
-        fs->argument.as_unsigned_long = va_arg(ap, unsigned long);
-      else if (fs->flags & LONG_LONG_FLAG)
-        fs->argument.as_unsigned_long_long = va_arg(ap, unsigned long long);
-      else if (fs->flags & SIZE_T_FLAG)
-        fs->argument.as_size_t = va_arg(ap, size_t);
-      else if (fs->flags & INTMAX_T_FLAG)
-        fs->argument.as_uintmax_t = va_arg(ap, uintmax_t);
-      else if (fs->flags & PTRDIFF_T_FLAG)
-        fs->argument.as_ptrdiff_t = va_arg(ap, ptrdiff_t);
-      else
-        fs->argument.as_unsigned_int = va_arg(ap, unsigned int);
+      __assign_unsigned_integer_argument(fs, ap);
       break;
     case 'X':
       fs->flags |= INT_HEX_UPCASE_FLAG;
-      if (fs->flags & CHAR_SIZE_FLAG)
-        fs->argument.as_unsigned_char = (unsigned char)va_arg(ap, unsigned int);
-      else if (fs->flags & SHORT_FLAG)
-        fs->argument.as_unsigned_short = (short)va_arg(ap, unsigned int);
-      else if (fs->flags & LONG_FLAG)
-        fs->argument.as_unsigned_long = va_arg(ap, unsigned long);
-      else if (fs->flags & LONG_LONG_FLAG)
-        fs->argument.as_unsigned_long_long = va_arg(ap, unsigned long long);
-      else if (fs->flags & SIZE_T_FLAG)
-        fs->argument.as_size_t = va_arg(ap, size_t);
-      else if (fs->flags & INTMAX_T_FLAG)
-        fs->argument.as_uintmax_t = va_arg(ap, uintmax_t);
-      else if (fs->flags & PTRDIFF_T_FLAG)
-        fs->argument.as_ptrdiff_t = va_arg(ap, ptrdiff_t);
-      else
-        fs->argument.as_unsigned_int = va_arg(ap, unsigned int);
+      __assign_unsigned_integer_argument(fs, ap);
       break;
     case 'o':
       fs->flags |= OCT_FLAG;
-      if (fs->flags & CHAR_SIZE_FLAG)
-        fs->argument.as_unsigned_char = (unsigned char)va_arg(ap, unsigned int);
-      else if (fs->flags & SHORT_FLAG)
-        fs->argument.as_unsigned_short = (short)va_arg(ap, unsigned int);
-      else if (fs->flags & LONG_FLAG)
-        fs->argument.as_unsigned_long = va_arg(ap, unsigned long);
-      else if (fs->flags & LONG_LONG_FLAG)
-        fs->argument.as_unsigned_long_long = va_arg(ap, unsigned long long);
-      else if (fs->flags & SIZE_T_FLAG)
-        fs->argument.as_size_t = va_arg(ap, size_t);
-      else if (fs->flags & INTMAX_T_FLAG)
-        fs->argument.as_uintmax_t = va_arg(ap, uintmax_t);
-      else if (fs->flags & PTRDIFF_T_FLAG)
-        fs->argument.as_ptrdiff_t = va_arg(ap, ptrdiff_t);
-      else
-        fs->argument.as_unsigned_int = va_arg(ap, unsigned int);
+      __assign_unsigned_integer_argument(fs, ap);
       break;
     case 's':
       fs->flags |= STRING_FLAG;
-      fs->argument.as_char_pointer = va_arg(ap, char *);
+      fs->argument.as_char_pointer = va_arg (ap, char *);
       break;
     case 'c':
       fs->flags |= CHAR_TYPE_FLAG;
-      fs->argument.as_char = (char)va_arg(ap, int);
+      fs->argument.as_char = (char) va_arg (ap, int);
       break;
     case 'p':
       fs->flags |= POINTER_FLAG;
-      fs->argument.as_pointer = va_arg(ap, void *);
+      fs->argument.as_pointer = va_arg (ap, void *);
       break;
     case 'a':
       fs->flags |= FLOAT_HEX_DOWNCASE_FLAG;
-      if (fs->flags & LONG_DOUBLE_FLAG)
-        fs->argument.as_long_double = va_arg(ap, long double);
-      else
-        fs->argument.as_double = va_arg(ap, double);
+      __assign_float_argument(fs, ap);
       break;
     case 'A':
       fs->flags |= FLOAT_HEX_UPCASE_FLAG;
-      if (fs->flags & LONG_DOUBLE_FLAG)
-        fs->argument.as_long_double = va_arg(ap, long double);
-      else
-        fs->argument.as_double = va_arg(ap, double);
+      __assign_float_argument(fs, ap);
       break;
     case 'n':
       fs->flags |= COUNT_FLAG;
-      fs->argument.as_int_pointer = va_arg(ap, int *);
+      fs->argument.as_int_pointer = va_arg (ap, int *);
       break;
     }
 
