@@ -15,29 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
- * File:   framebuffer.h
- * Author: Jake Shilling
- */
+/* file: stdlib/stdio/putchar.c
+ * 
+ *   Implements putchar() which output a single character to the VGA framebuffer
+ * and, on success return the printed character; on failure, it return EOF and 
+ * set errno. */
 
-#ifndef FRAMEBUFFER_H
-#define FRAMEBUFFER_H
+#include <stdio.h>
+#include <errno.h>
+#include <framebuffer.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-
-/* Write a single character to video memory. Returns 0 on success and a negative
-   value on failure. */
-int framebuffer_putchar(int c);
-
-
-#ifdef __cplusplus
+int 
+putchar (int c)
+{
+  if (framebuffer_putchar(c))
+    {
+      errno = EINVAL;
+      return EOF;
+    }
+  
+  return c;
 }
-#endif
-
-#endif /* FRAMEBUFFER_H */
-

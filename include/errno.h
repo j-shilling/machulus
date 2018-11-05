@@ -15,29 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
- * File:   framebuffer.h
- * Author: Jake Shilling
- */
+/* file: include/errno.h
+ * 
+ *   This is a replacement for the errno.h of libc. */
 
-#ifndef FRAMEBUFFER_H
-#define FRAMEBUFFER_H
+#ifndef ERRNO_H
+#define ERRNO_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+  
+#define errno (*__errno_address())
 
-
-
-
-/* Write a single character to video memory. Returns 0 on success and a negative
-   value on failure. */
-int framebuffer_putchar(int c);
+/* Return the address of this thread's errno */
+int *__errno_address(void);
+  
+/* “Invalid argument.” This is used to indicate various kinds of problems with 
+ * passing the wrong argument to a kernel function. */
+#define EINVAL          (1)
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* FRAMEBUFFER_H */
+#endif /* ERRNO_H */
 

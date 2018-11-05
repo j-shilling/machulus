@@ -15,29 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
- * File:   framebuffer.h
- * Author: Jake Shilling
- */
+/* file: stdlib/stdio/printf.c
+ * 
+ *   Implements printf() which prints a formated string to the screen. On success,
+ * it returns the number of bytes transmitted; on failure, it return a negative 
+ * value. */
 
-#ifndef FRAMEBUFFER_H
-#define FRAMEBUFFER_H
+#include <stdio.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-
-/* Write a single character to video memory. Returns 0 on success and a negative
-   value on failure. */
-int framebuffer_putchar(int c);
-
-
-#ifdef __cplusplus
+int 
+printf (const char *fmt, ...)
+{
+  va_list ap;
+  int done;
+  
+  va_start (ap, fmt);
+  done = vprintf(fmt, ap);
+  va_end(ap);
+  
+  return done;
 }
-#endif
-
-#endif /* FRAMEBUFFER_H */
-

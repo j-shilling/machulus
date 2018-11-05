@@ -3,6 +3,8 @@ machulus.iso
 iso/boot/machulus
 **/ldscript
 
+**/nbproject/*
+
 # Autotools stuff
 build-aux
 **/Makefile

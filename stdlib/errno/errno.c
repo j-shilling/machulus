@@ -15,29 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
- * File:   framebuffer.h
- * Author: Jake Shilling
- */
+/* file: stdlib/errno/errno.c 
+ *
+ *   Implements necessary methods to make errno thread safe. Declares errno 
+ * itself. */
 
-#ifndef FRAMEBUFFER_H
-#define FRAMEBUFFER_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-
-/* Write a single character to video memory. Returns 0 on success and a negative
-   value on failure. */
-int framebuffer_putchar(int c);
-
-
-#ifdef __cplusplus
+/* Return the address of this thread's errno */
+int *
+__errno_address(void)
+{
+  /* Currently the kernel is single threaded, so don't worry about it. */
+  static int errno = 0;
+  return &errno;
 }
-#endif
-
-#endif /* FRAMEBUFFER_H */
-

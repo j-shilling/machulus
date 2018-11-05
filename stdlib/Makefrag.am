@@ -13,17 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# file: Makefrag.am
+# file: stdlib/Makefrag.am
 #
-#   This file is included by Makefrag and should in turn include other
-# Makefrag.am files for each specific system type. Here we add the
-# sourcefiles common to all systems to our libkernel_a_SOURCES variable.
+#   This file is included by Makefrag.am and should in turn. Here we add the
+# sourcefiles for our stdlib implementations to our libkernel_a_SOURCES variable.
 
 libkernel_a_SOURCES += \
-    kernel.c
-
-if HOST_x86_64
-include x86_64/Makefrag.am
-endif
-
-include stdlib/Makefrag.am
+    stdlib/errno/errno.c \
+    stdlib/stdio/printf.c \
+    stdlib/stdio/printf_parser.c \
+    stdlib/stdio/putchar.c \
+    stdlib/stdio/puts.c \
+    stdlib/stdio/snprintf.c \
+    stdlib/stdio/vprintf.c

@@ -15,29 +15,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
- * File:   framebuffer.h
- * Author: Jake Shilling
- */
+/* file: stdlib/stdio/puts.c
+ * 
+ *   Implement puts() which prints a string followed by a newline. On success, 
+ * it returns a nonnegative number; on failure, it returns EOF and set errno. */
 
-#ifndef FRAMEBUFFER_H
-#define FRAMEBUFFER_H
+#include <stdio.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-
-/* Write a single character to video memory. Returns 0 on success and a negative
-   value on failure. */
-int framebuffer_putchar(int c);
-
-
-#ifdef __cplusplus
+int 
+puts (const char *s)
+{
+  for (char *cur = (char *)s; (*cur) != '\0'; cur ++) 
+    {
+      if (putchar(*cur) == EOF)
+        {
+          /* errno is set by putchar. */
+          return EOF;
+        }
+    }
+  
+  /* Now print the newline */
+  if (putchar('\n') == EOF)
+    return EOF;
+  else
+    return 0;
 }
-#endif
-
-#endif /* FRAMEBUFFER_H */
-
