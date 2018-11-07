@@ -58,7 +58,7 @@ static const uint32_t FLOAT_HEX_DOWNCASE_FLAG = (1 << 29);
 static const uint32_t FLOAT_HEX_UPCASE_FLAG = (1 << 30);
 static const uint32_t COUNT_FLAG = (1 << 31);
 
-static bool
+static inline bool
 __isdigit (char x)
 {
   return (x == '0')
@@ -73,7 +73,7 @@ __isdigit (char x)
           || (x == '9');
 }
 
-static int
+static inline int
 __ctoi (char c)
 {
   return c - '0';
@@ -266,6 +266,7 @@ read_flags:
     {
     case '%':
       fs->flags |= PERCENT_FLAG;
+      fs->state.percent.shown = false;
       break;
     case 'd':
     case 'i':
@@ -345,12 +346,28 @@ read_flags:
   return fmt;
 }
 
-/* Returns the nexted character of section of formatted output from a printf function. 
+/* Returns the next character of section of formatted output from a printf function. 
    The state of (*fs) will be updated so that a subsequent call will result in a 
    different return value. If no more chars should be printed or if there's an error
    return '\0'. */
 char
 __printf_parser_next_char (__format_string *fs)
 {
-  return '\0';
+  /* Sanity check the input */
+  if (NULL == fs)
+    return '\0';
+  
+  /* %% */
+  if (fs->flags & PERCENT_FLAG)
+    {
+      if (fs->state.percent.shown)
+        {
+          return '\0';
+        }
+      else
+        {
+          fs->state.percent.shown = true;
+          return '%';
+        }
+    }
 }

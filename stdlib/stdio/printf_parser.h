@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,6 +62,14 @@ typedef struct
     void *as_pointer;
     int *as_int_pointer;
   } argument;
+  
+  union
+  {
+    struct
+    {
+      bool shown;
+    } percent;
+  } state;
   
 } __format_string;
 
