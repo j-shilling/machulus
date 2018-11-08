@@ -436,6 +436,28 @@ __itoa (__format_string *fs)
     base = 16;
   else
     base = 10;
+  
+  /* Figure out the amount of padding we will need */
+  int needed_prefix_chars = 0;
+  if (fs->flags & HASH_FLAG)
+    {
+      if (base == 8)
+        needed_prefix_chars = 1;
+      else if (base == 16)
+        needed_prefix_chars = 2;
+    }
+  int needed_chars = fs->width > fs->precision ? fs->width : fs->precision;
+  if (fs->flags & SIGNED_DECIMAL_FLAG && (fs->state.itoa.is_negative || (fs->flags & SPACE_FLAG) || (fs->flags & PLUS_FLAG)))
+    needed_chars--;
+  int needed_padding =
+          needed_chars - fs->state.itoa.needed_digits - fs->state.itoa.printed_padding;
+  
+  /* Space padding comes first */
+  if (needed_padding > 0 && !(fs->flags & MINUS_FLAG) && !(fs->flags & ZERO_FLAG))
+    {
+      fs->state.itoa.printed_padding++;
+      return ' ';
+    }
 
   /* See if we need to print a prefix. */
   if ((base != 10) && (fs->flags & HASH_FLAG))
@@ -475,22 +497,11 @@ __itoa (__format_string *fs)
         }
     }
 
-  /* Check if we need padding. Use the larger of width and precision */
-  int needed_chars = fs->width > fs->precision ? fs->width : fs->precision;
-  needed_chars -= fs->state.itoa.printed_prefix_chars;
-  if (fs->state.itoa.printed_sign)
-    needed_chars--;
-
-  int needed_padding =
-          needed_chars - fs->state.itoa.needed_digits - fs->state.itoa.printed_padding;
-  /* If we need padding and are right justified then print a padding character */
-  if (needed_padding > 0 && !(fs->flags & MINUS_FLAG))
+  /* Zero padding comes after the sign and prefix */
+  if (needed_padding > 0 && !(fs->flags & MINUS_FLAG) && (fs->flags & ZERO_FLAG))
     {
       fs->state.itoa.printed_padding++;
-      if (fs->flags & ZERO_FLAG)
-        return '0';
-      else
-        return ' ';
+      return '0';
     }
 
   if (fs->state.itoa.printed_digits < fs->state.itoa.needed_digits)
@@ -555,7 +566,7 @@ __itoa (__format_string *fs)
         }
     }
 
-  if (needed_chars > 0 && fs->flags & MINUS_FLAG)
+  if ((needed_padding > 0) && (fs->flags & MINUS_FLAG))
     {
       fs->state.itoa.printed_padding++;
       return ' ';
@@ -588,7 +599,9 @@ __printf_parser_next_char (__format_string *fs)
           return '%';
         }
     }
-  else if (fs->flags & SIGNED_DECIMAL_FLAG)
+  else if ((fs->flags & SIGNED_DECIMAL_FLAG) || (fs->flags & UNSIGNED_DECIMAL_FLAG)
+        || (fs->flags & INT_HEX_DOWNCASE_FLAG) || (fs->flags & INT_HEX_UPCASE_FLAG)
+        || (fs->flags & OCT_FLAG))
     {
       return __itoa(fs);
     }
