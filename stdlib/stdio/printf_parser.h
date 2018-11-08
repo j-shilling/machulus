@@ -24,57 +24,71 @@
 #include <stdbool.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-typedef struct
-{
-  uint32_t flags;
-  int width;
-  int precision;
-  
-  union
+  typedef struct
   {
-    /* Signed Integer Values */
-    char as_char;
-    short as_short;
-    int as_int;
-    long as_long;
-    long long as_long_long;
-    intmax_t as_intmax_t;
-    ptrdiff_t as_ptrdiff_t;
-    
-    /* Unsigned Integer Values */
-    unsigned char as_unsigned_char;
-    unsigned short as_unsigned_short;
-    unsigned int as_unsigned_int;
-    unsigned long as_unsigned_long;
-    unsigned long long as_unsigned_long_long;
-    uintmax_t as_uintmax_t;
-    size_t as_size_t;
-    
-    /* Signed floating-points */
-    double as_double;
-    long double as_long_double;
+    uint32_t flags;
+    int width;
+    int precision;
 
-    /* Pointer types */
-    char *as_char_pointer;
-    void *as_pointer;
-    int *as_int_pointer;
-  } argument;
-  
-  union
-  {
-    struct
+    union
     {
-      bool shown;
-    } percent;
-  } state;
-  
-} __format_string;
+      /* Signed Integer Values */
+      char as_char;
+      short as_short;
+      int as_int;
+      long as_long;
+      long long as_long_long;
+      intmax_t as_intmax_t;
+      ptrdiff_t as_ptrdiff_t;
 
-char *__printf_parser_compile(__format_string *, char *, va_list);
-char __printf_parser_next_char(__format_string *);
+      /* Unsigned Integer Values */
+      unsigned char as_unsigned_char;
+      unsigned short as_unsigned_short;
+      unsigned int as_unsigned_int;
+      unsigned long as_unsigned_long;
+      unsigned long long as_unsigned_long_long;
+      uintmax_t as_uintmax_t;
+      size_t as_size_t;
+
+      /* Signed floating-points */
+      double as_double;
+      long double as_long_double;
+
+      /* Pointer types */
+      char *as_char_pointer;
+      void *as_pointer;
+      int *as_int_pointer;
+    } argument;
+
+    union
+    {
+
+      struct
+      {
+        bool shown;
+      } percent;
+
+      struct
+      {
+        bool is_negative;
+        bool printed_sign;
+        
+        int needed_digits;
+        
+        int printed_digits;
+        int printed_prefix_chars;
+        int printed_padding;
+      } itoa;
+    } state;
+
+  } __format_string;
+
+  char *__printf_parser_compile (__format_string *, char *, va_list);
+  char __printf_parser_next_char (__format_string *);
 
 #ifdef __cplusplus
 }

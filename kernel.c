@@ -6,5 +6,6 @@ kernel_main (void)
   printf("Hello, World\n");
   
   printf("\n\n-- printf tests --\n");
-  printf("printf(\"%%%%\"): \"%%\"\n");
+  int x = 100;
+  printf("\"%10d\"\n", x);
 }

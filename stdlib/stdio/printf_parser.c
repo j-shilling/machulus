@@ -154,6 +154,80 @@ __assign_float_argument (__format_string *fs, va_list ap)
     fs->argument.as_double = va_arg (ap, double);
 }
 
+static void
+__init_itoa_state (__format_string *fs)
+{
+  fs->state.itoa.printed_sign = false;
+  fs->state.itoa.printed_digits = 0;
+  fs->state.itoa.printed_padding = 0;
+
+  uintmax_t temp;
+  if (fs->flags & SIGNED_DECIMAL_FLAG)
+    {
+      if (fs->flags & CHAR_SIZE_FLAG)
+        {
+          fs->state.itoa.is_negative = fs->argument.as_char < 0;
+          temp = (uintmax_t) (fs->state.itoa.is_negative ? fs->argument.as_char * -1 : fs->argument.as_char);
+        }
+      else if (fs->flags & SHORT_FLAG)
+        {
+          fs->state.itoa.is_negative = fs->argument.as_short < 0;
+          temp = (uintmax_t) (fs->state.itoa.is_negative ? fs->argument.as_short * -1 : fs->argument.as_short);
+        }
+      else if (fs->flags & LONG_FLAG)
+        {
+          fs->state.itoa.is_negative = fs->argument.as_long < 0;
+          temp = (uintmax_t) (fs->state.itoa.is_negative ? fs->argument.as_long * -1 : fs->argument.as_long);
+        }
+      else if (fs->flags & LONG_LONG_FLAG)
+        {
+          fs->state.itoa.is_negative = fs->argument.as_long_long < 0;
+          temp = (uintmax_t) (fs->state.itoa.is_negative ? fs->argument.as_long_long * -1 : fs->argument.as_long_long);
+        }
+      else if (fs->flags & INTMAX_T_FLAG)
+        {
+          fs->state.itoa.is_negative = fs->argument.as_intmax_t < 0;
+          temp = (uintmax_t) (fs->state.itoa.is_negative ? fs->argument.as_intmax_t * -1 : fs->argument.as_intmax_t);
+        }
+      else if (fs->flags & PTRDIFF_T_FLAG)
+        {
+          fs->state.itoa.is_negative = fs->argument.as_ptrdiff_t < 0;
+          temp = (uintmax_t) (fs->state.itoa.is_negative ? fs->argument.as_ptrdiff_t * -1 : fs->argument.as_ptrdiff_t);
+        }
+      else if (fs->flags & SIZE_T_FLAG)
+        {
+          fs->state.itoa.is_negative = false;
+          temp = fs->argument.as_uintmax_t;
+        }
+      else
+        {
+          fs->state.itoa.is_negative = fs->argument.as_int < 0;
+          temp = (uintmax_t) (fs->state.itoa.is_negative ? fs->argument.as_int * -1 : fs->argument.as_int);
+        }
+    }
+  else
+    {
+      fs->state.itoa.is_negative = false;
+      temp = fs->argument.as_uintmax_t;
+    }
+
+  int base;
+  if (fs->flags & OCT_FLAG)
+    base = 8;
+  else if ((fs->flags & INT_HEX_DOWNCASE_FLAG) || (fs->flags & INT_HEX_UPCASE_FLAG))
+    base = 16;
+  else
+    base = 10;
+
+  fs->state.itoa.needed_digits = 0;
+  do
+    {
+      fs->state.itoa.needed_digits++;
+      temp /= base;
+    }
+  while (temp > 0);
+}
+
 /* Compile a formatted section of a printf-string. fmt should point to the beginning
    of the formatted section and (*fmt) should equal '%'. We will start parsing the
    string from that point, taking any necessary argumenst from ap if necessary, and
@@ -271,47 +345,52 @@ read_flags:
     case 'd':
     case 'i':
       fs->flags |= SIGNED_DECIMAL_FLAG;
-      __assign_signed_integer_argument(fs, ap);
+      __assign_signed_integer_argument (fs, ap);
+      __init_itoa_state (fs);
       break;
     case 'u':
       fs->flags |= UNSIGNED_DECIMAL_FLAG;
-      __assign_unsigned_integer_argument(fs, ap);
+      __assign_unsigned_integer_argument (fs, ap);
+      __init_itoa_state (fs);
       break;
     case 'f':
       fs->flags |= FLOAT_NORMAL_DOWNCASE_FLAG;
-      __assign_float_argument(fs, ap);
+      __assign_float_argument (fs, ap);
       break;
     case 'F':
       fs->flags |= FLOAT_NORMAL_UPCASE_FLAG;
-      __assign_float_argument(fs, ap);
+      __assign_float_argument (fs, ap);
       break;
     case 'e':
       fs->flags |= FLOAT_EXPONENT_DOWNCASE_FLAG;
-      __assign_float_argument(fs, ap);
+      __assign_float_argument (fs, ap);
       break;
     case 'E':
       fs->flags |= FLOAT_EXPONENT_UPCASE_FLAG;
-      __assign_float_argument(fs, ap);
+      __assign_float_argument (fs, ap);
       break;
     case 'g':
       fs->flags |= FLOAT_CHOOSE_DOWNCASE_FLAG;
-      __assign_float_argument(fs, ap);
+      __assign_float_argument (fs, ap);
       break;
     case 'G':
       fs->flags |= FLOAT_CHOOSE_UPCASE_FLAG;
-      __assign_float_argument(fs, ap);
+      __assign_float_argument (fs, ap);
       break;
     case 'x':
       fs->flags |= INT_HEX_DOWNCASE_FLAG;
-      __assign_unsigned_integer_argument(fs, ap);
+      __assign_unsigned_integer_argument (fs, ap);
+      __init_itoa_state (fs);
       break;
     case 'X':
       fs->flags |= INT_HEX_UPCASE_FLAG;
-      __assign_unsigned_integer_argument(fs, ap);
+      __assign_unsigned_integer_argument (fs, ap);
+      __init_itoa_state (fs);
       break;
     case 'o':
       fs->flags |= OCT_FLAG;
-      __assign_unsigned_integer_argument(fs, ap);
+      __assign_unsigned_integer_argument (fs, ap);
+      __init_itoa_state (fs);
       break;
     case 's':
       fs->flags |= STRING_FLAG;
@@ -334,7 +413,7 @@ read_flags:
       break;
     case 'A':
       fs->flags |= FLOAT_HEX_UPCASE_FLAG;
-      __assign_float_argument(fs, ap);
+      __assign_float_argument (fs, ap);
       break;
     case 'n':
       fs->flags |= COUNT_FLAG;
@@ -344,6 +423,145 @@ read_flags:
 
   /* fmt should still be pointing at the type character */
   return fmt;
+}
+
+static char
+__itoa (__format_string *fs)
+{
+  /* Get the base */
+  int base;
+  if (fs->flags & OCT_FLAG)
+    base = 8;
+  else if ((fs->flags & INT_HEX_DOWNCASE_FLAG) || (fs->flags & INT_HEX_UPCASE_FLAG))
+    base = 16;
+  else
+    base = 10;
+
+  /* See if we need to print a prefix. */
+  if ((base != 10) && (fs->flags & HASH_FLAG))
+    {
+      if (fs->state.itoa.printed_prefix_chars < 1)
+        {
+          fs->state.itoa.printed_prefix_chars = 1;
+          return '0';
+        }
+      else if (base == 16 && fs->state.itoa.printed_prefix_chars == 1)
+        {
+          fs->state.itoa.printed_prefix_chars = 2;
+          if (fs->flags & INT_HEX_DOWNCASE_FLAG)
+            return 'x';
+          else
+            return 'X';
+        }
+    }
+
+  /* See if we need to print a sign */
+  if (fs->flags & SIGNED_DECIMAL_FLAG && !fs->state.itoa.printed_sign)
+    {
+      if (fs->state.itoa.is_negative)
+        {
+          fs->state.itoa.printed_sign = true;
+          return '-';
+        }
+      else if (fs->flags & PLUS_FLAG)
+        {
+          fs->state.itoa.printed_sign = true;
+          return '+';
+        }
+      else if (fs->flags & SPACE_FLAG)
+        {
+          fs->state.itoa.printed_sign = true;
+          return ' ';
+        }
+    }
+
+  /* Check if we need padding. Use the larger of width and precision */
+  int needed_chars = fs->width > fs->precision ? fs->width : fs->precision;
+  needed_chars -= fs->state.itoa.printed_prefix_chars;
+  if (fs->state.itoa.printed_sign)
+    needed_chars--;
+
+  int needed_padding =
+          needed_chars - fs->state.itoa.needed_digits - fs->state.itoa.printed_padding;
+  /* If we need padding and are right justified then print a padding character */
+  if (needed_padding > 0 && !(fs->flags & MINUS_FLAG))
+    {
+      fs->state.itoa.printed_padding++;
+      if (fs->flags & ZERO_FLAG)
+        return '0';
+      else
+        return ' ';
+    }
+
+  if (fs->state.itoa.printed_digits < fs->state.itoa.needed_digits)
+    {
+      /* Get the argument as a uintmax_t. This is only tricky when trying to cast
+         negative values */
+      uintmax_t temp;
+      if (fs->state.itoa.is_negative)
+        {
+          if (fs->flags && CHAR_SIZE_FLAG)
+            temp = (uintmax_t) (fs->argument.as_char * -1);
+          else if (fs->flags && SHORT_FLAG)
+            temp = (uintmax_t) (fs->argument.as_short * -1);
+          else if (fs->flags && LONG_FLAG)
+            temp = (uintmax_t) (fs->argument.as_long * -1);
+          else if (fs->flags && LONG_LONG_FLAG)
+            temp = (uintmax_t) (fs->argument.as_long_long * -1);
+          else if (fs->flags && INTMAX_T_FLAG)
+            temp = (uintmax_t) (fs->argument.as_intmax_t * -1);
+          else if (fs->flags && PTRDIFF_T_FLAG)
+            temp = (uintmax_t) (fs->argument.as_ptrdiff_t * -1);
+          else
+            temp = (uintmax_t) (fs->argument.as_int * -1);
+        }
+      else
+        {
+          temp = fs->argument.as_uintmax_t;
+        }
+
+      if (temp == 0)
+        {
+          fs->state.itoa.printed_digits++;
+          return '0';
+        }
+
+      /* We want to now get the nth digit where n = printed_digits */
+      int cur_digit = fs->state.itoa.needed_digits;
+      int cur_value;
+
+      do
+        {
+          cur_value = temp % base;
+          temp /= base;
+          cur_digit--;
+        }
+      while ((temp > 0) && (cur_digit > fs->state.itoa.printed_digits));
+
+      fs->state.itoa.printed_digits++;
+      needed_chars--;
+      if (cur_value < 10)
+        return '0' + cur_value;
+      else
+        {
+          if (fs->flags & INT_HEX_DOWNCASE_FLAG)
+            {
+              return 'a' + (cur_value - 10);
+            }
+          else
+            {
+              return 'A' + (cur_value - 10);
+            }
+        }
+    }
+
+  if (needed_chars > 0 && fs->flags & MINUS_FLAG)
+    {
+      fs->state.itoa.printed_padding++;
+      return ' ';
+    }
+
+  return '\0';
 }
 
 /* Returns the next character of section of formatted output from a printf function. 
@@ -356,7 +574,7 @@ __printf_parser_next_char (__format_string *fs)
   /* Sanity check the input */
   if (NULL == fs)
     return '\0';
-  
+
   /* %% */
   if (fs->flags & PERCENT_FLAG)
     {
@@ -369,5 +587,9 @@ __printf_parser_next_char (__format_string *fs)
           fs->state.percent.shown = true;
           return '%';
         }
+    }
+  else if (fs->flags & SIGNED_DECIMAL_FLAG)
+    {
+      return __itoa(fs);
     }
 }
