@@ -83,7 +83,7 @@ static int
 __get_width_or_precision (char **__fmt, va_list ap)
 {
   char *fmt = (*__fmt);
-  int ret = -1;
+  int ret = 0;
 
   if ((*fmt) == '*')
     {

@@ -7,5 +7,5 @@ kernel_main (void)
   
   printf("\n\n-- printf tests --\n");
   int x = 100;
-  printf("\"%10d\"\n", x);
+  printf("\"%-5d\"\n", x);
 }
