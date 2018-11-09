@@ -53,6 +53,13 @@ extern "C"
     bool char_shown;
     int needed_padding;
   } __char_state;
+  
+  typedef struct
+  {
+    size_t len;
+    int printed_chars;
+    int needed_padding;
+  } __string_state;
 
   typedef struct
   {
@@ -93,8 +100,10 @@ extern "C"
     union
     {
       bool printed;
+      
       __itoa_state itoa;
       __char_state chr;
+      __string_state string;
     } state;
 
   } format_string;

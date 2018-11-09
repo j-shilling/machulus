@@ -419,6 +419,13 @@ read_flags:
     case 's':
       fs->flags |= STRING_FLAG;
       fs->argument.as_char_pointer = va_arg (ap, char *);
+      fs->state.string.printed_chars = 0;
+      fs->state.string.len = 0;
+      for (char *cur = fs->argument.as_char_pointer; (*cur) != '\0'; cur++)
+        fs->state.string.len ++;
+      if (fs->precision > 0 && fs->precision < fs->state.string.len)
+        fs->state.string.len = fs->precision;
+      fs->state.string.needed_padding = fs->width - fs->state.string.len;
       break;
     case 'c':
       fs->flags |= CHAR_TYPE_FLAG;
@@ -609,6 +616,27 @@ printf_parser_next_char (format_string *fs)
       else if ((fs->flags & MINUS_FLAG) && (fs->state.chr.needed_padding > 0))
         {
           fs->state.chr.needed_padding --;
+          return ' ';
+        }
+      
+      return '\0';
+    }
+  else if (fs->flags & STRING_FLAG)
+    {
+      if (!(fs->flags & MINUS_FLAG) && (fs->state.string.needed_padding > 0))
+        {
+          fs->state.string.needed_padding --;
+          return ' ';
+        }
+      
+      else if (fs->state.string.printed_chars < fs->state.string.len)
+        {
+          return fs->argument.as_char_pointer[fs->state.string.printed_chars++];
+        }
+      
+      else if ((fs->flags & MINUS_FLAG) && (fs->state.string.needed_padding > 0))
+        {
+          fs->state.string.needed_padding --;
           return ' ';
         }
       
