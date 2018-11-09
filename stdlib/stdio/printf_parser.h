@@ -47,6 +47,12 @@ extern "C"
     
     uintmax_t value;
   } __itoa_state;
+  
+  typedef struct
+  {
+    bool char_shown;
+    int needed_padding;
+  } __char_state;
 
   typedef struct
   {
@@ -86,13 +92,9 @@ extern "C"
 
     union
     {
-
-      struct
-      {
-        bool shown;
-      } percent;
-
+      bool printed;
       __itoa_state itoa;
+      __char_state chr;
     } state;
 
   } format_string;

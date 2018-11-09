@@ -364,7 +364,7 @@ read_flags:
     {
     case '%':
       fs->flags |= PERCENT_FLAG;
-      fs->state.percent.shown = false;
+      fs->state.printed = false;
       break;
     case 'd':
     case 'i':
@@ -423,6 +423,11 @@ read_flags:
     case 'c':
       fs->flags |= CHAR_TYPE_FLAG;
       fs->argument.as_char = (char) va_arg (ap, int);
+      fs->state.chr.char_shown = false;
+      if (fs->width > 1)
+        fs->state.chr.needed_padding = fs->width - 1;
+      else
+        fs->state.chr.needed_padding = 0;
       break;
     case 'p':
       fs->flags |= POINTER_FLAG;
@@ -575,15 +580,39 @@ printf_parser_next_char (format_string *fs)
   /* %% */
   if (fs->flags & PERCENT_FLAG)
     {
-      if (fs->state.percent.shown)
+      if (fs->state.printed)
         {
           return '\0';
         }
       else
         {
-          fs->state.percent.shown = true;
+          fs->state.printed = true;
           return '%';
         }
+    }
+  else if (fs->flags & CHAR_TYPE_FLAG)
+    {
+      /* if right justified, padding comes first */
+      if (!(fs->flags & MINUS_FLAG) && (fs->state.chr.needed_padding > 0))
+        {
+          fs->state.chr.needed_padding --;
+          return ' ';
+        }
+      
+      /* Otherwise the argument comes first */
+      else if (!fs->state.chr.char_shown)
+        {
+          fs->state.chr.char_shown = true;
+          return fs->argument.as_char;
+        }
+      
+      else if ((fs->flags & MINUS_FLAG) && (fs->state.chr.needed_padding > 0))
+        {
+          fs->state.chr.needed_padding --;
+          return ' ';
+        }
+      
+      return '\0';
     }
   else if ((fs->flags & SIGNED_DECIMAL_FLAG) || (fs->flags & UNSIGNED_DECIMAL_FLAG)
         || (fs->flags & INT_HEX_DOWNCASE_FLAG) || (fs->flags & INT_HEX_UPCASE_FLAG)
