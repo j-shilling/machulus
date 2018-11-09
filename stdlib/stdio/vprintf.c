@@ -29,21 +29,21 @@ vprintf (const char *fmt, va_list ap)
 {
   int done = 0;
   char *cur = (char *)fmt;
-  __format_string fs;
+  format_string fs;
   
   while (NULL != cur && '\0' != (*cur))
     {
       if ('%' == (*cur))
         {
-          cur = __printf_parser_compile(&fs, cur, ap);
+          cur = printf_parser_compile(&fs, cur, ap);
           
-          char c = __printf_parser_next_char(&fs);
+          char c = printf_parser_next_char(&fs);
           while ('\0' != c)
             {
               if (EOF == putchar(c))
                 return EOF;
               done ++;
-              c = __printf_parser_next_char(&fs);
+              c = printf_parser_next_char(&fs);
             }
         }
       else

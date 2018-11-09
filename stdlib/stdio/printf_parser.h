@@ -85,10 +85,10 @@ extern "C"
       } itoa;
     } state;
 
-  } __format_string;
+  } format_string;
 
-  char *__printf_parser_compile (__format_string *, char *, va_list);
-  char __printf_parser_next_char (__format_string *);
+  char *printf_parser_compile (format_string *, char *, va_list);
+  char printf_parser_next_char (format_string *);
 
 #ifdef __cplusplus
 }

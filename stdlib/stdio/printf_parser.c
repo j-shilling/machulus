@@ -104,7 +104,7 @@ __get_width_or_precision (char **__fmt, va_list ap)
 }
 
 static void
-__assign_signed_integer_argument (__format_string *fs, va_list ap)
+__assign_signed_integer_argument (format_string *fs, va_list ap)
 {
   if (fs->flags & CHAR_SIZE_FLAG)
     fs->argument.as_char = (char) va_arg (ap, int);
@@ -125,7 +125,7 @@ __assign_signed_integer_argument (__format_string *fs, va_list ap)
 }
 
 static void
-__assign_unsigned_integer_argument (__format_string *fs, va_list ap)
+__assign_unsigned_integer_argument (format_string *fs, va_list ap)
 {
   if (fs->flags & CHAR_SIZE_FLAG)
     fs->argument.as_unsigned_char = (unsigned char) va_arg (ap, unsigned int);
@@ -146,7 +146,7 @@ __assign_unsigned_integer_argument (__format_string *fs, va_list ap)
 }
 
 static void
-__assign_float_argument (__format_string *fs, va_list ap)
+__assign_float_argument (format_string *fs, va_list ap)
 {
   if (fs->flags & LONG_DOUBLE_FLAG)
     fs->argument.as_long_double = va_arg (ap, long double);
@@ -155,7 +155,7 @@ __assign_float_argument (__format_string *fs, va_list ap)
 }
 
 static void
-__init_itoa_state (__format_string *fs)
+__init_itoa_state (format_string *fs)
 {
   fs->state.itoa.printed_sign = false;
   fs->state.itoa.printed_digits = 0;
@@ -238,7 +238,7 @@ __init_itoa_state (__format_string *fs)
    resulting structure should be put on the caller's stack and then filled by this
    function. */
 char *
-__printf_parser_compile (__format_string *fs, char *fmt, va_list ap)
+printf_parser_compile (format_string *fs, char *fmt, va_list ap)
 {
   /* Check input as much as we can */
   if (NULL == fs || NULL == fmt || '%' != (*fmt))
@@ -426,7 +426,7 @@ read_flags:
 }
 
 static char
-__itoa (__format_string *fs)
+__itoa (format_string *fs)
 {
   /* Get the base */
   int base;
@@ -580,7 +580,7 @@ __itoa (__format_string *fs)
    different return value. If no more chars should be printed or if there's an error
    return '\0'. */
 char
-__printf_parser_next_char (__format_string *fs)
+printf_parser_next_char (format_string *fs)
 {
   /* Sanity check the input */
   if (NULL == fs)
