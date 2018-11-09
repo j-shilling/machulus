@@ -30,7 +30,27 @@ extern "C"
 
   typedef struct
   {
-    uint32_t flags;
+    bool is_negative;
+    bool is_signed;
+    bool printed_sign;
+    
+    int base;
+    int flags;
+
+    int needed_digits;
+    int needed_padding;
+    int needed_prefix_chars;
+
+    int printed_digits;
+    int printed_prefix_chars;
+    int printed_padding;
+    
+    uintmax_t value;
+  } __itoa_state;
+
+  typedef struct
+  {
+    int flags;
     int width;
     int precision;
 
@@ -72,17 +92,7 @@ extern "C"
         bool shown;
       } percent;
 
-      struct
-      {
-        bool is_negative;
-        bool printed_sign;
-        
-        int needed_digits;
-        
-        int printed_digits;
-        int printed_prefix_chars;
-        int printed_padding;
-      } itoa;
+      __itoa_state itoa;
     } state;
 
   } format_string;
