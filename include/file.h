@@ -15,27 +15,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
- * File:   framebuffer.h
- * Author: Jake Shilling
+/* file: include/file.h
+ * 
+ *   This file declares the FILE structure used by the stdlib functions. It
+ * should be included only in files which implement a specific file (i.e. stdout)
+ * or which act on that implementation (i.e. fputc)
  */
 
-#ifndef FRAMEBUFFER_H
-#define FRAMEBUFFER_H
+#ifndef FILE_H
+#define FILE_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+  
+#include <stdio.h>
 
-
-/* Write a single character to video memory. Returns 0 on success and a negative
-   value on failure. */
-int framebuffer_putchar (int c);
+  struct FILE
+  {
+    /* Writes a byte specified by the integer argument cast to an unsigned char */
+    int (*fputc) (int, FILE *);
+    /* Writes a null-terminated string to the file */
+    int (*fputs) (const char *, FILE *);
+  };
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* FRAMEBUFFER_H */
+#endif /* FILE_H */
 

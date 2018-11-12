@@ -20,6 +20,8 @@
 
 libkernel_a_SOURCES += \
     stdlib/errno/errno.c \
+    stdlib/stdio/fputc.c \
+    stdlib/stdio/fputs.c \
     stdlib/stdio/printf.c \
     stdlib/stdio/printf_parser.c \
     stdlib/stdio/putchar.c \

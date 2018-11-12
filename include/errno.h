@@ -35,6 +35,10 @@ int *__errno_address(void);
  * passing the wrong argument to a kernel function. */
 #define EINVAL          (1)
 
+/* “Bad file descriptor.” For example, I/O on a descriptor that has been closed 
+ * or reading from a descriptor open only for writing (or vice versa). */
+#define EBADF           (2)
+
 
 #ifdef __cplusplus
 }
