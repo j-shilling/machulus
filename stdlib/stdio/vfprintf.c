@@ -511,6 +511,29 @@ read_flags:
             case 's':
               break;
             case 'c':
+              if (width > 1 && !(flags & MINUS_FLAG))
+                {
+                  for (int i = 0; i < (width - 1); i++)
+                    {
+                      if (EOF == fputc(' ', stream))
+                        return -1;
+                      done ++;
+                    }
+                }
+              
+              if (EOF == fputc (va_arg (ap, int), stream))
+                return -1;
+              done ++;
+              
+              if (width > 1 && (flags & MINUS_FLAG))
+                {
+                  for (int i = 0; i < (width - 1); i++)
+                    {
+                      if (EOF == fputc(' ', stream))
+                        return -1;
+                      done ++;
+                    }
+                }
               break;
             case 'p':
               if (__atoi (&done, stream, flags | POINTER_FLAG, width, precision, ap))

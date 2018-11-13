@@ -3,6 +3,6 @@
 void
 kernel_main (void)
 {
-  int x = 100;
-  printf("\"%p\"\n", &x);
+  char x = 'x';
+  printf("\"%-5c\"\n", x);
 }
