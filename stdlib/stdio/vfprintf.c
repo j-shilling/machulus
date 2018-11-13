@@ -109,7 +109,7 @@ __get_width_or_precision (const char **__fmt, va_list ap)
 }
 
 static int
-__atoi (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision, va_list ap)
+__itoa (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision, va_list ap)
 {
   int done = (*__done);
   bool is_negative;
@@ -477,11 +477,11 @@ read_flags:
               break;
             case 'd':
             case 'i':
-              if (__atoi (&done, stream, flags | SIGNED_DECIMAL_FLAG, width, precision, ap))
+              if (__itoa (&done, stream, flags | SIGNED_DECIMAL_FLAG, width, precision, ap))
                 return -1;
               break;
             case 'u':
-              if (__atoi (&done, stream, flags | UNSIGNED_DECIMAL_FLAG, width, precision, ap))
+              if (__itoa (&done, stream, flags | UNSIGNED_DECIMAL_FLAG, width, precision, ap))
                 return -1;
               break;
             case 'f':
@@ -497,15 +497,15 @@ read_flags:
             case 'G':
               break;
             case 'x':
-              if (__atoi (&done, stream, flags | INT_HEX_DOWNCASE_FLAG, width, precision, ap))
+              if (__itoa (&done, stream, flags | INT_HEX_DOWNCASE_FLAG, width, precision, ap))
                 return -1;
               break;
             case 'X':
-              if (__atoi (&done, stream, flags | INT_HEX_UPCASE_FLAG, width, precision, ap))
+              if (__itoa (&done, stream, flags | INT_HEX_UPCASE_FLAG, width, precision, ap))
                 return -1;
               break;
             case 'o':
-              if (__atoi (&done, stream, flags | OCT_FLAG, width, precision, ap))
+              if (__itoa (&done, stream, flags | OCT_FLAG, width, precision, ap))
                 return -1;
               break;
             case 's':
@@ -573,7 +573,7 @@ read_flags:
                 }
               break;
             case 'p':
-              if (__atoi (&done, stream, flags | POINTER_FLAG, width, precision, ap))
+              if (__itoa (&done, stream, flags | POINTER_FLAG, width, precision, ap))
                 return -1;
               break;
             case 'a':
