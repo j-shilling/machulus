@@ -580,6 +580,10 @@ read_flags:
             case 'A':
               break;
             case 'n':
+                {
+                  int *arg = va_arg(ap, int *);
+                  (*arg) = done;
+                }
               break;
             }
           cur++;
