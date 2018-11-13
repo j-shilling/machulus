@@ -24,7 +24,6 @@ libkernel_a_SOURCES += \
     stdlib/stdio/fputc.c \
     stdlib/stdio/fputs.c \
     stdlib/stdio/printf.c \
-    stdlib/stdio/printf_parser.c \
     stdlib/stdio/putchar.c \
     stdlib/stdio/puts.c \
     stdlib/stdio/snprintf.c \

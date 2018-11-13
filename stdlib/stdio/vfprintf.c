@@ -359,6 +359,15 @@ __itoa (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision
   return 0;
 }
 
+static int
+__ftoa (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision, va_list ap)
+{
+  int done = (*__done);
+  
+  (*__done) = done;
+  return 0;
+}
+
 int
 vfprintf (FILE *stream, const char *fmt, va_list ap)
 {
@@ -485,16 +494,28 @@ read_flags:
                 return -1;
               break;
             case 'f':
+              if (__ftoa (&done, stream, flags | FLOAT_NORMAL_DOWNCASE_FLAG, width, precision, ap))
+                return -1;
               break;
             case 'F':
+              if (__ftoa (&done, stream, flags | FLOAT_NORMAL_UPCASE_FLAG, width, precision, ap))
+                return -1;
               break;
             case 'e':
+              if (__ftoa (&done, stream, flags | FLOAT_EXPONENT_DOWNCASE_FLAG, width, precision, ap))
+                return -1;
               break;
             case 'E':
+              if (__ftoa (&done, stream, flags | FLOAT_EXPONENT_UPCASE_FLAG, width, precision, ap))
+                return -1;
               break;
             case 'g':
+              if (__ftoa (&done, stream, flags | FLOAT_CHOOSE_DOWNCASE_FLAG, width, precision, ap))
+                return -1;
               break;
             case 'G':
+              if (__ftoa (&done, stream, flags | FLOAT_CHOOSE_UPCASE_FLAG, width, precision, ap))
+                return -1;
               break;
             case 'x':
               if (__itoa (&done, stream, flags | INT_HEX_DOWNCASE_FLAG, width, precision, ap))
@@ -577,7 +598,11 @@ read_flags:
                 return -1;
               break;
             case 'a':
+              if (__ftoa (&done, stream, flags | FLOAT_HEX_DOWNCASE_FLAG, width, precision, ap))
+                return -1;
             case 'A':
+              if (__ftoa (&done, stream, flags | FLOAT_HEX_UPCASE_FLAG, width, precision, ap))
+                return -1;
               break;
             case 'n':
                 {
