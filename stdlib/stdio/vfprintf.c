@@ -109,11 +109,254 @@ __get_width_or_precision (const char **__fmt, va_list ap)
 }
 
 static int
-__atoi (int *__done, uint_fast32_t flags, int width, int precision, va_list ap)
+__atoi (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision, va_list ap)
 {
   int done = (*__done);
+  bool is_negative;
+  uintmax_t value;
+
+  /* Get the value from ap */
+  if (flags & SIGNED_DECIMAL_FLAG)
+    {
+      if (flags & CHAR_SIZE_FLAG)
+        {
+          char x = (char) va_arg (ap, int);
+          is_negative = x < 0;
+          value = (uintmax_t) (is_negative ? -x : x);
+        }
+      else if (flags & SHORT_FLAG)
+        {
+          short x = (short) va_arg (ap, int);
+          is_negative = x < 0;
+          value = (uintmax_t) (is_negative ? -x : x);
+        }
+      else if (flags & LONG_FLAG)
+        {
+          long x = va_arg (ap, long);
+          is_negative = x < 0;
+          value = (uintmax_t) (is_negative ? -x : x);
+        }
+      else if (flags & LONG_LONG_FLAG)
+        {
+          long long x = va_arg (ap, long long);
+          is_negative = x < 0;
+          value = (uintmax_t) (is_negative ? -x : x);
+        }
+      else if (flags & INTMAX_T_FLAG)
+        {
+          intmax_t x = va_arg (ap, intmax_t);
+          is_negative = x < 0;
+          value = (uintmax_t) (is_negative ? -x : x);
+        }
+      else if (flags & PTRDIFF_T_FLAG)
+        {
+          ptrdiff_t x = va_arg (ap, ptrdiff_t);
+          is_negative = x < 0;
+          value = (uintmax_t) (is_negative ? -x : x);
+        }
+      else if (flags & SIZE_T_FLAG)
+        {
+          size_t x = va_arg (ap, size_t);
+          is_negative = false;
+          value = (uintmax_t) x;
+        }
+      else
+        {
+          int x = va_arg (ap, int);
+          is_negative = x < 0;
+          value = (uintmax_t) (is_negative ? -x : x);
+        }
+    }
+  else if (flags & POINTER_FLAG)
+    {
+      is_negative = false;
+      value = (uintmax_t) ((intptr_t) va_arg (ap, void *));
+      flags |= INT_HEX_DOWNCASE_FLAG | HASH_FLAG | ZERO_FLAG;
+      width = sizeof (void *) / 4;
+      precision = 0;
+    }
+  else
+    {
+      is_negative = false;
+      if (flags & CHAR_SIZE_FLAG)
+        value = (uintmax_t) ((unsigned char) va_arg (ap, unsigned int));
+      else if (flags & SHORT_FLAG)
+        value = (uintmax_t) ((unsigned short) va_arg (ap, unsigned int));
+      else if (flags & LONG_FLAG)
+        value = (uintmax_t) (va_arg (ap, unsigned long));
+      else if (flags & LONG_LONG_FLAG)
+        value = (uintmax_t) (va_arg (ap, unsigned long long));
+      else if (flags & INTMAX_T_FLAG)
+        value = va_arg (ap, uintmax_t);
+      else if (flags & PTRDIFF_T_FLAG)
+        value = (uintmax_t) (va_arg (ap, ptrdiff_t));
+      else if (flags & SIZE_T_FLAG)
+        value = (uintmax_t) (va_arg (ap, size_t));
+      else
+        value = (uintmax_t) (va_arg (ap, unsigned int));
+    }
+
+  /* Get the base */
+  int base;
+  if (flags & (INT_HEX_DOWNCASE_FLAG | INT_HEX_UPCASE_FLAG))
+    base = 16;
+  else if (flags & OCT_FLAG)
+    base = 8;
+  else
+    base = 10;
+
+  /* Find the total number of needed digits */
+  int needed_digits;
+  if (value == 0)
+    {
+      needed_digits = 1;
+    }
+  else
+    {
+      uintmax_t temp = value;
+      do
+        {
+          needed_digits++;
+          temp /= base;
+        }
+      while (temp > 0);
+    }
+
+  /* Find the number of needed padding chars */
+  int needed_padding = width > precision ? width : precision;
+  needed_padding -= needed_digits;
+
+  /* we might need a prefix */
+  if (flags & HASH_FLAG)
+    {
+      if (base == 16)
+        needed_padding -= 2;
+      else if (base == 8)
+        needed_padding--;
+    }
+
+  /* We might need a sign char */
+  if (flags & SIGNED_DECIMAL_FLAG)
+    {
+      if (is_negative || (flags & (SPACE_FLAG | PLUS_FLAG)))
+        needed_padding--;
+    }
+
+  /* If we are right-justified and space padding print spaces */
+  if (!(flags & MINUS_FLAG) && !(flags & ZERO_FLAG))
+    {
+      while (needed_padding > 0)
+        {
+          if (EOF == fputc (' ', stream))
+            return -1;
+          done++;
+          needed_padding--;
+        }
+    }
+
+  /* We might need to print a sign */
+  if (flags & SIGNED_DECIMAL_FLAG)
+    {
+      if (is_negative)
+        {
+          if (EOF == fputc ('-', stream))
+            return -1;
+          done++;
+        }
+      else if (flags & SPACE_FLAG)
+        {
+          if (EOF == fputc (' ', stream))
+            return -1;
+          done++;
+        }
+      else if (flags & PLUS_FLAG)
+        {
+          if (EOF == fputc ('+', stream))
+            return -1;
+          done++;
+        }
+    }
+
+  /* We might need to print a prefix */
+  if (flags & HASH_FLAG)
+    {
+      if (flags & INT_HEX_DOWNCASE_FLAG)
+        {
+          if (EOF == fputs ("0x", stream))
+            return -1;
+          done++;
+        }
+      else if (flags & INT_HEX_UPCASE_FLAG)
+        {
+          if (EOF == fputs ("0X", stream))
+            return -1;
+          done++;
+        }
+      else if (flags & OCT_FLAG)
+        {
+          if (EOF == fputc ('0', stream))
+            return -1;
+          done++;
+        }
+    }
+
+  /* If we are right-justified and zero padded that comes next */
+  if (!(flags & MINUS_FLAG) && (flags & ZERO_FLAG))
+    {
+      while (needed_padding > 0)
+        {
+          if (EOF == fputc ('0', stream))
+            return -1;
+          done++;
+          needed_padding--;
+        }
+    }
+
+  /* Finally we get to the actual digits */
+  char digits[needed_digits];
+  if (value == 0)
+    {
+      digits[0] = '0';
+    }
+  else
+    {
+      int i = 0;
+      do
+        {
+          int cur_digit = value % base;
+          if (cur_digit < 10)
+            digits[i++] = '0' + cur_digit;
+          else if (flags & INT_HEX_DOWNCASE_FLAG)
+            digits[i++] = 'a' + (cur_digit - 10);
+          else
+            digits[i++] = 'A' + (cur_digit - 10);
+          value /= base;
+        }
+      while (value > 0);
+    }
   
+  /* Print the digits */
+  for (int i = (needed_digits - 1); i >= 0; i --)
+    {
+      if (EOF == fputc(digits[i], stream))
+        return -1;
+      done ++;
+    }
+  
+  /* If we are left justified print spaces */
+  if (flags & MINUS_FLAG)
+    {
+      while (needed_padding > 0)
+        {
+          if (EOF == fputc(' ', stream))
+            return -1;
+          done ++;
+          needed_padding --;
+        }
+    }
+
   (*__done) = done;
+  return 0;
 }
 
 int
@@ -135,6 +378,7 @@ vfprintf (FILE *stream, const char *fmt, va_list ap)
       /* Check for formatted section */
       if ('%' == (*cur))
         {
+          cur ++;
           uint_fast32_t flags = 0;
           int width = 0;
           int precision = 0;
@@ -226,18 +470,18 @@ read_flags:
           switch ((*cur))
             {
             case '%':
-              if (EOF == fputc('%', stream))
+              if (EOF == fputc ('%', stream))
                 return -1;
-              
-              done ++;
+
+              done++;
               break;
             case 'd':
             case 'i':
-              if (__atoi(&done, flags | SIGNED_DECIMAL_FLAG, width, precision, ap))
+              if (__atoi (&done, stream, flags | SIGNED_DECIMAL_FLAG, width, precision, ap))
                 return -1;
               break;
             case 'u':
-              if (__atoi(&done, flags | UNSIGNED_DECIMAL_FLAG, width, precision, ap))
+              if (__atoi (&done, stream, flags | UNSIGNED_DECIMAL_FLAG, width, precision, ap))
                 return -1;
               break;
             case 'f':
@@ -253,15 +497,15 @@ read_flags:
             case 'G':
               break;
             case 'x':
-              if (__atoi(&done, flags | INT_HEX_DOWNCASE_FLAG, width, precision, ap))
+              if (__atoi (&done, stream, flags | INT_HEX_DOWNCASE_FLAG, width, precision, ap))
                 return -1;
               break;
             case 'X':
-              if (__atoi(&done, flags | INT_HEX_UPCASE_FLAG, width, precision, ap))
+              if (__atoi (&done, stream, flags | INT_HEX_UPCASE_FLAG, width, precision, ap))
                 return -1;
               break;
             case 'o':
-              if (__atoi(&done, flags | OCT_FLAG, width, precision, ap))
+              if (__atoi (&done, stream, flags | OCT_FLAG, width, precision, ap))
                 return -1;
               break;
             case 's':
@@ -269,7 +513,7 @@ read_flags:
             case 'c':
               break;
             case 'p':
-              if (__atoi(&done, flags | POINTER_FLAG, width, precision, ap))
+              if (__atoi (&done, stream, flags | POINTER_FLAG, width, precision, ap))
                 return -1;
               break;
             case 'a':
