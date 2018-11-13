@@ -40,6 +40,10 @@ extern "C"
   
   extern FILE *stdout;
   
+  /* Writes a formated string to a file stream. Returns the number of bytes transmitted,
+     or a negative number on error and sets errno. */
+  int fprintf (FILE *, const char *, ...);
+  
   /* Writes a byte specified by the int argument to the screen cast to an unsigned
      char. On success returns the byte written; on failure it returns EOF and sets
      errno. */
@@ -66,6 +70,10 @@ extern "C"
      specified number of bytes. On success return the number of bytes transmitted;
      on failure return a negative value. */
   int snprintf (char *, size_t, const char *, ...);
+  
+  /* Writes a formated string to a file stream. Returns the number of bytes transmitted,
+     or a negative number on error and sets errno. */
+  int vfprintf (FILE *, const char *, va_list);
   
   /* Print a formated string to the screen. On success return the number of
      bytes transmitted; on failure return a negative value. */

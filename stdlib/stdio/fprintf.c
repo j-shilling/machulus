@@ -15,16 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* file: stdlib/stdio/vprintf.c
+/* file: stdlib/stdio/fprintf.c
  * 
- *   Implements vprintf() which prints a formated string to the screen. On success,
+ *   Implements fprintf() which prints a formated string to a file. On success,
  * it returns the number of bytes transmitted; on failure, it return a negative 
  * value. */
 
 #include <stdio.h>
 
 int 
-vprintf (const char *fmt, va_list ap)
+fprintf (FILE *stream, const char *fmt, ...)
 {
-  return vfprintf (stdout, fmt, ap);
+  va_list ap;
+  int done;
+  
+  va_start (ap, fmt);
+  done = vfprintf(stream, fmt, ap);
+  va_end(ap);
+  
+  return done;
 }
