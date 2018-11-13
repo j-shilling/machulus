@@ -509,6 +509,43 @@ read_flags:
                 return -1;
               break;
             case 's':
+                {
+                  int len = 0;
+                  const char *str = va_arg(ap, const char *);
+                  while (str[len] != '\0')
+                    len ++;
+                  
+                  int n_chars;
+                  if (precision > 0 && precision < len)
+                    n_chars = precision;
+                  else
+                    n_chars = len;
+                  
+                  int needed_padding = width - n_chars;
+                  
+                  while (needed_padding > 0 && !(flags & MINUS_FLAG))
+                    {
+                      if (EOF == fputc (' ', stream))
+                        return -1;
+                      done ++;
+                      needed_padding --;
+                    }
+                  
+                  for (int i = 0; i < n_chars; i ++)
+                    {
+                      if (EOF == fputc (str[i], stream))
+                        return -1;
+                      done ++;
+                    }
+                  
+                  while (needed_padding > 0 && (flags & MINUS_FLAG))
+                    {
+                      if (EOF == fputc (' ', stream))
+                        return -1;
+                      done ++;
+                      needed_padding --;
+                    }
+                }
               break;
             case 'c':
               if (width > 1 && !(flags & MINUS_FLAG))

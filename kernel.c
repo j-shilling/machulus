@@ -3,6 +3,6 @@
 void
 kernel_main (void)
 {
-  char x = 'x';
-  printf("\"%-5c\"\n", x);
+  char *str = "Hello, World!";
+  printf("\"%10.5s\"\n", str);
 }
