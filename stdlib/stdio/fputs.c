@@ -15,20 +15,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* file: stdlib/stdio/puts.c
- * 
- *   Implement puts() which prints a string followed by a newline. On success, 
- * it returns a nonnegative number; on failure, it returns EOF and set errno. */
-
 #include <stdio.h>
+#include <file.h>
+#include <errno.h>
 
-int 
-puts (const char *s)
+int
+fputs (const char *s, FILE *stream)
 {
-  if (EOF == fputs(s, stdout))
-    return EOF;
-  if (EOF == fputc('\n', stdout))
-    return EOF;
+  /* Sanity check params */
+  if (NULL == stream || NULL == s)
+    {
+      errno = EINVAL;
+      return EOF;
+    }
   
-  return 0;
+  /* If a specific implementation of fputs was given, use that. */
+  if (stream->fputs)
+    {
+      return stream->fputs(s, stream);
+    }
+  /* Otherwise, use fputc to write to the file. */
+  else if (stream->fputc)
+    {
+      for (const char *cur = s; '\0' != (*cur); cur++)
+        {
+          if (EOF == fputc ((*cur), stream))
+            return EOF;
+        }
+      
+      return 0;
+    }
+  
+  /* If we get here, this is an invalid FILE */
+  errno = EBADF;
+  return EOF;
 }

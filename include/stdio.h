@@ -32,57 +32,57 @@ extern "C"
 #include <stddef.h>
 #include <stdarg.h>
   
+#define putc(x)     fputc(x)
+  
 #define EOF         (-1)
+  
+  typedef struct FILE FILE;
+  
+  extern FILE *stdout;
+  
+  /* Writes a formated string to a file stream. Returns the number of bytes transmitted,
+     or a negative number on error and sets errno. */
+  int fprintf (FILE *, const char *, ...);
+  
+  /* Writes a byte specified by the int argument to the screen cast to an unsigned
+     char. On success returns the byte written; on failure it returns EOF and sets
+     errno. */
+  int fputc (int, FILE *);
+  
+  /* Writes a null-terminated string to the file, not including the terminating
+     byte. On success it returns a non-negative value; on failure it returns EOF
+     and sets errno. */
+  int fputs (const char *, FILE *);
 
   /* Print a formated string to the screen. On success return the number of
      bytes transmitted; on failure return a negative value. */
-#ifdef __GNUC__
-#  define printf(__fmt, ...)  __builtin_printf(__fmt, ##__VA_ARGS__)
-#else
   int printf (const char *, ...);
-#endif
   
   /* Output a single character to the screen. On success return the printed
      character; on failure return EOF and set errno. */
-#ifdef __GNUC__
-#  define putchar(c) __builtin_putchar(c)
-#else
   int putchar (int);
-#endif
   
   /* Prints a string followed by a newline. On success return a nonnegative number;
      on failure return EOF and set errno. */
-#ifdef __GNUC__
-#  define puts(s)  __builtin_puts(s)
-#else
   int puts (const char *);
-#endif
   
   /* Print a formated string to the given buffer. Do not print more that the
      specified number of bytes. On success return the number of bytes transmitted;
      on failure return a negative value. */
-#ifdef __GNUC__
-#  define snprintf(__buf, __size, __fmt, ...) __builtin_snprintf(__buf, __size, __fmt, ##__VA_ARGS__)
-#else
   int snprintf (char *, size_t, const char *, ...);
-#endif
+  
+  /* Writes a formated string to a file stream. Returns the number of bytes transmitted,
+     or a negative number on error and sets errno. */
+  int vfprintf (FILE *, const char *, va_list);
   
   /* Print a formated string to the screen. On success return the number of
      bytes transmitted; on failure return a negative value. */
-#ifdef __GNUC__
-#  define vprintf(__fmt, __args)  __builtin_vprintf(__fmt, __args)
-#else
   int vprintf (const char *, va_list);
-#endif
   
   /* Print a formated string to the given buffer. Do not print more that the
      specified number of bytes. On success return the number of bytes transmitted;
      on failure return a negative value. */
-#ifdef __GNUC__
-#  define vsnprintf(__buf, __size, __fmt, __args) __builtin_vsnprintf(__buf, __size, __fmt, __args)
-#else
   int vsnprintf (char *, size_t, const char *, va_list);
-#endif
 
 
 #ifdef __cplusplus

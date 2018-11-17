@@ -23,16 +23,9 @@
 
 #include <stdio.h>
 #include <errno.h>
-#include <framebuffer.h>
 
 int 
 putchar (int c)
 {
-  if (framebuffer_putchar(c))
-    {
-      errno = EINVAL;
-      return EOF;
-    }
-  
-  return c;
+  return fputc(c, stdout);
 }

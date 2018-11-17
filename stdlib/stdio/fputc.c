@@ -15,27 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
- * File:   framebuffer.h
- * Author: Jake Shilling
- */
+#include <stdio.h>
+#include <file.h>
+#include <errno.h>
 
-#ifndef FRAMEBUFFER_H
-#define FRAMEBUFFER_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-/* Write a single character to video memory. Returns 0 on success and a negative
-   value on failure. */
-int framebuffer_putchar (int c);
-
-
-#ifdef __cplusplus
+int
+fputc (int c, FILE *stream)
+{
+  if (NULL == stream)
+    {
+      errno = EINVAL;
+      return EOF;
+    }
+  
+  if (stream->fputc)
+    return stream->fputc(c, stream);
+  
+  /* No stream->fputc was given */
+  errno = EBADF;
+  return EOF;
 }
-#endif
-
-#endif /* FRAMEBUFFER_H */
-

@@ -3,5 +3,6 @@
 void
 kernel_main (void)
 {
-  printf("Hello, World\n");
+  int val = 0;
+  printf ("\"%p\"", &val);
 }

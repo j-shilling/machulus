@@ -21,29 +21,10 @@
  * it returns the number of bytes transmitted; on failure, it return a negative 
  * value. */
 
-/* This is a shit implementation of vprintf. Its not thread safe and its
-   inefficient. This is not a high priority though since it will really only
-   be used for kernel panics and debugging. */
-
 #include <stdio.h>
-
-#define buffer_size 512
-static char buffer[buffer_size];
 
 int 
 vprintf (const char *fmt, va_list ap)
 {
-  int ret = vsnprintf(buffer, buffer_size, fmt, ap);
-  if (ret < 0)
-    return ret;
-  
-  ret = 0;
-  for (size_t i = 0; i < buffer_size && buffer[i] != '\0'; i ++)
-    {
-      if (EOF == putchar (buffer[i]))
-        return EOF;
-      ret ++;
-    }
-  
-  return ret;
+  return vfprintf (stdout, fmt, ap);
 }
