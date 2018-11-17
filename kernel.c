@@ -3,6 +3,7 @@
 void
 kernel_main (void)
 {
-  int val = 0;
-  printf ("\"%p\"", &val);
+  void *ptr = (void *)0xb80000;
+  printf ("\"%40p\"\n", ptr);
+  printf ("\"%40p\"\n", &ptr);
 }

@@ -79,12 +79,6 @@ __isdigit (char x)
 }
 
 static inline int
-__ctoi (char c)
-{
-  return c - '0';
-}
-
-static int
 __get_width_or_precision (const char **__fmt, va_list ap)
 {
   const char *fmt = (*__fmt);
@@ -99,7 +93,7 @@ __get_width_or_precision (const char **__fmt, va_list ap)
     {
       while (__isdigit ((*fmt)))
         {
-          ret = (ret * 10) + __ctoi ((*fmt));
+          ret = (ret * 10) + ((*fmt) - '0');
           fmt++;
         }
     }
@@ -171,9 +165,8 @@ __itoa (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision
     {
       is_negative = false;
       value = (uintmax_t) ((intptr_t) va_arg (ap, void *));
-      flags |= INT_HEX_DOWNCASE_FLAG | HASH_FLAG | ZERO_FLAG;
-      width = sizeof (void *) / 4;
-      precision = 0;
+      flags |= INT_HEX_DOWNCASE_FLAG | HASH_FLAG;
+      precision = sizeof (void *) * 2;
     }
   else
     {
@@ -206,51 +199,54 @@ __itoa (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision
     base = 10;
 
   /* Find the total number of needed digits */
-  int needed_digits;
-  if (value == 0)
+  int needed_digits = 0;
+  uintmax_t temp = value;
+  do
     {
-      needed_digits = 1;
+      needed_digits ++;
+      temp /= base;
     }
-  else
-    {
-      uintmax_t temp = value;
-      do
-        {
-          needed_digits++;
-          temp /= base;
-        }
-      while (temp > 0);
-    }
+  while (temp > 0);
 
-  /* Find the number of needed padding chars */
-  int needed_padding = width > precision ? width : precision;
-  needed_padding -= needed_digits;
+  /* For integer arguments, precision specifies the minimum
+     number of digits. If extra digits are needed, then 0s are
+     prepended. Subtract actual digits from precision to figure
+     out if this is needed. */
+  precision -= needed_digits;
 
-  /* we might need a prefix */
+  /* Width specifies the minimum number of output characters.
+     subtract the number of characters we are going to print to
+     see if this is needed. */
+
+  /* Needed chars for digits */
+  width -= needed_digits;
+  /* Needed chars for precision */
+  if (precision > 0)
+    width -= precision;
+  /* Needed chars for prefix */
   if (flags & HASH_FLAG)
     {
       if (base == 16)
-        needed_padding -= 2;
+        width -= 2;
       else if (base == 8)
-        needed_padding--;
+        width--;
     }
-
-  /* We might need a sign char */
+  /* Needed chars for sign */
   if (flags & SIGNED_DECIMAL_FLAG)
     {
       if (is_negative || (flags & (SPACE_FLAG | PLUS_FLAG)))
-        needed_padding--;
+        width--;
     }
 
   /* If we are right-justified and space padding print spaces */
   if (!(flags & MINUS_FLAG) && !(flags & ZERO_FLAG))
     {
-      while (needed_padding > 0)
+      while (width > 0)
         {
           if (EOF == fputc (' ', stream))
             return -1;
           done++;
-          needed_padding--;
+          width--;
         }
     }
 
@@ -280,21 +276,24 @@ __itoa (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision
   /* We might need to print a prefix */
   if (flags & HASH_FLAG)
     {
+      /* First char is always 0 */
+      if (flags & (OCT_FLAG | INT_HEX_UPCASE_FLAG | INT_HEX_DOWNCASE_FLAG))
+	{
+	  if (EOF == fputc ('0', stream))
+	    return -1;
+	  done ++;
+	}
+
+      /* We might need an 'x' or 'X' */
       if (flags & INT_HEX_DOWNCASE_FLAG)
         {
-          if (EOF == fputs ("0x", stream))
+          if (EOF == fputc ('x', stream))
             return -1;
-          done++;
+          done ++;
         }
       else if (flags & INT_HEX_UPCASE_FLAG)
         {
-          if (EOF == fputs ("0X", stream))
-            return -1;
-          done++;
-        }
-      else if (flags & OCT_FLAG)
-        {
-          if (EOF == fputc ('0', stream))
+          if (EOF == fputc ('X', stream))
             return -1;
           done++;
         }
@@ -303,13 +302,22 @@ __itoa (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision
   /* If we are right-justified and zero padded that comes next */
   if (!(flags & MINUS_FLAG) && (flags & ZERO_FLAG))
     {
-      while (needed_padding > 0)
+      while (width > 0)
         {
           if (EOF == fputc ('0', stream))
             return -1;
           done++;
-          needed_padding--;
+          width--;
         }
+    }
+
+  /* If extra digits are needed, prepend 0s */
+  while (precision > 0)
+    {
+      if (EOF == fputc ('0', stream))
+	return -1;
+      done ++;
+      precision --;
     }
 
   /* Finally we get to the actual digits */
@@ -346,12 +354,12 @@ __itoa (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision
   /* If we are left justified print spaces */
   if (flags & MINUS_FLAG)
     {
-      while (needed_padding > 0)
+      while (width > 0)
         {
           if (EOF == fputc(' ', stream))
             return -1;
           done ++;
-          needed_padding --;
+          width --;
         }
     }
 
