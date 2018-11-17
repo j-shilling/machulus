@@ -44,7 +44,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/include
 
 AM_CFLAGS += \
-    -no-pie -fno-pic
+    -no-pie -fno-pic -fno-stack-protector
 
 AM_LDFLAGS += -nostdlib
 
