@@ -51,7 +51,7 @@ AM_LDFLAGS += -nostdlib
 if DEBUG
 
 AM_CFLAGS += \
-   -ggdb -O0
+   -ggdb
 
 endif
 

@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -98,97 +99,141 @@ __get_width_or_precision (const char **__fmt, va_list ap)
         }
     }
 
+  
   (*__fmt) = fmt;
   return ret;
+}
+
+static inline uintmax_t
+__get_integer_argument (bool *__is_negative, uint_fast32_t flags, va_list ap)
+{
+  bool is_negative;
+  uintmax_t value;
+  
+  /* Arguments can only be signed if the SIGNED_DECIMAL_FLAG is
+     set. Otherwise, we assume unsigned types. Remember that char
+     and short is promotted to an int when passed in varargs. */
+  if (flags & SIGNED_DECIMAL_FLAG)
+    {
+      if (flags & CHAR_SIZE_FLAG)
+	{
+	  char x = (char) va_arg (ap, int);
+	  is_negative = x < 0;
+	  value = (uintmax_t) (is_negative ? -x : x);
+	}
+      else if (flags & SHORT_FLAG)
+	{
+	  short x = (short) va_arg (ap, int);
+	  is_negative = x < 0;
+	  value = (uintmax_t) (is_negative ? -x : x);
+	}
+      else if (flags & LONG_FLAG)
+	{
+	  long x = va_arg (ap, long);
+	  is_negative = x < 0;
+	  value = (uintmax_t) (is_negative ? -x : x);
+	}
+      else if (flags & LONG_LONG_FLAG)
+	{
+	  long long x = va_arg (ap, long long);
+	  is_negative = x < 0;
+	  value = (uintmax_t) (is_negative ? -x : x);
+	}
+      else if (flags & SIZE_T_FLAG)
+	{
+	  size_t x = va_arg (ap, size_t);
+	  is_negative = x < 0;
+	  value = (uintmax_t) (is_negative ? -x : x);
+	}
+      else if (flags & INTMAX_T_FLAG)
+	{
+	  intmax_t x = va_arg (ap, intmax_t);
+	  is_negative = x < 0;
+	  value = (uintmax_t) (is_negative ? -x : x);
+	}
+      else if (flags & PTRDIFF_T_FLAG)
+	{
+	  ptrdiff_t x = va_arg (ap, ptrdiff_t);
+	  is_negative = x < 0;
+	  value = (uintmax_t) (is_negative ? -x : x);
+	}
+      else
+	{
+	  int x = va_arg (ap, int);
+	  is_negative = x < 0;
+	  value = (uintmax_t) (is_negative ? -x : x);
+	}
+    }
+  else
+    {
+      is_negative = false;
+      if (flags & CHAR_SIZE_FLAG)
+	value = (uintmax_t) ((unsigned char) va_arg (ap, unsigned int));
+      else if (flags & SHORT_FLAG)
+	value = (uintmax_t) ((unsigned short) va_arg (ap, unsigned int));
+      else if (flags & LONG_FLAG)
+	value = (uintmax_t) (va_arg (ap, unsigned long));
+      else if (flags & LONG_LONG_FLAG)
+	value = (uintmax_t) (va_arg (ap, unsigned long long));
+      else if (flags & SIZE_T_FLAG)
+	value = (uintmax_t) (va_arg (ap, size_t));
+      else if (flags & INTMAX_T_FLAG)
+	value = va_arg (ap, uintmax_t);
+      else if (flags & PTRDIFF_T_FLAG)
+	value = (uintmax_t) (va_arg (ap, ptrdiff_t));
+      else
+	value = (uintmax_t) (va_arg (ap, unsigned int));
+    }
+
+  (*__is_negative) = is_negative;
+  return value;
+}
+
+static inline int
+__get_integer_digits (char *buf, size_t size, int base, bool upcase, uintmax_t value)
+{
+  /* Handle 0 as a stand alone case */
+  if (value == 0)
+    {
+      if (size > 0)
+	buf[0] = '0';
+      return 1;
+    }
+
+  /* Put digits into the buffer string backwards */
+  int len = 0;
+  
+  while (value > 0 && len < size)
+    {
+      int cur = value % base;
+      if (cur < 10)
+	buf[len++] = '0' + cur;
+      else if (upcase)
+	buf[len++] = 'A' + (cur - 10);
+      else
+	buf[len++] = 'a' + (cur - 10);
+      value /= base;
+    }
+
+  return len;
 }
 
 static int
 __itoa (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision, va_list ap)
 {
   int done = (*__done);
-  bool is_negative;
-  uintmax_t value;
 
   /* Get the value from ap */
-  if (flags & SIGNED_DECIMAL_FLAG)
+  bool is_negative;
+  uintmax_t value = __get_integer_argument (&is_negative, flags, ap);
+ 
+  /* Make formatting changes for pointers */
+  if (flags & POINTER_FLAG)
     {
-      if (flags & CHAR_SIZE_FLAG)
-        {
-          char x = (char) va_arg (ap, int);
-          is_negative = x < 0;
-          value = (uintmax_t) (is_negative ? -x : x);
-        }
-      else if (flags & SHORT_FLAG)
-        {
-          short x = (short) va_arg (ap, int);
-          is_negative = x < 0;
-          value = (uintmax_t) (is_negative ? -x : x);
-        }
-      else if (flags & LONG_FLAG)
-        {
-          long x = va_arg (ap, long);
-          is_negative = x < 0;
-          value = (uintmax_t) (is_negative ? -x : x);
-        }
-      else if (flags & LONG_LONG_FLAG)
-        {
-          long long x = va_arg (ap, long long);
-          is_negative = x < 0;
-          value = (uintmax_t) (is_negative ? -x : x);
-        }
-      else if (flags & INTMAX_T_FLAG)
-        {
-          intmax_t x = va_arg (ap, intmax_t);
-          is_negative = x < 0;
-          value = (uintmax_t) (is_negative ? -x : x);
-        }
-      else if (flags & PTRDIFF_T_FLAG)
-        {
-          ptrdiff_t x = va_arg (ap, ptrdiff_t);
-          is_negative = x < 0;
-          value = (uintmax_t) (is_negative ? -x : x);
-        }
-      else if (flags & SIZE_T_FLAG)
-        {
-          size_t x = va_arg (ap, size_t);
-          is_negative = false;
-          value = (uintmax_t) x;
-        }
-      else
-        {
-          int x = va_arg (ap, int);
-          is_negative = x < 0;
-          value = (uintmax_t) (is_negative ? -x : x);
-        }
-    }
-  else if (flags & POINTER_FLAG)
-    {
-      is_negative = false;
-      value = (uintmax_t) ((intptr_t) va_arg (ap, void *));
-      flags |= INT_HEX_DOWNCASE_FLAG | HASH_FLAG;
+      flags = INT_HEX_DOWNCASE_FLAG | HASH_FLAG;
       precision = sizeof (void *) * 2;
     }
-  else
-    {
-      is_negative = false;
-      if (flags & CHAR_SIZE_FLAG)
-        value = (uintmax_t) ((unsigned char) va_arg (ap, unsigned int));
-      else if (flags & SHORT_FLAG)
-        value = (uintmax_t) ((unsigned short) va_arg (ap, unsigned int));
-      else if (flags & LONG_FLAG)
-        value = (uintmax_t) (va_arg (ap, unsigned long));
-      else if (flags & LONG_LONG_FLAG)
-        value = (uintmax_t) (va_arg (ap, unsigned long long));
-      else if (flags & INTMAX_T_FLAG)
-        value = va_arg (ap, uintmax_t);
-      else if (flags & PTRDIFF_T_FLAG)
-        value = (uintmax_t) (va_arg (ap, ptrdiff_t));
-      else if (flags & SIZE_T_FLAG)
-        value = (uintmax_t) (va_arg (ap, size_t));
-      else
-        value = (uintmax_t) (va_arg (ap, unsigned int));
-    }
-
+  
   /* Get the base */
   int base;
   if (flags & (INT_HEX_DOWNCASE_FLAG | INT_HEX_UPCASE_FLAG))
@@ -198,28 +243,22 @@ __itoa (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision
   else
     base = 10;
 
-  /* Find the total number of needed digits */
-  int needed_digits = 0;
-  uintmax_t temp = value;
-  do
-    {
-      needed_digits ++;
-      temp /= base;
-    }
-  while (temp > 0);
-
+  /* Get the digits */
+  char digits[50];
+  int n_digits = __get_integer_digits (digits, 50, base, flags & INT_HEX_UPCASE_FLAG, value);
+ 
   /* For integer arguments, precision specifies the minimum
      number of digits. If extra digits are needed, then 0s are
      prepended. Subtract actual digits from precision to figure
      out if this is needed. */
-  precision -= needed_digits;
+  precision -= n_digits;
 
   /* Width specifies the minimum number of output characters.
      subtract the number of characters we are going to print to
      see if this is needed. */
 
   /* Needed chars for digits */
-  width -= needed_digits;
+  width -= n_digits;
   /* Needed chars for precision */
   if (precision > 0)
     width -= precision;
@@ -320,34 +359,11 @@ __itoa (int *__done, FILE *stream, uint_fast32_t flags, int width, int precision
       precision --;
     }
 
-  /* Finally we get to the actual digits */
-  char digits[needed_digits];
-  if (value == 0)
-    {
-      digits[0] = '0';
-    }
-  else
-    {
-      int i = 0;
-      do
-        {
-          int cur_digit = value % base;
-          if (cur_digit < 10)
-            digits[i++] = '0' + cur_digit;
-          else if (flags & INT_HEX_DOWNCASE_FLAG)
-            digits[i++] = 'a' + (cur_digit - 10);
-          else
-            digits[i++] = 'A' + (cur_digit - 10);
-          value /= base;
-        }
-      while (value > 0);
-    }
-  
   /* Print the digits */
-  for (int i = (needed_digits - 1); i >= 0; i --)
+  for (int i = (n_digits - 1); i >= 0; i --)
     {
       if (EOF == fputc(digits[i], stream))
-        return -1;
+	return -1;
       done ++;
     }
   
