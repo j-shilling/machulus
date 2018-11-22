@@ -4,6 +4,7 @@ iso/boot/machulus
 **/ldscript
 
 **/nbproject/*
+**/\#*\#
 
 # Autotools stuff
 build-aux
