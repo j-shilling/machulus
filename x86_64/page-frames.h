@@ -15,23 +15,5 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* file: x86_64/init.c
- *
- *  Defines the init() function, which is uses to perform architecture
- * specific initialization. It should be called as part of the boot.S
- * process after the C environment has been set up and before kmain. */
-
-#include <page-frames.h>
-
-#include <stdio.h>
-
-void
-init(void *multiboot_addr)
-{
-  int res = init_page_frames (multiboot_addr);
-  if (ENOMMAP == res)
-    puts ("Did not find mmap.");
-  else
-    puts ("Found mmap.");
-  return;
-}
+static const int ENOMMAP = -1;
+int init_page_frames (void *);
