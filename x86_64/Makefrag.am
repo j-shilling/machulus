@@ -42,6 +42,7 @@ endif
 libkernel_a_SOURCES +=\
     x86_64/framebuffer.h \
     x86_64/framebuffer.c \
+    x86_64/init.c \
     x86_64/stdout.c
 
 machulus_LINKFLAGS +=\

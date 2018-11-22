@@ -153,6 +153,9 @@ cs_set:
 	xor	%ecx,%eax
 	jz	err_no_cpuid
 
+	/* cpuid will overwite ebx, so we need to save it for later */
+	pushl	%ebx
+
 	/* Now use CPUID to check whether long mode is supported. Long mode is checked
 	   by using by calling cpuid with eax = 0x80000001, so we first check that functions
 	   > 0x80000000 are supported. */
@@ -169,6 +172,9 @@ cs_set:
 	   bit 26 of edx from the last cpuid call */
 	test	$(1 << 26),%edx
 	jz	err_no_huge_pages
+
+	/* Get the multiboot2 info back */
+	popl	%ebx
 
 	/* Set the address of boot_pml4 in cr3 */
 	movl	$(boot_pml4 - KERNEL_OFFSET),%edi
@@ -293,7 +299,10 @@ higher_half:
 	movq	$0x0,(%rdi)
 	invlpg	0
 
-	/* Enter C code */
+	/* C Environment is set up. Get ready to call init() */
+	addq	$KERNEL_OFFSET,%rbx
+	movq	%rbx,%rdi
+	call	init
 	call	kernel_main
 halt64:
 	cli
