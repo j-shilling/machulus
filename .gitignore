@@ -3,9 +3,6 @@ machulus.iso
 iso/boot/machulus
 **/ldscript
 
-**/nbproject/*
-**/\#*\#
-
 # Autotools stuff
 build-aux
 **/Makefile
@@ -23,6 +20,12 @@ stamp-h1
 
 # vim stuff
 *~
+
+# netbeans stuff
+**/nbproject/*
+
+# emacs stuff
+**/#*#
 
 # Prerequisites
 *.d
