@@ -14,7 +14,8 @@ SECTIONS
 {
   /* Load kernel at KERNEL_OFFSET + 1MiB VMA */
   . = KERNEL_OFFSET + 0x00100000;
-
+  kernel_start = .;
+	
   .text : AT(ADDR(.text) - KERNEL_OFFSET) {
     KEEP(*(.multiboot_header))
     *(.text)
@@ -33,4 +34,5 @@ SECTIONS
   .bss ALIGN(4K) : AT(ADDR(.bss) - KERNEL_OFFSET) {
     *(.bss)
   }
+  kernel_end = .;
 }

@@ -26,3 +26,10 @@
 #else
 #  define KERNEL_OFFSET     0xC0000000
 #endif /* __64bits__ */
+
+#ifndef ASM_FILE
+
+extern int kernel_start;
+extern int kernel_end;
+
+#endif 

@@ -23,10 +23,23 @@
 
 #include <page-frames.h>
 #include <multiboot2.h>
+#include <ldscript.h>
 
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+
+/* Size of a 0-order page */
+#define PAGE_SIZE 0x1000
+/* Maximum order supported by our buddy allocator */
+#define MAX_ORDER 10
+
+/* Array of the number of frames at each order */
+static size_t nframes[MAX_ORDER + 1];
+/* Array of bitmaps for each order */
+static uint8_t *bitmaps[MAX_ORDER + 1];
+/* Physical address where the kernel ends */
+static const uintptr_t kernel_end_addr = (uintptr_t)(&kernel_end) - KERNEL_OFFSET;
 
 int
 init_page_frames (void *multiboot_addr)
@@ -35,13 +48,23 @@ init_page_frames (void *multiboot_addr)
   struct multiboot_tag *tag =
     (struct multiboot_tag *) ((char *)multiboot_addr + 8);
   struct multiboot_tag_mmap *mmap = NULL;
-  
+  uint32_t first_mod_after_kernel = 0;
+
+  /* Iterate over the multiboot info looking for mmap and
+     the start address of the first module after the kernel */
   while (MULTIBOOT_TAG_TYPE_END != tag->type)
     {
       if (MULTIBOOT_TAG_TYPE_MMAP == tag->type)
 	{
 	  mmap = (struct multiboot_tag_mmap *)tag;
-	  break;
+	}
+      else if (MULTIBOOT_TAG_TYPE_MODULE == tag->type)
+	{
+	  struct multiboot_tag_module *module =
+	    (struct multiboot_tag_module *)tag;
+	  if (module->mod_start > kernel_end_addr
+	      && module->mod_start < first_mod_after_kernel)
+	    first_mod_after_kernel = module->mod_start;
 	}
       
       tag = (struct multiboot_tag *)
@@ -54,40 +77,55 @@ init_page_frames (void *multiboot_addr)
 
   /* Next we need to know the total number of frames on
      the system. */
-  size_t bytes;
+  size_t bytes = 0;
   struct multiboot_mmap_entry *entry = mmap->entries;
+  struct multiboot_mmap_entry *kernel_entry = NULL;
   while ((char *)entry < ((char *)mmap + mmap->size))
     {
       /* Get last address of this entry */
       bytes += entry->len;
+
+      /* Check if this is the block containing the kernel */
+      if (MULTIBOOT_MEMORY_AVAILABLE == entry->type
+	  && kernel_end_addr >= entry->addr
+	  && kernel_end_addr < (entry->addr + entry->len))
+	kernel_entry = entry;
+
+      /* Go to next entry */
       entry = (struct multiboot_mmap_entry *)
 	((char *)entry + mmap->entry_size);
     }
 
-  size_t frames0 = bytes / 0x1000;
-  size_t frames1 = frames0 / 2;
-  size_t frames2 = frames1 / 2;
-  size_t frames3 = frames2 / 2;
-  size_t frames4 = frames3 / 2;
-  size_t frames5 = frames4 / 2;
-  size_t frames6 = frames5 / 2;
-  size_t frames7 = frames6 / 2;
-  size_t frames8 = frames7 / 2;
-  size_t frames9 = frames8 / 2;
-  size_t frames10 = frames9 / 2;
+  if (NULL == kernel_entry)
+    return ENOKERNENTRY;
+  uint64_t last_avail_addr = kernel_entry->addr + kernel_entry->len - 1;
+  if (first_mod_after_kernel > 0 && first_mod_after_kernel < last_avail_addr)
+    last_avail_addr = first_mod_after_kernel - 1;
 
-  printf ("Number of page frames:\n\n");
-  printf ("0: %10zu\n", frames0);
-  printf ("1: %10zu\n", frames1);
-  printf ("2: %10zu\n", frames2);
-  printf ("3: %10zu\n", frames3);
-  printf ("4: %10zu\n", frames4);
-  printf ("5: %10zu\n", frames5);
-  printf ("6: %10zu\n", frames6);
-  printf ("7: %10zu\n", frames7);
-  printf ("8: %10zu\n", frames8);
-  printf ("9: %10zu\n", frames9);
-  printf ("10: %9zu\n", frames10);
+  /* Initialize the nframes array */
+  nframes[0] = bytes / PAGE_SIZE;
+  for (int i = 1; i <= MAX_ORDER; i++)
+    nframes[i] = nframes[i - 1] / 2;
+
+  /* Initialize the bitmaps array */
+  uint64_t cur_addr = kernel_end_addr + 1;
+  size_t cur_size = last_avail_addr - cur_addr + 1;
+  for (int i = 0; i <= MAX_ORDER; i++)
+    {
+      /* Find the needed size of the bitmap */
+      size_t size = (nframes[i] / 8) + ((nframes[i] % 8) ? 0 : 1);
+      
+      if (size > cur_size)
+	return EOUTOFMEM;
+
+      bitmaps[i] = (uint8_t *)(cur_addr + KERNEL_OFFSET);
+      cur_addr += size;
+      cur_size -= size;
+
+      /* Mark all memory as free */
+      for (size_t j = 0; j < size; j++)
+	bitmaps[i][j] = 0x0;
+    }
   
   return 0;
 }

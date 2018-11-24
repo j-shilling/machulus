@@ -29,9 +29,9 @@ void
 init(void *multiboot_addr)
 {
   int res = init_page_frames (multiboot_addr);
-  if (ENOMMAP == res)
-    puts ("Did not find mmap.");
+  if (res == 0)
+    puts ("Success!");
   else
-    puts ("Found mmap.");
+    puts ("Failure!");
   return;
 }
