@@ -39,6 +39,9 @@ int *__errno_address(void);
  * or reading from a descriptor open only for writing (or vice versa). */
 #define EBADF           (2)
 
+/* “Cannot allocate memory.” The system cannot allocate more virtual memory
+ *  because its capacity is full. */
+#define ENOMEM          (3)
 
 #ifdef __cplusplus
 }

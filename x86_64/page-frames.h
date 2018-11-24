@@ -15,7 +15,4 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-static const int ENOMMAP = -1;
-static const int ENOKERNENTRY = -2;
-static const int EOUTOFMEM = -3;
 int init_page_frames (void *);

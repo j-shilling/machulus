@@ -28,6 +28,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <errno.h>
 
 /* Size of a 0-order page */
 #define PAGE_SIZE 0x1000
@@ -73,7 +74,7 @@ init_page_frames (void *multiboot_addr)
 
   /* Check whether we found the memory map */
   if (NULL == mmap)
-    return ENOMMAP;
+    return EINVAL;
 
   /* Next we need to know the total number of frames on
      the system. */
@@ -97,7 +98,8 @@ init_page_frames (void *multiboot_addr)
     }
 
   if (NULL == kernel_entry)
-    return ENOKERNENTRY;
+    return EINVAL;
+  
   uint64_t last_avail_addr = kernel_entry->addr + kernel_entry->len - 1;
   if (first_mod_after_kernel > 0 && first_mod_after_kernel < last_avail_addr)
     last_avail_addr = first_mod_after_kernel - 1;
@@ -116,7 +118,7 @@ init_page_frames (void *multiboot_addr)
       size_t size = (nframes[i] / 8) + ((nframes[i] % 8) ? 0 : 1);
       
       if (size > cur_size)
-	return EOUTOFMEM;
+	return ENOMEM;
 
       bitmaps[i] = (uint8_t *)(cur_addr + KERNEL_OFFSET);
       cur_addr += size;
