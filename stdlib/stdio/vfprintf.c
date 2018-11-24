@@ -463,37 +463,43 @@ read_flags:
               cur++;
               if ((*cur) == 'h')
                 {
-                  cur++;
                   flags |= CHAR_SIZE_FLAG;
+		  cur++;
                 }
               else
                 {
                   flags |= SHORT_FLAG;
+		  cur++;
                 }
               break;
             case 'l':
               cur++;
               if ((*cur) == 'l')
                 {
-                  cur++;
                   flags |= LONG_LONG_FLAG;
+		  cur++;
                 }
               else
                 {
                   flags |= LONG_FLAG;
+		  cur++;
                 }
               break;
             case 'L':
               flags |= LONG_DOUBLE_FLAG;
+	      cur++;
               break;
             case 'z':
               flags |= SIZE_T_FLAG;
+	      cur++;
               break;
             case 'j':
               flags |= INTMAX_T_FLAG;
+	      cur++;
               break;
             case 't':
               flags |= PTRDIFF_T_FLAG;
+	      cur++;
               break;
             default:
               break;
