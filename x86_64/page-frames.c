@@ -39,8 +39,29 @@
 static size_t nframes[MAX_ORDER + 1];
 /* Array of bitmaps for each order */
 static uint8_t *bitmaps[MAX_ORDER + 1];
+
+/* Physical address where the kernel starts */
+static const uint64_t kernel_start_addr = (uint64_t)(&kernel_start) - KERNEL_OFFSET;
 /* Physical address where the kernel ends */
 static const uintptr_t kernel_end_addr = (uintptr_t)(&kernel_end) - KERNEL_OFFSET;
+
+static inline void
+__reserve_space (uint64_t addr, size_t len)
+{
+  uint64_t frame_addr = addr & (~(PAGE_SIZE - 1));
+
+  for (int i = 0; i <= MAX_ORDER; i++)
+    {
+      size_t nframes = len / (PAGE_SIZE * (1 << i));
+      size_t index = frame_addr / (PAGE_SIZE * (1 << i));
+
+      for (size_t i = 0; i < nframes; i ++)
+	{
+	  bitmaps[i][index / 8] |= (1 << (index % 8));
+	  index ++;
+	}
+    }
+}
 
 int
 init_page_frames (void *multiboot_addr)
@@ -127,6 +148,31 @@ init_page_frames (void *multiboot_addr)
       /* Mark all memory as free */
       for (size_t j = 0; j < size; j++)
 	bitmaps[i][j] = 0x0;
+    }
+
+  /* Mark frames used by kernel */
+  __reserve_space (kernel_start_addr, cur_addr - kernel_start_addr);
+
+  /* Mark frames used by modules */
+  for (tag = (struct multiboot_tag *) ((char *)multiboot_addr + 8);
+       MULTIBOOT_TAG_TYPE_END == tag->type;
+       tag = (struct multiboot_tag *)((char *)tag + ((tag->size + 7) & ~7)))
+    {
+      if (MULTIBOOT_TAG_TYPE_MODULE == tag->type)
+	{
+	  struct multiboot_tag_module *module =
+	    (struct multiboot_tag_module *)tag;
+	  __reserve_space (module->mod_start, module->mod_end - module->mod_start + 1);
+	}
+    }
+
+  /* Mark frames used by reserved blocks */
+  for (entry = mmap->entries;
+       (char *)entry < ((char *)mmap + mmap->size);
+       entry = (struct multiboot_mmap_entry *)((char *)entry + mmap->entry_size))
+    {
+      if (MULTIBOOT_MEMORY_AVAILABLE != entry->type)
+	__reserve_space (entry->addr, entry->len);
     }
   
   return 0;
