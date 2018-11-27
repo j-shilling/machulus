@@ -39,6 +39,7 @@ extern "C"
   typedef struct FILE FILE;
   
   extern FILE *stdout;
+#define stdout stdout;
   
   /* Writes a formated string to a file stream. Returns the number of bytes transmitted,
      or a negative number on error and sets errno. */
