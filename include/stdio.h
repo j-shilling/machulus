@@ -66,11 +66,6 @@ extern "C"
      on failure return EOF and set errno. */
   int puts (const char *);
   
-  /* Print a formated string to the given buffer. Do not print more that the
-     specified number of bytes. On success return the number of bytes transmitted;
-     on failure return a negative value. */
-  int snprintf (char *, size_t, const char *, ...);
-  
   /* Writes a formated string to a file stream. Returns the number of bytes transmitted,
      or a negative number on error and sets errno. */
   int vfprintf (FILE *, const char *, va_list);
@@ -79,11 +74,6 @@ extern "C"
      bytes transmitted; on failure return a negative value. */
   int vprintf (const char *, va_list);
   
-  /* Print a formated string to the given buffer. Do not print more that the
-     specified number of bytes. On success return the number of bytes transmitted;
-     on failure return a negative value. */
-  int vsnprintf (char *, size_t, const char *, va_list);
-
 
 #ifdef __cplusplus
 }
