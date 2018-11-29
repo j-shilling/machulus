@@ -1,0 +1,44 @@
+/* Copyright (C) 2018 Jake Shilling <shilling.jake@gmail.com>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>. */
+
+/* file: x86_64/early-idt.S
+ *
+ *   This is where we define an IDT to handle interrupts early in the
+ * boot up process. We only need to check for the built in CPU exceptions
+ * and pass them to an exception handler */
+
+#define ASM_FILE 1
+
+/* The TSS on x86_64 systems handles stack-switching on interrupts. We
+   want to use this one only to store a clean stack for our exception
+   handler. To make it easier to free later, we want it to use exactly
+   one page, with the interrupt stack using everything after the TSS
+   object itself. */
+.section .boot_tss
+.align 0x1000
+.global boot_tss
+.type boot_tss, @object
+boot_tss:
+	/* Early PL stacks don't matter */
+	.skip	0x24, 0
+	/* Start of the Interrupt Stack Table */
+	.8byte	interrupt_stack_top
+	/* The rest of the table doesn't matter */
+	.skip	0x3c, 0
+boot_tss_end:
+.size boot_tss, boot_tss_end - boot_tss
+interrupt_stack_bottom:
+	.skip	0xf98, 0
+interrupt_stack_top:

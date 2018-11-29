@@ -35,7 +35,8 @@ else
   machulus_LINKFLAGS += -n
 
   libkernel_a_SOURCES +=\
-    x86_64/boot.S
+    x86_64/boot.S \
+    x86_64/early-idt.S
 
 endif
 

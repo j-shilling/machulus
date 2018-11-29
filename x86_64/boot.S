@@ -67,6 +67,14 @@ boot_gdt:
 	.byte 0x92
 	.byte 0xcf
 	.byte 0x0
+	/* TSS selector: limit = sizeof(tss) = 0x68 */
+	.word 0x0068
+	.word 0x0
+	.byte 0x0
+	.byte 0x89
+	.word 0x0
+	.quad 0x0
+	.quad 0x0
 boot_gdt_end:
 
 boot_gdt_descr:
@@ -292,6 +300,21 @@ higher_half:
 	movq	$boot_pdpt,%rdi
 	movq	$0x0,(%rdi)
 	invlpg	0
+
+	/* Set up the TSS descriptor */
+	movq	$(boot_gdt + 32),%rdi
+.extern boot_tss
+	movq	$boot_tss,%rax
+	movw	%ax,2(%rdi)
+	shrq	$16,%rax
+	movb	%al,4(%rdi)
+	movb	%ah,7(%rdi)
+	shrq	$16,%rax
+	movl	%eax,8(%rdi)
+
+	/* Load the TSS */
+	movw	$32,%ax
+	ltr	%ax
 
 	/* Enter C code */
 	call	kernel_main
