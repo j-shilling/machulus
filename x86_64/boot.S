@@ -78,8 +78,11 @@ boot_gdt:
 boot_gdt_end:
 
 boot_gdt_descr:
-	.word boot_gdt - boot_gdt_end
+	.word boot_gdt_end - boot_gdt
 	.long boot_gdt - KERNEL_OFFSET
+boot_gdt_descr_higher_half:
+	.word boot_gdt_end - boot_gdt
+	.quad boot_gdt
 
 /* We will start by mapping a single 1GiB page. This should be more
    than enough for everything we need before we can use the Multiboot
@@ -300,6 +303,9 @@ higher_half:
 	movq	$boot_pdpt,%rdi
 	movq	$0x0,(%rdi)
 	invlpg	0
+
+	/* Reload GDT at its higher half address */
+	lgdt	boot_gdt_descr_higher_half
 
 	/* Set up the TSS descriptor */
 	movq	$(boot_gdt + 32),%rdi
