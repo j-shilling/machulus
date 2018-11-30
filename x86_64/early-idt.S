@@ -75,21 +75,66 @@ interrupt_stack_top:
 .endm
 
 /* We only want to handle internal cpu interrupts 0-32. Vectors
-   9, 15, 20-28, 31 are reserved */
+   2, 9, 15, 20-28, 31 are reserved */
 .section .boot_idt
 .align 0x1000
 .global boot_idt
 .type boot_idt, @object
 boot_idt:
-	RESERVE_ENTRIES 9
+	RESERVE_ENTRIES 2
+	.skip	16,0
+	RESERVE_ENTRIES 6
 	.skip	16,0
 	RESERVE_ENTRIES 5
 	.skip 	16,0
 	RESERVE_ENTRIES 4
-	.skip	32,0
+	.skip	(16 * 9),0
 	RESERVE_ENTRIES 2
 boot_idt_end:
 
 boot_idt_descr:
 	.word	boot_idt_end - boot_idt
 	.quad	boot_idt
+
+/* Here are the handlers themselves. They serve to normalize
+	a call to kernel_exception_handler. */
+.extern kernel_exception_handler
+
+.macro	TRAP	vector name
+\name :
+	movq	$\vector,%rdi
+	movq	$0,%rsi
+	call	kernel_exception_handler
+.endm
+
+.macro TRAP_E	vector	name
+\name :
+	movq	$\vector,%rdi
+	popq	%rsi
+	call	kernel_exception_handler
+.endm
+
+.section .text
+	
+	TRAP	0	divide_by_zero
+	TRAP	1	debug
+	TRAP	3	breakpoint
+	TRAP	4	overflow
+	TRAP	5	bound_range
+	TRAP	6	invalid_opcode
+	TRAP	7	device_not_available
+	TRAP_E	8	double_fault
+	
+	TRAP_E	10	invalid_tss
+	TRAP_E	11	segment_not_present
+	TRAP_E	12	stack
+	TRAP_E	13	general_protection
+	TRAP_E	14	page
+
+	TRAP	16	floating_point
+	TRAP_E	17	alignment_check
+	TRAP	18	machine_check
+	TRAP	19	simd_floating_point
+	TRAP_E	29	vmm_communication
+	TRAP_E	30	security
+	
