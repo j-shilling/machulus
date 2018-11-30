@@ -28,6 +28,7 @@ SECTIONS
     *(.boot_gdt)
     *(.boot_paging)
     *(.boot_tss)
+    *(.boot_idt)
     *(.data)
   }
  

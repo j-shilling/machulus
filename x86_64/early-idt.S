@@ -42,3 +42,54 @@ boot_tss_end:
 interrupt_stack_bottom:
 	.skip	0xf98, 0
 interrupt_stack_top:
+
+/* Here's the IDT itself, which holds information about finding
+   interrupt handlers. In long mode, each entry is 16-bytes:
+
+2-bytes:	handler address 0-15
+2-bytes:	segment selector (on this system 0x10)
+1-byte:		index of the interrupt stack (here 0x01)
+1-byte:		present-flag, dpl, and type (here 0x8f)
+2-bytes:	handler address 16-31
+4-bytes:	handler address 32-63
+4-bytes:	reserved
+
+   We will leave the handler address values at 0x0 and fill them
+   in at run time. The other values can be hard coded. */
+
+.macro	RESERVE_ENTRY
+	.2byte	0x0
+	.2byte	0x10
+	.byte	0x01
+	.byte	0x8f
+	.2byte	0x0
+	.4byte	0x0
+	.4byte	0x0
+.endm
+
+.macro	RESERVE_ENTRIES count
+	RESERVE_ENTRY
+	.ifgt	\count
+	RESERVE_ENTRIES "(\count - 1)"
+	.endif
+.endm
+
+/* We only want to handle internal cpu interrupts 0-32. Vectors
+   9, 15, 20-28, 31 are reserved */
+.section .boot_idt
+.align 0x1000
+.global boot_idt
+.type boot_idt, @object
+boot_idt:
+	RESERVE_ENTRIES 9
+	.skip	16,0
+	RESERVE_ENTRIES 5
+	.skip 	16,0
+	RESERVE_ENTRIES 4
+	.skip	32,0
+	RESERVE_ENTRIES 2
+boot_idt_end:
+
+boot_idt_descr:
+	.word	boot_idt_end - boot_idt
+	.quad	boot_idt
