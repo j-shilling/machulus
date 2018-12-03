@@ -322,6 +322,10 @@ higher_half:
 	movw	$32,%ax
 	ltr	%ax
 
+	/* Init and load the IDT */
+.extern init_early_idt
+	callq	init_early_idt
+	
 	/* Enter C code */
 	call	kernel_main
 halt64:
