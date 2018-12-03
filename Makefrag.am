@@ -20,7 +20,8 @@
 # sourcefiles common to all systems to our libkernel_a_SOURCES variable.
 
 libkernel_a_SOURCES += \
-    kernel.c
+    kernel.c \
+    panic.c
 
 if HOST_x86_64
 include x86_64/Makefrag.am

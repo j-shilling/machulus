@@ -43,6 +43,7 @@ endif
 libkernel_a_SOURCES +=\
     x86_64/framebuffer.h \
     x86_64/framebuffer.c \
+    x86_64/halt.c \
     x86_64/kernel-exception-handler.c \
     x86_64/stdout.c
 

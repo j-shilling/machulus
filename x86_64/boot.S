@@ -325,6 +325,9 @@ higher_half:
 	/* Init and load the IDT */
 .extern init_early_idt
 	callq	init_early_idt
+
+	movq	$0,%rax
+	movq	$10,(%rax)
 	
 	/* Enter C code */
 	call	kernel_main
