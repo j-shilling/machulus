@@ -104,6 +104,7 @@ boot_idt_descr:
 \name :
 	movq	$\vector,%rdi
 	movq	$0,%rsi
+	movq	%rsp,%rdx
 	callq	kernel_exception_handler
 	iretq
 .endm
@@ -112,6 +113,7 @@ boot_idt_descr:
 \name :
 	movq	$\vector,%rdi
 	popq	%rsi
+	movq	%rsp,%rdx
 	callq	kernel_exception_handler
 	iretq
 .endm

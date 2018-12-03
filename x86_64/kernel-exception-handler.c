@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdint.h>
+
 #include <panic.h>
 
 enum exceptions
@@ -28,8 +30,19 @@ enum exceptions
    SECURITY_EXCEPTION   = 30
   };
 
+struct interrupt_frame
+{
+  uint64_t rip;
+  uint16_t cs;
+  uint8_t padding0[6];
+  uint64_t rflags;
+  uint64_t rsp;
+  uint16_t ss;
+  uint8_t padding1[6];
+} __attribute__((packed));
+
 void
-kernel_exception_handler(int const vector, int const error_code)
+kernel_exception_handler(int const vector, int const error_code, struct interrupt_frame *const iframe)
 {
   switch (vector)
     {
