@@ -23,6 +23,8 @@
 void
 panic (const char *fmt, ...)
 {
+  printf("PANIC: ");
+  
   va_list ap;
   va_start (ap, fmt);
   vprintf(fmt, ap);

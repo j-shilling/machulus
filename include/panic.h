@@ -27,7 +27,8 @@ extern "C"
 {
 #endif
 
-  void panic (const char *, ...);
+  void panic (const char *, ...)
+    __attribute__ ((format (printf, 1, 2)));
 
 #ifdef __cplusplus
 }
