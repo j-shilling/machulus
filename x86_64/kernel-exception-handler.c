@@ -47,7 +47,14 @@ kernel_exception_handler(int const vector, int const error_code, struct interrup
   switch (vector)
     {
     default:
-      panic ("Unkown trap catch in kernel code at vector %#x", vector);
+      panic ("Interrupt vector: %u Error code: %#0.8x\n\n"
+	     "RIP    = %016x\n"
+	     "CS     = %16.4x\n"
+	     "RFLAGS = %016x\n"
+	     "RSP    = %016x\n"
+	     "SS     = %16.4x\n",
+	     vector, error_code, iframe->rip, iframe->cs,
+	     iframe->rflags, iframe->rsp, iframe->ss);
       break;
     }
 }
