@@ -48,10 +48,10 @@ kernel_exception_handler(int const vector, int const error_code, struct interrup
     {
     default:
       panic ("Interrupt vector: %u Error code: %#0.8x\n\n"
-	     "RIP    = %016x\n"
+	     "RIP    = %016llx\n"
 	     "CS     = %16.4x\n"
-	     "RFLAGS = %016x\n"
-	     "RSP    = %016x\n"
+	     "RFLAGS = %016llx\n"
+	     "RSP    = %016llx\n"
 	     "SS     = %16.4x\n",
 	     vector, error_code, iframe->rip, iframe->cs,
 	     iframe->rflags, iframe->rsp, iframe->ss);
