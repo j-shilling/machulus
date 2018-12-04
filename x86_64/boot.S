@@ -327,11 +327,8 @@ higher_half:
 .extern init_early_idt
 	callq	init_early_idt
 
-	movq	$0,%rax
-	movq	$10,(%rax)
-	
 	/* Enter C code */
-	call	kernel_main
+	callq	kernel_main
 halt64:
 	cli
 1:	hlt
