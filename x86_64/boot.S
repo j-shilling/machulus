@@ -125,6 +125,7 @@ doesn't make sense to return from this function as the bootloader is gone.
 .global _start
 .type _start, @function
 _start:
+	cli
 	/* Check Multiboot2 magic number */
 	cmpl	$(MULTIBOOT2_BOOTLOADER_MAGIC),%eax
 	jne	err_no_multiboot

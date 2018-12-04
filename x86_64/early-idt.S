@@ -102,6 +102,7 @@ boot_idt_descr:
 
 .macro	TRAP	vector name
 \name :
+	cli
 	movq	$\vector,%rdi
 	movq	$0,%rsi
 	movq	%rsp,%rdx
@@ -111,6 +112,7 @@ boot_idt_descr:
 
 .macro TRAP_E	vector	name
 \name :
+	cli
 	movq	$\vector,%rdi
 	popq	%rsi
 	movq	%rsp,%rdx
