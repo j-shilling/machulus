@@ -30,6 +30,48 @@ enum exceptions
    SECURITY_EXCEPTION   = 30
   };
 
+static const char *exception_names[] = {
+					"Divide by Zero Error",
+					"Debug",
+					"Non-Maskable Interrupt",
+					"Breakpoint",
+					"Overflow",
+					"Bound Range Exception",
+					"Invalid Opcode",
+					"Device Not Available",
+					"Double Fault",
+					NULL,
+					"Invalid TSS",
+					"Segment Not Present",
+					"Stack Exception",
+					"General Protection Exception",
+					"Page Fault",
+				        NULL,
+					"x87 Floating-Point Exception Pending",
+					"Alignment Check",
+					"Machine Check",
+					"SIMD Floating-Point Exception",
+					NULL,
+					NULL,
+					NULL,
+					NULL,
+					NULL,
+					NULL,
+					NULL,
+					NULL,
+					NULL,
+					"VMM Communication Exception",
+					"Security Exception"
+					
+};
+
+static const char *selector_type_names[] = {
+					  "GDT",
+					  "IDT",
+					  "LDT",
+					  "IDT"
+};
+
 struct interrupt_frame
 {
   uint64_t rip;
@@ -46,15 +88,76 @@ kernel_exception_handler(int const vector, int const error_code, struct interrup
 {
   switch (vector)
     {
-    default:
-      panic ("Interrupt vector: %u Error code: %#0.8x\n\n"
-	     "RIP    = %016llx\n"
-	     "CS     = %16.4x\n"
-	     "RFLAGS = %016llx\n"
-	     "RSP    = %016llx\n"
-	     "SS     = %16.4x\n",
-	     vector, error_code, iframe->rip, iframe->cs,
-	     iframe->rflags, iframe->rsp, iframe->ss);
+    case STACK:
+    case INVALID_TSS:
+    case SEGMENT_NOT_PRESENT:
+    case GENERAL_PROTECTION:
+      if (error_code)
+	{
+	  panic ("%s! From %s the processor\n"
+		 "%s Selector = %u\n\n"
+		 "Interrupt Stack Frame:\n"
+		 "  RIP    = %.16llx\n"
+		 "  CS     = %16.4x\n"
+		 "  RFLAGS = %.16llx\n"
+		 "  SS     = %16.4x\n",
+		 exception_names[vector],
+		 (error_code & (1 << 0)) ? "outside" : "inside",
+		 selector_type_names[(error_code >> 1) & 0x3],
+		 (error_code >> 3) & 0x1FFF,
+		 iframe->rip,
+		 iframe->cs,
+		 iframe->rflags,
+		 iframe->ss);
+	}
+      else
+	{
+	  panic ("%s! No selector index passed\n",
+		 "Interrupt Stack Frame:\n"
+		 "  RIP    = %.16llx\n"
+		 "  CS     = %16.4x\n"
+		 "  RFLAGS = %.16llx\n"
+		 "  SS     = %16.4x\n",
+		 exception_names[vector],
+		 iframe->rip,
+		 iframe->cs,
+		 iframe->rflags,
+		 iframe->ss);
+	}
+		 
       break;
+    case PAGE:
+      panic ("Page Fault!\n"
+	     "Illegal %s on a %s page while in %s mode.\n"
+	     "%s%s"
+	     "Interrupt Stack Frame:\n"
+	     "  RIP    = %.16llx\n"
+	     "  CS     = %16.4x\n"
+	     "  RFLAGS = %.16llx\n"
+	     "  SS     = %16.4x\n",
+	     (error_code & (1 << 1)) ? "write" : "read",
+	     (error_code & (1 << 0)) ? "present" : "non-present",
+	     (error_code & (1 << 2)) ? "user" : "supervisor",
+	     (error_code & (1 << 3)) ? "Processor read a 1 from a reserved field within a page-translation-table entry\n" : "",
+	     (error_code & (1 << 4)) ? "This fault was caused by an instruction fetch\n" : "\n",
+	     iframe->rip,
+	     iframe->cs,
+	     iframe->rflags,
+	     iframe->ss);
+      break;
+    default:
+      panic ("%s! Vector: %u Error Code: %#x\n\n"
+	     "Interrupt Stack Frame:\n"
+	     "  RIP    = %.16llx\n"
+	     "  CS     = %16.4x\n"
+	     "  RFLAGS = %.16llx\n"
+	     "  SS     = %16.4x",
+	     exception_names[vector],
+	     vector,
+	     error_code,
+	     iframe->rip,
+	     iframe->cs,
+	     iframe->rflags,
+	     iframe->ss);
     }
 }
