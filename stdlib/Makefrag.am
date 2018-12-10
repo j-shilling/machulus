@@ -26,5 +26,7 @@ libkernel_a_SOURCES += \
     stdlib/stdio/printf.c \
     stdlib/stdio/putchar.c \
     stdlib/stdio/puts.c \
+    stdlib/stdio/snprintf.c \
     stdlib/stdio/vfprintf.c \
-    stdlib/stdio/vprintf.c
+    stdlib/stdio/vprintf.c \
+    stdlib/stdio/vsnprintf.c

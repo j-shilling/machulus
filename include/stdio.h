@@ -65,6 +65,9 @@ extern "C"
   /* Prints a string followed by a newline. On success return a nonnegative number;
      on failure return EOF and set errno. */
   int puts (const char *);
+
+  /* Writes a formated string to a memory buffer. */
+  int snprintf (char *, size_t, const char *, ...);
   
   /* Writes a formated string to a file stream. Returns the number of bytes transmitted,
      or a negative number on error and sets errno. */
@@ -73,6 +76,9 @@ extern "C"
   /* Print a formated string to the screen. On success return the number of
      bytes transmitted; on failure return a negative value. */
   int vprintf (const char *, va_list);
+
+  /* Writes a formated string to a memory buffer. */
+  int vsnprintf (char *, size_t, const char *, va_list);
   
 
 #ifdef __cplusplus

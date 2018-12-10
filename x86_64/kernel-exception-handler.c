@@ -1,9 +1,26 @@
+/*
+ * Copyright (C) 2018 Jake Shilling
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <stdio.h>
 #include <stdint.h>
 
 #include <panic.h>
 
-enum exceptions
+enum exception
   {
    DIVIDE_BY_ZERO       =  0,
    DEBUG                =  1,
@@ -30,47 +47,34 @@ enum exceptions
    SECURITY_EXCEPTION   = 30
   };
 
-static const char *exception_names[] = {
-					"Divide by Zero Error",
-					"Debug",
-					"Non-Maskable Interrupt",
-					"Breakpoint",
-					"Overflow",
-					"Bound Range Exception",
-					"Invalid Opcode",
-					"Device Not Available",
-					"Double Fault",
-					NULL,
-					"Invalid TSS",
-					"Segment Not Present",
-					"Stack Exception",
-					"General Protection Exception",
-					"Page Fault",
-				        NULL,
-					"x87 Floating-Point Exception Pending",
-					"Alignment Check",
-					"Machine Check",
-					"SIMD Floating-Point Exception",
-					NULL,
-					NULL,
-					NULL,
-					NULL,
-					NULL,
-					NULL,
-					NULL,
-					NULL,
-					NULL,
-					"VMM Communication Exception",
-					"Security Exception"
-					
-};
-
-static const char *selector_type_names[] = {
-					  "GDT",
-					  "IDT",
-					  "LDT",
-					  "IDT"
-};
+/* Return a string representing the type of exception that occured */
+static const char *
+exception_name (const enum exception type)
+{
+  switch (type)
+    {
+    case DIVIDE_BY_ZERO:       return "Divide by Zero Exception";
+    case DEBUG:                return "Debug Exception";
+    case BREAKPOINT:           return "Breakpoint Exception";
+    case OVERFLOW:             return "Overflow Exception";
+    case BOUND_RANGE:          return "Bound-Range Exception";
+    case INVALID_OPCODE:       return "Invalid-Opcode Exception";
+    case DEVICE_NOT_AVAILABLE: return "Device-Not-Available Exception";
+    case DOUBLE_FAULT:         return "Double Fault";
+    case INVALID_TSS:          return "Invalid TSS Exception";
+    case SEGMENT_NOT_PRESENT:  return "Segment Not Present Exception";
+    case STACK:                return "Stack Exception";
+    case GENERAL_PROTECTION:   return "General-Protection Exception";
+    case PAGE:                 return "Page Fault";
+    case X87_FLOATING_POINT:   return "x87 Floating-Point Exception-Pending";
+    case ALIGNMENT_CHECK:      return "Alignment Check Exception";
+    case MACHINE_CHECK:        return "Machine Check Exception";
+    case SIMD_FLOATING_POINT:  return "SIMD Floating-Point Exception";
+    case VMM_COMMUNICATION:    return "VMM Communication Exception";
+    case SECURITY_EXCEPTION:   return "Security Exception";
+    default:                   return "Unkown Exception";
+    }
+}
 
 struct interrupt_frame
 {
@@ -83,6 +87,66 @@ struct interrupt_frame
   uint8_t padding1[6];
 } __attribute__((packed));
 
+/* Return a string representing a Selector Error Code */
+static const char *
+selector_error_message(int const error_code)
+{
+  static const char *IDT = "IDT";
+  static const char *GDT = "GDT";
+  static const char *LDT = "LDT";
+
+  static const char *fmt =
+    "The exception source is "          /* 24 chars */
+    "%8.8s"                             /*  8 chars */
+    "to the processor and references "  /* 32 chars */
+    "%3.3s"                             /*  3 chars */
+    "selector "                         /*  9 chars */
+    "%6.4x.";                           /*  6 chars */
+                             /* total:     82 chars */
+  static char buffer[83];
+
+  const char *table;
+  if (error_code & (1 << 1))
+    table = IDT;
+  else if (error_code & (1 << 2))
+    table = LDT;
+  else
+    table = GDT;
+
+  snprintf (buffer, 83, fmt,
+	    (error_code & 1) ? "external" : "internal",
+	    table,
+	    (error_code & 0xFFF4));
+
+  return buffer;
+}
+
+/* Return a string representing a page fault error code */
+static const char *
+page_fault_error_message(int const error_code)
+{
+  return NULL;
+}
+
+/* Return a string representing an interrupt stack frame */
+static const char *
+interrupt_stack_frame(struct interrupt_frame *const iframe)
+{
+  static const char *fmt =
+    "Interrupt Stack Frame:\n" /* 23 chars */
+    "  RIP    = %.16llx\n"     /* 28 chars */
+    "  CS     = %16.4x\n"      /* 28 chars */
+    "  RFLAGS = %.16llx\n"     /* 28 chars */
+    "  SS     = %16.4x\n";     /* 28 chars */
+                      /* Total:  135 chars */
+  static char buffer[136];
+
+  snprintf (buffer, 136, fmt, iframe->rip, iframe->cs, iframe->rflags, iframe->ss);
+
+  return buffer;
+}
+
+
 void
 kernel_exception_handler(int const vector, int const error_code, struct interrupt_frame *const iframe)
 {
@@ -92,72 +156,21 @@ kernel_exception_handler(int const vector, int const error_code, struct interrup
     case INVALID_TSS:
     case SEGMENT_NOT_PRESENT:
     case GENERAL_PROTECTION:
-      if (error_code)
-	{
-	  panic ("%s! From %s the processor\n"
-		 "%s Selector = %u\n\n"
-		 "Interrupt Stack Frame:\n"
-		 "  RIP    = %.16llx\n"
-		 "  CS     = %16.4x\n"
-		 "  RFLAGS = %.16llx\n"
-		 "  SS     = %16.4x\n",
-		 exception_names[vector],
-		 (error_code & (1 << 0)) ? "outside" : "inside",
-		 selector_type_names[(error_code >> 1) & 0x3],
-		 (error_code >> 3) & 0x1FFF,
-		 iframe->rip,
-		 iframe->cs,
-		 iframe->rflags,
-		 iframe->ss);
-	}
-      else
-	{
-	  panic ("%s! No selector index passed\n",
-		 "Interrupt Stack Frame:\n"
-		 "  RIP    = %.16llx\n"
-		 "  CS     = %16.4x\n"
-		 "  RFLAGS = %.16llx\n"
-		 "  SS     = %16.4x\n",
-		 exception_names[vector],
-		 iframe->rip,
-		 iframe->cs,
-		 iframe->rflags,
-		 iframe->ss);
-	}
-		 
+      panic ("%s! %s\n\n%s",
+	     exception_name(vector),
+	     selector_error_message(error_code),
+	     interrupt_stack_frame(iframe));
       break;
     case PAGE:
-      panic ("Page Fault!\n"
-	     "Illegal %s on a %s page while in %s mode.\n"
-	     "%s%s"
-	     "Interrupt Stack Frame:\n"
-	     "  RIP    = %.16llx\n"
-	     "  CS     = %16.4x\n"
-	     "  RFLAGS = %.16llx\n"
-	     "  SS     = %16.4x\n",
-	     (error_code & (1 << 1)) ? "write" : "read",
-	     (error_code & (1 << 0)) ? "present" : "non-present",
-	     (error_code & (1 << 2)) ? "user" : "supervisor",
-	     (error_code & (1 << 3)) ? "Processor read a 1 from a reserved field within a page-translation-table entry\n" : "",
-	     (error_code & (1 << 4)) ? "This fault was caused by an instruction fetch\n" : "\n",
-	     iframe->rip,
-	     iframe->cs,
-	     iframe->rflags,
-	     iframe->ss);
+      panic ("Page Fault! %s\n\n%s",
+	     page_fault_error_message(error_code),
+	     interrupt_stack_frame(iframe));
       break;
     default:
-      panic ("%s! Vector: %u Error Code: %#x\n\n"
-	     "Interrupt Stack Frame:\n"
-	     "  RIP    = %.16llx\n"
-	     "  CS     = %16.4x\n"
-	     "  RFLAGS = %.16llx\n"
-	     "  SS     = %16.4x",
-	     exception_names[vector],
+      panic ("%s! Vector: %u Error Code: %#x\n\n%s",
+	     exception_name(vector),
 	     vector,
 	     error_code,
-	     iframe->rip,
-	     iframe->cs,
-	     iframe->rflags,
-	     iframe->ss);
+	     interrupt_stack_frame(iframe));
     }
 }
