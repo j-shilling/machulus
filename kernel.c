@@ -1,7 +1,3 @@
 #include <stdio.h>
 
-void
-kernel_main (void)
-{
-  printf ("Hello, World!");
-}
+void kernel_main(void) { printf("Hello, World!"); }
