@@ -1,0 +1,7 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.13.4)
+PROJECT(machulus VERSION 0.0.1 LANGUAGES C ASM-ATT)
+
+include_directories(include)
+
+ADD_SUBDIRECTORY(src/kernel)
+ADD_SUBDIRECTORY(src/libc)
