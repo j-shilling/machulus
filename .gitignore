@@ -3,6 +3,11 @@ machulus.iso
 iso/boot/machulus
 **/ldscript
 
+# CMake stuff
+CMakeCache.txt
+**/CMakeFiles
+**/cmake_install.cmake
+
 # Autotools stuff
 build-aux
 **/Makefile
