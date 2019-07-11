@@ -10,5 +10,7 @@ set(LIBC_SOURCES errno/errno.c
   stdio/vprintf.c
   stdio/vsnprintf.c)
 
-add_library(c STATIC
+add_library(k STATIC
   ${LIBC_SOURCES})
+
+target_compile_options(k PRIVATE -mcmodel=kernel -mno-red-zone -ffreestanding -no-pie -fno-pic -fno-stack-protector)
