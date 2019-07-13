@@ -1,0 +1,3 @@
+#cmakedefine01 __32bits__
+#cmakedefine01 __64bits__
+#cmakedefine01 __debug__

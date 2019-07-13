@@ -13,7 +13,6 @@ build-aux
 **/Makefile
 **/Makefile.in
 config.h
-config.h.in
 aclocal.m4
 autom4te.cache
 config.log
