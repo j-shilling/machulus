@@ -1,0 +1,8 @@
+# CMake
+CMakeCache.txt
+CMakeFiles
+cmake_install.cmake
+Makefile
+
+# ccls
+.ccls-cache
