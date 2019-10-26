@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 set(project "machulus")
 set(kernel "machulus")
 set(iso-file "${project}.iso")
-set(iso-dir "${CMAKE_BINARY_DIR}/iso")
+set(iso-dir "${CMAKE_SOURCE_DIR}/iso")
 
 project(${project}
   VERSION 0.1
