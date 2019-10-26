@@ -28,9 +28,15 @@ set_target_properties(${kernel}
   PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${iso-dir}/boot")
 
-add_custom_command(OUTPUT ${iso-file}
-  COMMAND grub-mkrescue -o ${iso-file} ${iso-dir}
-  DEPENDS ${kernel})
+# Check if grub-mkrescue is on the system and, if it is, create a make
+# target to generate an .ISO file
+find_program(grub-mkrescue
+  grub-mkrescue)
+if (NOT ${grub-mkrescue} EQUAL "grub-mkrescue-NOTFOUND")
+  add_custom_command(OUTPUT ${iso-file}
+    COMMAND ${grub-mkrescue} -o ${iso-file} ${iso-dir}
+    DEPENDS ${kernel})
 
-add_custom_target(iso
-  DEPENDS ${iso-file})
+  add_custom_target(iso
+    DEPENDS ${iso-file})
+endif()
