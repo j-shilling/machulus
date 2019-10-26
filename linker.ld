@@ -1,3 +1,4 @@
+OUTPUT_FORMAT(elf32-i386)
 /* The bootloader will start execution at the symbol designated as the entry point. In this case, that's 'start' (defined in start.s) */
 ENTRY(start)
 
