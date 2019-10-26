@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(project "machulus")
+set(project "Machulus")
 set(kernel "machulus")
 set(iso-file "${project}.iso")
 set(iso-dir "${CMAKE_SOURCE_DIR}/iso")
@@ -32,6 +32,10 @@ set_target_properties(${kernel}
 find_program(grub-mkrescue
   grub-mkrescue)
 if (NOT ${grub-mkrescue} EQUAL "grub-mkrescue-NOTFOUND")
+  # Create grub.cfg for iso image
+  configure_file(${CMAKE_SOURCE_DIR}/grub.cfg.in ${iso-dir}/boot/grub/grub.cfg
+    NEWLINE_STYLE UNIX)
+
   add_custom_command(OUTPUT ${iso-file}
     COMMAND ${grub-mkrescue} -o ${iso-file} ${iso-dir}
     DEPENDS ${kernel} ${iso-dir}/boot/grub/grub.cfg)
