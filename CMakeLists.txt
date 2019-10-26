@@ -35,8 +35,20 @@ find_program(grub-mkrescue
 if (NOT ${grub-mkrescue} EQUAL "grub-mkrescue-NOTFOUND")
   add_custom_command(OUTPUT ${iso-file}
     COMMAND ${grub-mkrescue} -o ${iso-file} ${iso-dir}
-    DEPENDS ${kernel})
+    DEPENDS ${kernel} ${iso-dir}/boot/grub/grub.cfg)
 
   add_custom_target(iso
     DEPENDS ${iso-file})
+
+  # Check if qemu is on the system and, if it is, create a make target
+  # to run the generated .ISO image
+  find_program(qemu
+    qemu-system-x86_64)
+  if (NOT ${qemu} EQUAL "qemu-NOTFOUND")
+
+    message ("${CMAKE_HOST_SYSTEM}")
+    add_custom_target(qemu
+      COMMAND ${qemu} -cpu host -enable-kvm -cdrom ${iso-file}
+      DEPENDS ${iso-file})
+  endif()
 endif()
