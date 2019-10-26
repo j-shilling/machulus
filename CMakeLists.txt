@@ -8,7 +8,6 @@ set(iso-dir "${CMAKE_SOURCE_DIR}/iso")
 project(${project}
   VERSION 0.1
   DESCRIPTION "An x86_64 microkernel"
-  HOMEPAGE_URL https://gitlab.com/shilling.jake/machulus
   LANGUAGES C ASM-ATT)
 
 set(CMAKE_C_COMPILER x86_64-elf-gcc)
