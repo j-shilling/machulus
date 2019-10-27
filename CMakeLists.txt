@@ -18,10 +18,10 @@ add_executable(${kernel}
   kernel.c)
 
 target_compile_options(${kernel}
-  PRIVATE -ffreestanding -m32 -c)
+  PRIVATE -ffreestanding -mcmodel=kernel -mno-red-zone -c)
 
 target_link_options(${kernel}
-  PRIVATE -nostdlib -ffreestanding -T ${CMAKE_SOURCE_DIR}/linker.ld)
+  PRIVATE -nostdlib -ffreestanding -n -T ${CMAKE_SOURCE_DIR}/linker.ld)
 
 set_target_properties(${kernel}
   PROPERTIES

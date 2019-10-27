@@ -1,53 +1,196 @@
-// We declare the 'kernel_main' label as being external to this file.
-// That's because it's the name of the main C function in 'kernel.c'.
 .extern kernel_main
 
-// We declare the 'start' label as global (accessible from outside this file), since the linker will need to know where it is.
-// In a bit, we'll actually take a look at the code that defines this label.
 .global start
 
-// Our bootloader, GRUB, needs to know some basic information about our kernel before it can boot it.
-// We give GRUB this information using a standard known as 'Multiboot'.
-// To define a valid 'Multiboot header' that will be recognised by GRUB, we need to hard code some
-// constants into the executable. The following code calculates those constants.
-.set MB_MAGIC, 0x1BADB002          // This is a 'magic' constant that GRUB will use to detect our kernel's location.
-.set MB_FLAGS, (1 << 0) | (1 << 1) // This tells GRUB to 1: load modules on page boundaries and 2: provide a memory map (this is useful later in development)
-// Finally, we calculate a checksum that includes all the previous values
+.set KERNEL_OFFSET, 0xffffffff80000000
+
+.set MB_MAGIC, 0x1BADB002
+.set MB_FLAGS, (1 << 0) | (1 << 1)
+
 .set MB_CHECKSUM, (0 - (MB_MAGIC + MB_FLAGS))
 
-// We now start the section of the executable that will contain our Multiboot header
+	.section .boot_gdt
+	.align 16
+boot_gdt:
+	.quad 0			// null descriptor
+
+	.word 0xffff		// 32-bit code
+	.word 0x0
+	.byte 0x0
+	.byte 0x9a
+	.byte 0xcf
+	.byte 0x0
+
+	.word 0xffff		// 64-bit code
+	.word 0x0
+	.byte 0x0
+	.byte 0x9a
+	.byte 0xaf
+	.byte 0
+
+	.word 0xffff		// data segment
+	.word 0x0
+	.byte 0x0
+	.byte 0x92
+	.byte 0xcf
+	.byte 0x0
+
+	.word 0x0068		// TSS selector
+	.word 0x0
+	.byte 0x0
+	.byte 0x89
+	.word 0x0
+	.quad 0x0
+	.quad 0x0
+boot_gdt_end:
+
+boot_gdt_descr:
+	.word boot_gdt_end -boot_gdt
+	.quad boot_gdt - KERNEL_OFFSET
+boot_gdt_descr_higher_half:
+	.word boot_gdt_end -boot_gdt
+	.quad boot_gdt
+
+
 .section .multiboot
-	.align 4 // Make sure the following data is aligned on a multiple of 4 bytes
-	// Use the previously calculated constants in executable code
+	.align 4
+
 	.long MB_MAGIC
 	.long MB_FLAGS
-	// Use the checksum we calculated earlier
+
 	.long MB_CHECKSUM
 
-// This section contains data initialised to zeroes when the kernel is loaded
-.section .bss
-	// Our C code will need a stack to run. Here, we allocate 4096 bytes (or 4 Kilobytes) for our stack.
-	// We can expand this later if we want a larger stack. For now, it will be perfectly adequate.
+	.section .bss
 	.align 16
-	stack_bottom:
-		.skip 4096 // Reserve a 4096-byte (4K) stack
-	stack_top:
+boot_stack_bottom:
+	.skip 0x1000
+boot_stack_top:
 
-// This section contains our actual assembly code to be run when our kernel loads
-.section .text
-	// Here is the 'start' label we mentioned before. This is the first code that gets run in our kernel.
-	start:
-		// First thing's first: we want to set up an environment that's ready to run C code.
-		// C is very relaxed in its requirements: All we need to do is to set up the stack.
-		// Please note that on x86, the stack grows DOWNWARD. This is why we start at the top.
-		mov $stack_top, %esp // Set the stack pointer to the top of the stack
+	.section .rodata
+error_no_cpuid_message:		.asciz "Cannot detect system features."
+error_no_long_mode_message:	.asciz "Cannot start long mode on this system."
+debug_message:			.asciz "Hello, World"
 
-		// Now we have a C-worthy (haha!) environment ready to run the rest of our kernel.
-		// At this point, we can call our main C function.
+	.section .text
+	.code32
+	.global _start
+	.type _start, @function
+_start:
+	cli
+
+	//// Load out GDT and set the code segment descriptor
+	lgdt	boot_gdt_descr - KERNEL_OFFSET
+	ljmp	$8,$(cs_set - KERNEL_OFFSET)
+cs_set:
+	//// Now clear the data segment descriptor
+	movw	$0,%ax
+	movw	%ax,%ds
+	movw	%ax,%es
+	movw	%ax,%fs
+	movw	%ax,%gs
+	//// Set data segment descriptor
+	movw	$24,%ax
+	movw	%ax,%ds
+	movw	%ax,%es
+	movw	%ax,%fs
+	movw	%ax,%gs
+
+	//// Set up a stack
+	movl	$(boot_stack_top - KERNEL_OFFSET),%esp
+	movl	$(boot_stack_bottom - KERNEL_OFFSET),%ebp
+
+	//// Check for the existance of CPUID by seeing if we can flip bit 21 in EFLAGS
+	//// First get EFLAGS in eax, save a copy in ecx, then try to change bit 21
+	pushf
+	pop	%eax
+	movl	%eax,%ecx
+	xor	$(1 << 21),%eax
+	push	%eax
+	popf
+	//// Get the potentially new value of EFLAGS and return it to it's original state
+	pushf
+	pop	%eax
+	push	%ecx
+	popf
+	//// If ecx == eax then CPUID is not supported
+	xor	%eax,%ecx
+	jz	error_no_cpuid
+
+	//// Use CPUID to check whether long mode is supported. Long mode is checked by
+	//// calling cpuid with eax = 0x8000_0001, so we first need to check that functions
+	//// greater than 0x8000_0000 are supported//
+	movl	$0x80000000,%eax
+	cpuid
+	cmpl	$0x80000001,%eax
+	jl	error_no_long_mode
+
+	jmp	debug
+
 		call kernel_main
 
-		// If, by some mysterious circumstances, the kernel's C code ever returns, all we want to do is to hang the CPU
 		hang:
-			cli      // Disable CPU interrupts
-			hlt      // Halt the CPU
-			jmp hang // If that didn't work, loop around and try again.
+			cli
+			hlt
+			jmp hang
+
+error_no_cpuid:
+	movl	$(error_no_cpuid_message - KERNEL_OFFSET),%eax
+	push	%eax
+	call	_boot_puts
+	addl	$4,%esp
+	jmp	halt32
+error_no_long_mode:
+	movl	$(error_no_long_mode_message - KERNEL_OFFSET),%eax
+	push	%eax
+	call	_boot_puts
+	addl	$4,%esp
+	jmp	halt32
+debug:
+	movl	$(debug_message - KERNEL_OFFSET),%eax
+	push	%eax
+	call	_boot_puts
+	addl	$4,%esp
+	jmp	halt32
+halt32:
+	cli
+1:	hlt
+	jmp 1b
+
+	.size _start, . - _start
+
+	//// We need a function that can print an error to the screen while still
+	//// in 32-bit mode.
+	.type _boot_puts, @function
+_boot_puts:
+	push	%ebp
+	movl	%esp,%ebp
+
+	//// Clear the screen by filling it with spaces (ascii = 0x20)
+	//// Write (80 * 25) / 2 = 1000 times
+	movl	$0xb8000,%edi
+	movl	$0x07200720,%edx
+	movl	$1000,%ecx
+clear_screen:
+	movl	%edx,(%edi)
+	addl	$4,%edi
+	loop	clear_screen
+
+	//// Next we need the address of the string passed on the stack
+	movl	8(%esp),%esi
+	movl	$0xb8000,%edi
+	movb	$0x07,%ah
+putchar:
+	movb	(%esi),%al
+	cmpb	$0,%al
+	je	no_more_chars
+
+	movw	%ax,(%edi)
+	add	$2,%edi
+	inc	%esi
+	jmp	putchar
+
+no_more_chars:
+	pop	%ebp
+	ret
+
+	.size _boot_puts, . - _boot_puts
