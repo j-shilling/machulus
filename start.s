@@ -27,44 +27,44 @@ multiboot_header_end:
 	.section .boot_gdt
 	.align 16
 boot_gdt:
-	.quad 0			// null descriptor
+	.8byte 0			// null descriptor
 
-	.word 0xffff		// 32-bit code
-	.word 0x0
+	.2byte 0xffff		// 32-bit code
+	.2byte 0x0
 	.byte 0x0
 	.byte 0x9a
 	.byte 0xcf
 	.byte 0x0
 
-	.word 0xffff		// 64-bit code
-	.word 0x0
+	.2byte 0xffff		// 64-bit code
+	.2byte 0x0
 	.byte 0x0
 	.byte 0x9a
 	.byte 0xaf
 	.byte 0
 
-	.word 0xffff		// data segment
-	.word 0x0
+	.2byte 0xffff		// data segment
+	.2byte 0x0
 	.byte 0x0
 	.byte 0x92
 	.byte 0xcf
 	.byte 0x0
 
-	.word 0x0068		// TSS selector
-	.word 0x0
+	.2byte 0x0068		// TSS selector
+	.2byte 0x0
 	.byte 0x0
 	.byte 0x89
-	.word 0x0
-	.quad 0x0
-	.quad 0x0
+	.2byte 0x0
+	.8byte 0x0
+	.8byte 0x0
 boot_gdt_end:
 
 boot_gdt_descr:
-	.word boot_gdt_end -boot_gdt
-	.quad boot_gdt - KERNEL_OFFSET
+	.2byte boot_gdt_end -boot_gdt
+	.8byte boot_gdt - KERNEL_OFFSET
 boot_gdt_descr_higher_half:
-	.word boot_gdt_end -boot_gdt
-	.quad boot_gdt
+	.2byte boot_gdt_end -boot_gdt
+	.8byte boot_gdt
 
 	.section .bss
 	.align 16
