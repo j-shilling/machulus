@@ -1,10 +1,11 @@
-.extern kernel_main
+	.extern kernel_main
 
-.global start
+	.global start
 
-.set KERNEL_OFFSET, 0xffffffff80000000
+	.set KERNEL_OFFSET, 0xffffffff80000000
 
 	.set MB_HEADER_MAGIC, 0xe85250d6
+	.set MB_BOOTLOADER_MAGIC, 0x36d76289
 	.set MB_ARCH, 0x0
 	.set MB_HEADER_SIZE, (multiboot_header_end - multiboot_header_start)
 	.set MB_CHECKSUM, -(MB_HEADER_MAGIC + MB_ARCH + MB_HEADER_SIZE)
@@ -72,6 +73,7 @@ boot_stack_bottom:
 boot_stack_top:
 
 	.section .rodata
+error_no_multiboot_message:	.asciz "This was not booted from a Multiboot2 bootloaded."
 error_no_cpuid_message:		.asciz "Cannot detect system features."
 error_no_long_mode_message:	.asciz "Cannot start long mode on this system."
 debug_message:			.asciz "Hello, World"
@@ -82,6 +84,9 @@ debug_message:			.asciz "Hello, World"
 	.type _start, @function
 _start:
 	cli
+	// Check Multiboot2 magic number
+	cmpl	$(MB_BOOTLOADER_MAGIC),%eax
+	jne	error_no_multiboot
 
 	// Load out GDT and set the code segment descriptor
 	lgdt	boot_gdt_descr - KERNEL_OFFSET
@@ -131,13 +136,12 @@ cs_set:
 
 	jmp	debug
 
-		call kernel_main
-
-		hang:
-			cli
-			hlt
-			jmp hang
-
+error_no_multiboot:
+	movl	$(error_no_multiboot_message - KERNEL_OFFSET),%eax
+	push	%eax
+	call	_boot_puts
+	addl	$4,%esp
+	jmp	halt32
 error_no_cpuid:
 	movl	$(error_no_cpuid_message - KERNEL_OFFSET),%eax
 	push	%eax
