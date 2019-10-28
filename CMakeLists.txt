@@ -16,6 +16,7 @@ set(CMAKE_ASM-ATT_COMPILER x86_64-elf-gcc)
 add_executable(${kernel}
   start.s
   multiboot_memory_map.s
+  multiboot_available_ram.s
   kernel.c)
 
 target_compile_options(${kernel}

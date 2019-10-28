@@ -1,6 +1,6 @@
 	// void *multiboot_memory_map(void *);
 
-	// Takes a pointennr to the multiboot structure given by the bootloader
+	// Takes a pointer to the multiboot structure given by the bootloader
 	// and returns a pointer to the memory map tag, or NULL if no memory
 	// map is found.
 

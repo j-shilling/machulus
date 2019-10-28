@@ -1,5 +1,6 @@
 	.extern kernel_main
 	.extern _multiboot_memory_map
+	.extern _multiboot_available_ram
 
 	.global start
 
