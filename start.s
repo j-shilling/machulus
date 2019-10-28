@@ -1,4 +1,5 @@
 	.extern kernel_main
+	.extern _multiboot_memory_map
 
 	.global start
 
@@ -109,6 +110,9 @@ cs_set:
 	movl	$(boot_stack_top - KERNEL_OFFSET),%esp
 	movl	$(boot_stack_bottom - KERNEL_OFFSET),%ebp
 
+	// push the address of multiboot structure.
+	push	%ebx
+
 	// Check for the existance of CPUID by seeing if we can flip bit 21 in EFLAGS
 	// First get EFLAGS in eax, save a copy in ecx, then try to change bit 21
 	pushf
@@ -133,6 +137,11 @@ cs_set:
 	cpuid
 	cmpl	$0x80000001,%eax
 	jl	error_no_long_mode
+
+	// Try to find the memory map
+	// ebx was already pushed
+	call	_multiboot_memory_map
+	addl	$4,%esp
 
 	jmp	debug
 

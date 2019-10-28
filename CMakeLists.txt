@@ -15,10 +15,11 @@ set(CMAKE_ASM-ATT_COMPILER x86_64-elf-gcc)
 
 add_executable(${kernel}
   start.s
+  multiboot_memory_map.s
   kernel.c)
 
 target_compile_options(${kernel}
-  PRIVATE -ffreestanding -mcmodel=kernel -mno-red-zone -c)
+  PRIVATE -ffreestanding -mcmodel=kernel -mno-red-zone -ggdb3 -c)
 
 target_link_options(${kernel}
   PRIVATE -nostdlib -ffreestanding -n -T ${CMAKE_SOURCE_DIR}/linker.ld)
@@ -49,9 +50,11 @@ if (NOT ${grub-mkrescue} EQUAL "grub-mkrescue-NOTFOUND")
     qemu-system-x86_64)
   if (NOT ${qemu} EQUAL "qemu-NOTFOUND")
 
-    message ("${CMAKE_HOST_SYSTEM}")
     add_custom_target(qemu
       COMMAND ${qemu} -cpu host -enable-kvm -cdrom ${iso-file}
+      DEPENDS ${iso-file})
+    add_custom_target(debug
+      COMMAND ${qemu} -cpu host -enable-kvm -cdrom ${iso-file} -monitor stdio -d int -s -S
       DEPENDS ${iso-file})
   endif()
 endif()
