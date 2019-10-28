@@ -7,7 +7,8 @@ SECTIONS
 	. = 0xffffffff80100000;
 
 	.text : AT(ADDR(.text) - 0xffffffff80000000) {
-	      KEEP(*(.multiboot))
+	      . = ALIGN(8);
+	      KEEP(*(.multiboot_header))
 	      *(.text)
 	}
 

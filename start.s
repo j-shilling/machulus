@@ -4,10 +4,24 @@
 
 .set KERNEL_OFFSET, 0xffffffff80000000
 
-.set MB_MAGIC, 0x1BADB002
-.set MB_FLAGS, (1 << 0) | (1 << 1)
+	.set MB_HEADER_MAGIC, 0xe85250d6
+	.set MB_ARCH, 0x0
+	.set MB_HEADER_SIZE, (multiboot_header_end - multiboot_header_start)
+	.set MB_CHECKSUM, -(MB_HEADER_MAGIC + MB_ARCH + MB_HEADER_SIZE)
+	.set MB_TAG_END, 0x0
 
-.set MB_CHECKSUM, (0 - (MB_MAGIC + MB_FLAGS))
+	.section .multiboot_header
+	.align 8
+multiboot_header_start:
+	.4byte MB_HEADER_MAGIC
+	.4byte MB_ARCH
+	.4byte MB_HEADER_SIZE
+	.4byte MB_CHECKSUM
+
+	.2byte MB_TAG_END
+	.2byte 0
+	.4byte 8
+multiboot_header_end:
 
 	.section .boot_gdt
 	.align 16
@@ -51,15 +65,6 @@ boot_gdt_descr_higher_half:
 	.word boot_gdt_end -boot_gdt
 	.quad boot_gdt
 
-
-.section .multiboot
-	.align 4
-
-	.long MB_MAGIC
-	.long MB_FLAGS
-
-	.long MB_CHECKSUM
-
 	.section .bss
 	.align 16
 boot_stack_bottom:
@@ -78,47 +83,47 @@ debug_message:			.asciz "Hello, World"
 _start:
 	cli
 
-	//// Load out GDT and set the code segment descriptor
+	// Load out GDT and set the code segment descriptor
 	lgdt	boot_gdt_descr - KERNEL_OFFSET
 	ljmp	$8,$(cs_set - KERNEL_OFFSET)
 cs_set:
-	//// Now clear the data segment descriptor
+	// Now clear the data segment descriptor
 	movw	$0,%ax
 	movw	%ax,%ds
 	movw	%ax,%es
 	movw	%ax,%fs
 	movw	%ax,%gs
-	//// Set data segment descriptor
+	// Set data segment descriptor
 	movw	$24,%ax
 	movw	%ax,%ds
 	movw	%ax,%es
 	movw	%ax,%fs
 	movw	%ax,%gs
 
-	//// Set up a stack
+	// Set up a stack
 	movl	$(boot_stack_top - KERNEL_OFFSET),%esp
 	movl	$(boot_stack_bottom - KERNEL_OFFSET),%ebp
 
-	//// Check for the existance of CPUID by seeing if we can flip bit 21 in EFLAGS
-	//// First get EFLAGS in eax, save a copy in ecx, then try to change bit 21
+	// Check for the existance of CPUID by seeing if we can flip bit 21 in EFLAGS
+	// First get EFLAGS in eax, save a copy in ecx, then try to change bit 21
 	pushf
 	pop	%eax
 	movl	%eax,%ecx
 	xor	$(1 << 21),%eax
 	push	%eax
 	popf
-	//// Get the potentially new value of EFLAGS and return it to it's original state
+	// Get the potentially new value of EFLAGS and return it to it's original state
 	pushf
 	pop	%eax
 	push	%ecx
 	popf
-	//// If ecx == eax then CPUID is not supported
+	// If ecx == eax then CPUID is not supported
 	xor	%eax,%ecx
 	jz	error_no_cpuid
 
-	//// Use CPUID to check whether long mode is supported. Long mode is checked by
-	//// calling cpuid with eax = 0x8000_0001, so we first need to check that functions
-	//// greater than 0x8000_0000 are supported//
+	// Use CPUID to check whether long mode is supported. Long mode is checked by
+	// calling cpuid with eax = 0x8000_0001, so we first need to check that functions
+	// greater than 0x8000_0000 are supported
 	movl	$0x80000000,%eax
 	cpuid
 	cmpl	$0x80000001,%eax
@@ -158,15 +163,15 @@ halt32:
 
 	.size _start, . - _start
 
-	//// We need a function that can print an error to the screen while still
-	//// in 32-bit mode.
+	// We need a function that can print an error to the screen while still
+	// in 32-bit mode.
 	.type _boot_puts, @function
 _boot_puts:
 	push	%ebp
 	movl	%esp,%ebp
 
-	//// Clear the screen by filling it with spaces (ascii = 0x20)
-	//// Write (80 * 25) / 2 = 1000 times
+	// Clear the screen by filling it with spaces (ascii = 0x20)
+	// Write (80 * 25) / 2 = 1000 times
 	movl	$0xb8000,%edi
 	movl	$0x07200720,%edx
 	movl	$1000,%ecx
@@ -175,7 +180,7 @@ clear_screen:
 	addl	$4,%edi
 	loop	clear_screen
 
-	//// Next we need the address of the string passed on the stack
+	// Next we need the address of the string passed on the stack
 	movl	8(%esp),%esi
 	movl	$0xb8000,%edi
 	movb	$0x07,%ah
