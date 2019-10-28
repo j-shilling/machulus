@@ -49,7 +49,6 @@ if (NOT ${grub-mkrescue} EQUAL "grub-mkrescue-NOTFOUND")
     qemu-system-x86_64)
   if (NOT ${qemu} EQUAL "qemu-NOTFOUND")
 
-    message ("${CMAKE_HOST_SYSTEM}")
     add_custom_target(qemu
       COMMAND ${qemu} -cpu host -enable-kvm -cdrom ${iso-file}
       DEPENDS ${iso-file})
