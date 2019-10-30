@@ -144,6 +144,21 @@ cs_set:
 	call	_multiboot_memory_map
 	addl	$4,%esp
 
+	push	%eax
+get_next_entry:
+	// memory map already pushed
+	call	_multiboot_available_ram
+	cmpl	$0,%eax
+	je	no_more_memory
+
+	push	%eax
+get_next_page:
+	call	_multiboot_memory_map_entry_next_page
+	cmpl	$0,%eax
+	jne	get_next_page
+	jmp	get_next_entry
+no_more_memory:
+
 	jmp	debug
 
 error_no_multiboot:

@@ -5,7 +5,7 @@ ENTRY(_start)
 SECTIONS
 {
 	. = 0xffffffff80100000;
-
+	_KERNEL_START = .;
 	.text : AT(ADDR(.text) - 0xffffffff80000000) {
 	      . = ALIGN(8);
 	      KEEP(*(.multiboot_header))
@@ -24,4 +24,5 @@ SECTIONS
 	.bss ALIGN(4K) : AT(ADDR(.bss) - 0xffffffff80000000) {
 		*(.bss)
 	}
+	_KERNEL_END = .;
 }
