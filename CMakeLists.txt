@@ -22,15 +22,15 @@ endif()
 set(CMAKE_C_COMPILER ${xcc})
 set(CMAKE_ASM-ATT_COMPILER ${xcc})
 
+add_subdirectory(boot)
+
 add_executable(${kernel}
-  start.s
-  multiboot_memory_map.s
-  multiboot_available_ram.s
-  multiboot_memory_map_entry_next_page.s
   kernel.c)
 
 target_compile_options(${kernel}
   PRIVATE -ffreestanding -mcmodel=kernel -mno-red-zone -ggdb3 -c)
+
+target_link_libraries(${kernel} boot)
 
 target_link_options(${kernel}
   PRIVATE -nostdlib -ffreestanding -n -T ${CMAKE_SOURCE_DIR}/linker.ld)
