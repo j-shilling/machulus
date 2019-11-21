@@ -1,45 +1,28 @@
-OUTPUT_FORMAT(elf32-i386)
-/* The bootloader will start execution at the symbol designated as the entry point. In this case, that's 'start' (defined in start.s) */
-ENTRY(start)
+OUTPUT_FORMAT("elf64-x86-64")
 
-/* Tell the linker part of the compiler where the various sections of the kernel will be put in the final kernel executable. */
+ENTRY(_start)
+
 SECTIONS
 {
-	/* Begin putting sections at 1 Megabyte (1M), a good place for kernels to be loaded at by the bootloader. */
-	/* This is because memory below 1 Megabyte is reserved for other x86-related things, so we can't use it */
-	. = 1M;
-
-	/* We align all sections in the executable at multiples of 4 Kilobytes (4K). This will become useful later in development when we add paging */
-
-	/* First put the multiboot header, as it's required to be near the start of the executable otherwise the bootloader won't find it */
-	/* The Multiboot header is Read-Only data, so we can put it in a '.rodata' section. */
-	.rodata BLOCK(4K) : ALIGN(4K)
-	{
-		*(.multiboot)
+	. = 0xffffffff80100000;
+	_KERNEL_START = .;
+	.text : AT(ADDR(.text) - 0xffffffff80000000) {
+	      . = ALIGN(8);
+	      KEEP(*(.multiboot_header))
+	      *(.text)
 	}
 
-	/* Executable code */
-	.text BLOCK(4K) : ALIGN(4K)
-	{
-		*(.text)
-	}
-
-	/* Read-only data. */
-	.rodata BLOCK(4K) : ALIGN(4K)
-	{
+	.rodata ALIGN(4K) : AT(ADDR(.rodata) - 0xffffffff80000000) {
 		*(.rodata)
 	}
 
-	/* Read-write data (initialized) */
-	.data BLOCK(4K) : ALIGN(4K)
-	{
-		*(.data)
+	.data ALIGN(4k) : AT(ADDR(.data) - 0xffffffff80000000) {
+	      *(.boot_gdt)
+	      *(.data)
 	}
 
-	/* Read-write data (uninitialized) and stack */
-	.bss BLOCK(4K) : ALIGN(4K)
-	{
-		*(COMMON)
+	.bss ALIGN(4K) : AT(ADDR(.bss) - 0xffffffff80000000) {
 		*(.bss)
 	}
+	_KERNEL_END = .;
 }

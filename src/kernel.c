@@ -3,13 +3,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// First, let's do some basic checks to make sure we are using our x86-elf cross-compiler correctly
-#if defined(__linux__)
-	#error "This code must be compiled with a cross-compiler"
-#elif !defined(__i386__)
-	#error "This code must be compiled with an x86-elf compiler"
-#endif
-
 // This is the x86's VGA textmode buffer. To display text, we write data to this memory location
 volatile uint16_t* vga_buffer = (uint16_t*)0xB8000;
 // By default, the VGA textmode buffer has a size of 80x25 characters
