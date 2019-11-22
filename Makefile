@@ -74,11 +74,14 @@ LDSCRIPT := $(TARGETDIR)/linker.ld
 GRUBCFG  := $(TARGETDIR)/grub.cfg
 KERNEL   := $(TARGETDIR)/$(TARGET)
 
+ISOFILES := /boot/$(TARGET) \
+	/boot/grub/grub.cfg
+
 #################################################
 ### RULES                                     ###
 #################################################
 
-.PHONY: all clean
+.PHONY: all clean info
 
 all: $(KERNEL)
 
@@ -95,6 +98,10 @@ clean:
 	-rm -rf $(ISODIR)
 	-rm -f  $(ISO)
 
+info:
+	$(info $$ISOFILES is [$(addprefix $(ISODIR), $(ISOFILES))])
+	$(info file names [$(addprefix $(TARGETDIR)/, $(notdir $(ISOFILES)))])
+
 ####
 ## BUILD BOOTABLE ISO
 ####
@@ -104,10 +111,7 @@ iso: $(ISO)
 $(ISO): $(ISODIR)/boot/$(TARGET) $(ISODIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $@ $(ISODIR)
 
-$(ISODIR)/boot/$(TARGET): $(KERNEL)
-	install -D $< $@
-
-$(ISODIR)/boot/grub/grub.cfg: $(GRUBCFG)
+$(addprefix $(ISODIR), $(ISOFILES)): $(addprefix $(TARGETDIR)/, $(notdir $(ISOFILES)))
 	install -D $< $@
 
 ####
