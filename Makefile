@@ -1,5 +1,14 @@
+
+#####
+### OUTPUT FILE NAMES
+#####
+
 TARGET    := machulus
 ISO       := $(TARGET).iso
+
+#####
+### DIRECTORY NAMES
+#####
 
 SRCDIR    := src
 INCDIR    := inc
@@ -8,13 +17,29 @@ BUILDDIR  := obj
 TARGETDIR := bin
 DEPDIR    := .deps
 
+#####
+### TOOLS
+#####
+
 XCC = x86_64-elf-gcc
+XCPP = $(XCC) -E
+
+#####
+### FLAGS AND OPTIONS
+#####
 
 CFLAGS ?= -O0 -ggdb3
 CFLAGS += -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic
 ASFLAGS ?= -ggdb3
 LDFLAGS := -n -nostdlib -lgcc
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
+
+#####
+### COMPILE COMMANDS
+#####
+
+XCOMPILE.c = $(XCC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) -c
+XCOMPILE.S = $(XCC) $(DEPFLAGS) $(ASFLAGS) $(CPPFLAGS) -c
 
 BOOTDIR := $(TARGETDIR)/boot
 
@@ -44,22 +69,20 @@ $(KERNEL): $(OBJ) $(LDSCRIPT)
 $(TARGETDIR)/boot/grub/grub.cfg: grub.cfg
 	install -D $< $@
 
-$(BUILDDIR)/%.o : $(SRCDIR)/%.c $(DEPDIR)/%.d | $(DEPDIR)
-	@mkdir -p $(dir $@)
-	$(XCC) -c $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $< -o $@
-
-$(BUILDDIR)/%.o : $(SRCDIR)/%.S
+$(BUILDDIR)/%.o : $(SRCDIR)/%.c $(DEPDIR)/%.d
 	@mkdir -p $(dir $@)
 	@mkdir -p $(dir $(patsubst $(SRCDIR)/%, $(DEPDIR)/%, $<))
-	$(XCC) -c $(DEPFLAGS) $(ASFLAGS) $(CPPFLAGS) $< -o $@
+	$(XCOMPILE.c) $< -o $@
+
+$(BUILDDIR)/%.o : $(SRCDIR)/%.S $(DEPDIR)/%.d
+	@mkdir -p $(dir $@)
+	@mkdir -p $(dir $(patsubst $(SRCDIR)/%, $(DEPDIR)/%, $<))
+	$(XCOMPILE.S) $< -o $@
 
 % : $(RESDIR)/%.in
-	$(XCC) -E $(CPPFLAGS) -P -x c -o $@ $<
+	$(XCPP) $(CPPFLAGS) -P -x c -o $@ $<
 
 $(DEPS):
-
-$(DEPDIR):
-	@mkdir -p $@
 
 clean:
 	-rm -rf $(TARGETDIR)
