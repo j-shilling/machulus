@@ -4,4 +4,6 @@
 # Build Files
 bin
 obj
-machulus.iso
+iso
+.deps
+*.iso
