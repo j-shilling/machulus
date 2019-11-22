@@ -6,7 +6,7 @@ INCDIR    := inc
 RESDIR    := res
 BUILDDIR  := obj
 TARGETDIR := bin
-ISODIR    := iso
+DEPDIR    := .deps
 
 XCC = x86_64-elf-gcc
 
@@ -14,11 +14,14 @@ CFLAGS ?= -O0 -ggdb3
 CFLAGS += -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic
 ASFLAGS ?= -ggdb3
 LDFLAGS := -n -nostdlib -lgcc
+DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 
 BOOTDIR := $(TARGETDIR)/boot
 
 SRC      := $(shell find $(SRCDIR) -name '*.[cS]')
 OBJ      := $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%.o, $(basename $(SRC)))
+DEPS     := $(patsubst $(BUILDDIR)/%.o, $(DEPDIR)/%.d, $(OBJ))
+
 LDSCRIPT := linker.ld
 GRUBCFG  := grub.cfg
 
@@ -41,22 +44,31 @@ $(KERNEL): $(OBJ) $(LDSCRIPT)
 $(TARGETDIR)/boot/grub/grub.cfg: grub.cfg
 	install -D $< $@
 
-$(BUILDDIR)/%.o : $(SRCDIR)/%.c
+$(BUILDDIR)/%.o : $(SRCDIR)/%.c $(DEPDIR)/%.d | $(DEPDIR)
 	@mkdir -p $(dir $@)
-	$(XCC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+	$(XCC) -c $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 $(BUILDDIR)/%.o : $(SRCDIR)/%.S
 	@mkdir -p $(dir $@)
-	$(XCC) -c $(ASFLAGS) $(CPPFLAGS) $< -o $@
+	@mkdir -p $(dir $(patsubst $(SRCDIR)/%, $(DEPDIR)/%, $<))
+	$(XCC) -c $(DEPFLAGS) $(ASFLAGS) $(CPPFLAGS) $< -o $@
 
 % : $(RESDIR)/%.in
 	$(XCC) -E $(CPPFLAGS) -P -x c -o $@ $<
 
+$(DEPS):
+
+$(DEPDIR):
+	@mkdir -p $@
+
 clean:
 	-rm -rf $(TARGETDIR)
 	-rm -rf $(BUILDDIR)
+	-rm -rf $(DEPDIR)
 	-rm -f $(ISO)
 	-rm -f $(LDSCRIPT)
 	-rm -f $(GRUBCFG)
 
 .PHONY: all clean
+
+include $(wildcard $(DEPS))
