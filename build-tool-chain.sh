@@ -118,21 +118,31 @@ main () {
 
     echo "== Looking For Required Tools =="
 
-    # WGET
+    # WGET or CURL
     echo -n "checking for wget... "
-    hash wget 2>/dev/null || eexit "wget not found"
-    __download="wget -q"
-    echo "ok"
+    if hash wget 2>/dev/null; then
+	echo "ok"
+	__download="wget -q"
+    else
+	echo "not found"
+	echo -n "checking for curl... "
+	if hash curl 2>/dev/null; then
+	    __download="curl -sO"
+	    echo "ok"
+	else
+	    eexit "not found"
+	fi
+    fi
 
     # MAKE
     echo -n "checking for make... "
-    hash make 2>/dev/null || eexit "make not found"
+    hash make 2>/dev/null || eexit "not found"
     __make="make"
     echo "ok"
 
     # TAR
     echo -n "checking for tar... "
-    hash tar 2>/dev/null || eexit "tar not found"
+    hash tar 2>/dev/null || eexit "not found"
     __tar="tar -xf"
     echo "ok"
 
@@ -150,6 +160,8 @@ main () {
     echo -n "Enter make options (${DEFAULT_MAKEOPTS}): "
     read __makeopts
     __makeopts="${__makeopts:-${DEFAULT_MAKEOPTS}}"
+
+    export PATH="${__prefix}/bin:$PATH"
 
     echo
     echo "== Building Toolchain =="
@@ -180,6 +192,10 @@ EOF
     run "${__download} ${GCC_URL}" "Downloading gcc"
     run "${__tar} ${GCC_ARCHIVE}" "Extracting gcc"
 
+    cd ${GCC_SOURCE}
+    run "contrib/download_prerequisites" "Downloading prerequisites"
+
+    cd ..
     mkdir gcc-build
     cd gcc-build
 
@@ -202,7 +218,7 @@ EOF
     local __libgcc_configure_pid=$!
     echo -n "Configuring libgcc... "
     spinner $__libgcc_configure_pid
-    sed -i 's/PICFLAG/DISABLED_PICFLAG/g' ${TARGET}/libgcc/Makefile
+    sed -i -e 's/PICFLAG/DISABLED_PICFLAG/g' ${TARGET}/libgcc/Makefile
     echo "done."
 
     run "${__libgcc_compile_cmd}" "Compile libgcc"
