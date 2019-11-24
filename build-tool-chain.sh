@@ -166,13 +166,17 @@ main () {
     echo
     echo "== Building Toolchain =="
     ## BINUTILS ##
-    run "${__download} ${BINUTILS_URL}" "Downloading binutils"
-    run "${__tar} ${BINUTILS_ARCHIVE}" "Extracting binutils"
+    echo -n "checking if ${TARGET}-as is already installed... "
+    if [ -e ${__prefix}/bin/${TARGET}-as ]; then
+	echo "already installed."
+    else
+	run "${__download} ${BINUTILS_URL}" "Downloading binutils"
+	run "${__tar} ${BINUTILS_ARCHIVE}" "Extracting binutils"
 
-    mkdir binutils-build
-    cd binutils-build
+	mkdir binutils-build
+	cd binutils-build
 
-    local __binutils_config_cmd=$(cat <<- EOF
+	local __binutils_config_cmd=$(cat <<- EOF
     ../${BINUTILS_SOURCE}/configure \
        --prefix=${__prefix} \
        --target=${TARGET} \
@@ -180,26 +184,31 @@ main () {
        --disable-werror \
        --with-sysroot
 EOF
-    )
+	      )
 
-    run "${__binutils_config_cmd}" "Configuring binutils"
-    run "${__make} ${__makeopts}" "Compiling binutils"
-    run "${__make} install" "Installing binutils"
+	run "${__binutils_config_cmd}" "Configuring binutils"
+	run "${__make} ${__makeopts}" "Compiling binutils"
+	run "${__make} install" "Installing binutils"
 
     cd ..
+    fi
 
     ## GCC ##
-    run "${__download} ${GCC_URL}" "Downloading gcc"
-    run "${__tar} ${GCC_ARCHIVE}" "Extracting gcc"
+    echo -n "check if ${TARGET}-gcc is already installed... "
+    if [ -e ${__prefix}/bin/${TARGET}-gcc ]; then
+	echo "already installed."
+    else
+	run "${__download} ${GCC_URL}" "Downloading gcc"
+	run "${__tar} ${GCC_ARCHIVE}" "Extracting gcc"
 
-    cd ${GCC_SOURCE}
-    run "contrib/download_prerequisites" "Downloading prerequisites"
+	cd ${GCC_SOURCE}
+	run "contrib/download_prerequisites" "Downloading prerequisites"
 
-    cd ..
-    mkdir gcc-build
-    cd gcc-build
+	cd ..
+	mkdir gcc-build
+	cd gcc-build
 
-    local __gcc_config_cmd=$(cat <<- EOF
+	local __gcc_config_cmd=$(cat <<- EOF
     ../${GCC_SOURCE}/configure \
        --prefix=${__prefix} \
        --target=${TARGET} \
@@ -207,28 +216,28 @@ EOF
        --disable-werror \
        --enable-languages=c
 EOF
-    )
+	      )
 
-    run "${__gcc_config_cmd}" "Configuring gcc"
-    run "${__make} ${__makeopts} all-gcc" "Compiling gcc"
+	run "${__gcc_config_cmd}" "Configuring gcc"
+	run "${__make} ${__makeopts} all-gcc" "Compiling gcc"
 
-    local __libgcc_compile_cmd='${__make} ${__makeopts} all-target-libgcc CFLAGS_FOR_TARGET="${LIBGCC_CFLAGS}"'
+	local __libgcc_compile_cmd='${__make} ${__makeopts} all-target-libgcc CFLAGS_FOR_TARGET="${LIBGCC_CFLAGS}"'
 
-    eval "${__libgcc_compile_cmd}" &>/dev/null &
-    local __libgcc_configure_pid=$!
-    echo -n "Configuring libgcc... "
-    spinner $__libgcc_configure_pid
-    sed -i -e 's/PICFLAG/DISABLED_PICFLAG/g' ${TARGET}/libgcc/Makefile
-    echo "done."
+	eval "${__libgcc_compile_cmd}" &>/dev/null &
+	local __libgcc_configure_pid=$!
+	echo -n "Configuring libgcc... "
+	spinner $__libgcc_configure_pid
+	sed -i -e 's/PICFLAG/DISABLED_PICFLAG/g' ${TARGET}/libgcc/Makefile
+	echo "done."
 
-    run "${__libgcc_compile_cmd}" "Compile libgcc"
+	run "${__libgcc_compile_cmd}" "Compile libgcc"
 
-    run "${__make} install-gcc" "Installing gcc"
-    run "${__make} install-target-libgcc" "Installing libgcc"
+	run "${__make} install-gcc" "Installing gcc"
+	run "${__make} install-target-libgcc" "Installing libgcc"
+    fi
 
     cd ${INITIAL_DIRECTORY}
     rm -rf ${WORKING_DIRECTORY}
-
     echo
     echo "Installation successful. Make sure that ${__prefix}/bin is in your PATH before running make"
     echo
