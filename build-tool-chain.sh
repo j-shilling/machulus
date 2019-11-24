@@ -228,6 +228,10 @@ EOF
 
     cd ${INITIAL_DIRECTORY}
     rm -rf ${WORKING_DIRECTORY}
+
+    echo
+    echo "Installation successful. Make sure that ${__prefix}/bin is in your PATH before running make"
+    echo
     exit 0
 }
 main
