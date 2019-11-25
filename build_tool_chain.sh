@@ -67,7 +67,7 @@ PREFIX="${PREFIX:=${DEFAULT_PREFIX}}"
 
 echo -n "Enter make options (${DEFAULT_MAKE_OPTS}): "
 read MAKE_OPTS
-
+n
 MAKE_OPTS="${MAKE_OPTS:=${DEFAULT_MAKE_OPTS}}"
 
 MAKE="make ${MAKE_OPTS}"
