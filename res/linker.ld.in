@@ -1,0 +1,30 @@
+#define KERNEL_OFFSET 0xffffffff80000000
+
+OUTPUT_FORMAT("elf64-x86-64")
+
+ENTRY(_start)
+
+SECTIONS
+{
+	. = KERNEL_OFFSET + 0x100000;
+	_KERNEL_START = .;
+	.text : AT(ADDR(.text) - KERNEL_OFFSET) {
+	      . = ALIGN(8);
+	      KEEP(*(.multiboot_header))
+	      *(.text)
+	}
+
+	.rodata ALIGN(4K) : AT(ADDR(.rodata) - KERNEL_OFFSET) {
+		*(.rodata)
+	}
+
+	.data ALIGN(4k) : AT(ADDR(.data) - KERNEL_OFFSET) {
+	      *(.boot_gdt)
+	      *(.data)
+	}
+
+	.bss ALIGN(4K) : AT(ADDR(.bss) - KERNEL_OFFSET) {
+		*(.bss)
+	}
+	_KERNEL_END = .;
+}

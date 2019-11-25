@@ -1,14 +1,9 @@
-# CMake
-CMakeCache.txt
-CMakeFiles
-cmake_install.cmake
-Makefile
-
 # ccls
 .ccls-cache
 
-# Built Files
-iso/boot/grub/grub.cfg
-iso/boot/machulus
-machulus.iso
-**/*.a
+# Build Files
+bin
+obj
+iso
+.deps
+*.iso
