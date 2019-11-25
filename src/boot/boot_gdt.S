@@ -1,4 +1,4 @@
-	.set KERNEL_OFFSET, 0xffffffff80000000
+#include <memory.h>
 
 	.global boot_gdt_descr
 	.global boot_gdt_descr_higher_half

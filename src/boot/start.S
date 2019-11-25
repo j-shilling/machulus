@@ -1,12 +1,12 @@
+#define ASM_FILE
+#include <memory.h>
+#include <multiboot2.h>
+
 	.extern kernel_main
 	.extern boot_gdt_descr
 	.extern boot_gdt_descr_higher_half
 
 	.global _start
-
-	.set KERNEL_OFFSET, 0xffffffff80000000
-
-	.set MB_BOOTLOADER_MAGIC, 0x36d76289
 
 	.section .bss
 	.align 16
@@ -27,7 +27,7 @@ debug_message:			.asciz "Hello, World!!!!"
 _start:
 	cli
 	// Check Multiboot2 magic number
-	cmpl	$(MB_BOOTLOADER_MAGIC),%eax
+	cmpl	$(MULTIBOOT2_BOOTLOADER_MAGIC),%eax
 	jne	error_no_multiboot
 
 	// Load out GDT and set the code segment descriptor

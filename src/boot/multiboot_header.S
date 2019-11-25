@@ -1,9 +1,11 @@
-	.set MB_HEADER_MAGIC, 0xe85250d6
-	.set MB_BOOTLOADER_MAGIC, 0x36d76289
-	.set MB_ARCH, 0x0
+#define ASM_FILE
+#include <multiboot2.h>
+
+	.set MB_HEADER_MAGIC, MULTIBOOT2_HEADER_MAGIC
+	.set MB_ARCH, MULTIBOOT_ARCHITECTURE_I386
 	.set MB_HEADER_SIZE, (multiboot_header_end - multiboot_header_start)
 	.set MB_CHECKSUM, -(MB_HEADER_MAGIC + MB_ARCH + MB_HEADER_SIZE)
-	.set MB_TAG_END, 0x0
+	.set MB_TAG_END, MULTIBOOT_HEADER_TAG_END
 
 	.section .multiboot_header
 	.align 8
