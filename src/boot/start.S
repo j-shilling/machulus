@@ -11,7 +11,7 @@
 	.section .bss
 	.align 16
 boot_stack_bottom:
-	.skip 0x1000
+	.skip PAGE_SIZE
 boot_stack_top:
 
 	.section .rodata
