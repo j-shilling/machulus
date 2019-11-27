@@ -75,6 +75,14 @@ KERNEL   := $(TARGETDIR)/$(TARGET)
 ISOFILES := /boot/$(TARGET) \
 	/boot/grub/grub.cfg
 
+# -cpu host only works with KVM on Linux
+UNAME := $(shell uname)
+ifeq ($(UNAME), Linux)
+	QEMU := qemu-system-x86_64 -cpu host -enable-kvm
+else
+	QEMU := qemu-system-x86_64
+endif
+
 #################################################
 ### RULES                                     ###
 #################################################
@@ -84,10 +92,10 @@ ISOFILES := /boot/$(TARGET) \
 all: $(KERNEL)
 
 qemu: $(ISO)
-	qemu-system-x86_64 -cpu host -enable-kvm -cdrom $(ISO)
+	$(QEMU) -cdrom $(ISO)
 
 debug: $(ISO)
-	qemu-system-x86_64 -cpu host -enable-kvm -cdrom $(ISO) -monitor stdio -d int -s -S
+	$(QEMU) -cdrom $(ISO) -monitor stdio -d int -s -S
 
 clean:
 	-rm -rf $(TARGETDIR)

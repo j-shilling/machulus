@@ -25,6 +25,8 @@ readonly GCC_SOURCE="gcc-${GCC_VERSION}"
 readonly GCC_ARCHIVE="${GCC_SOURCE}.tar.gz"
 readonly GCC_URL="https://ftp.gnu.org/gnu/gcc/${GCC_SOURCE}/${GCC_ARCHIVE}"
 
+readonly GRUB_REPO="https://git.savannah.gnu.org/git/grub.git"
+
 readonly DEFAULT_PREFIX="${HOME}/tools"
 readonly DEFAULT_MAKEOPTS="-j$(nproc)"
 
@@ -115,26 +117,53 @@ main () {
     local __download=""
     local __make=""
     local __tar=""
+    local __pkgmgr=""
 
     echo "== Looking For Required Tools =="
 
-    # WGET
+    # WGET or CURL
     echo -n "checking for wget... "
-    hash wget 2>/dev/null || eexit "wget not found"
-    __download="wget -q"
-    echo "ok"
+    if hash wget 2>/dev/null; then
+	echo "ok"
+	__download="wget -q"
+    else
+	echo "not found"
+	echo -n "checking for curl... "
+	if hash curl 2>/dev/null; then
+	    __download="curl -sO"
+	    echo "ok"
+	else
+	    eexit "not found"
+	fi
+    fi
 
     # MAKE
     echo -n "checking for make... "
-    hash make 2>/dev/null || eexit "make not found"
+    hash make 2>/dev/null || eexit "not found"
     __make="make"
     echo "ok"
 
     # TAR
     echo -n "checking for tar... "
-    hash tar 2>/dev/null || eexit "tar not found"
+    hash tar 2>/dev/null || eexit "not found"
     __tar="tar -xf"
     echo "ok"
+
+    # PACKAGE MANAGER
+    echo -n "checking for a system package manager... "
+    case $(uname -s) in
+	Darwin*)
+	    if hash brew 2>/dev/null; then
+		echo "brew"
+		__pkgmgr="brew"
+	    else
+		echo "unkown"
+	    fi
+	    ;;
+	*)
+	    echo "unkown"
+	    ;;
+    esac
 
     ## GET USER OPTIONS ##
     echo
@@ -151,16 +180,23 @@ main () {
     read __makeopts
     __makeopts="${__makeopts:-${DEFAULT_MAKEOPTS}}"
 
+    export PATH="${__prefix}/bin:$PATH"
+
     echo
     echo "== Building Toolchain =="
     ## BINUTILS ##
-    run "${__download} ${BINUTILS_URL}" "Downloading binutils"
-    run "${__tar} ${BINUTILS_ARCHIVE}" "Extracting binutils"
+    echo -n "checking if ${TARGET}-as is already installed... "
+    if [ -e ${__prefix}/bin/${TARGET}-as ]; then
+	echo "already installed."
+    else
+	echo "not installed."
+	run "${__download} ${BINUTILS_URL}" "Downloading binutils"
+	run "${__tar} ${BINUTILS_ARCHIVE}" "Extracting binutils"
 
-    mkdir binutils-build
-    cd binutils-build
+	mkdir binutils-build
+	cd binutils-build
 
-    local __binutils_config_cmd=$(cat <<- EOF
+	local __binutils_config_cmd=$(cat <<- EOF
     ../${BINUTILS_SOURCE}/configure \
        --prefix=${__prefix} \
        --target=${TARGET} \
@@ -168,22 +204,32 @@ main () {
        --disable-werror \
        --with-sysroot
 EOF
-    )
+	      )
 
-    run "${__binutils_config_cmd}" "Configuring binutils"
-    run "${__make} ${__makeopts}" "Compiling binutils"
-    run "${__make} install" "Installing binutils"
+	run "${__binutils_config_cmd}" "Configuring binutils"
+	run "${__make} ${__makeopts}" "Compiling binutils"
+	run "${__make} install" "Installing binutils"
 
-    cd ..
+	cd ..
+    fi
 
     ## GCC ##
-    run "${__download} ${GCC_URL}" "Downloading gcc"
-    run "${__tar} ${GCC_ARCHIVE}" "Extracting gcc"
+    echo -n "checking if ${TARGET}-gcc is already installed... "
+    if [ -e ${__prefix}/bin/${TARGET}-gcc ]; then
+	echo "already installed."
+    else
+	echo "not installed."
+	run "${__download} ${GCC_URL}" "Downloading gcc"
+	run "${__tar} ${GCC_ARCHIVE}" "Extracting gcc"
 
-    mkdir gcc-build
-    cd gcc-build
+	cd ${GCC_SOURCE}
+	run "contrib/download_prerequisites" "Downloading prerequisites"
 
-    local __gcc_config_cmd=$(cat <<- EOF
+	cd ..
+	mkdir gcc-build
+	cd gcc-build
+
+	local __gcc_config_cmd=$(cat <<- EOF
     ../${GCC_SOURCE}/configure \
        --prefix=${__prefix} \
        --target=${TARGET} \
@@ -191,27 +237,95 @@ EOF
        --disable-werror \
        --enable-languages=c
 EOF
-    )
+	      )
 
-    run "${__gcc_config_cmd}" "Configuring gcc"
-    run "${__make} ${__makeopts} all-gcc" "Compiling gcc"
+	run "${__gcc_config_cmd}" "Configuring gcc"
+	run "${__make} ${__makeopts} all-gcc" "Compiling gcc"
 
-    local __libgcc_compile_cmd='${__make} ${__makeopts} all-target-libgcc CFLAGS_FOR_TARGET="${LIBGCC_CFLAGS}"'
+	local __libgcc_compile_cmd='${__make} ${__makeopts} all-target-libgcc CFLAGS_FOR_TARGET="${LIBGCC_CFLAGS}"'
 
-    eval "${__libgcc_compile_cmd}" &>/dev/null &
-    local __libgcc_configure_pid=$!
-    echo -n "Configuring libgcc... "
-    spinner $__libgcc_configure_pid
-    sed -i 's/PICFLAG/DISABLED_PICFLAG/g' ${TARGET}/libgcc/Makefile
-    echo "done."
+	eval "${__libgcc_compile_cmd}" &>/dev/null &
+	local __libgcc_configure_pid=$!
+	echo -n "Configuring libgcc... "
+	spinner $__libgcc_configure_pid
+	sed -i -e 's/PICFLAG/DISABLED_PICFLAG/g' ${TARGET}/libgcc/Makefile
+	echo "done."
 
-    run "${__libgcc_compile_cmd}" "Compile libgcc"
+	run "${__libgcc_compile_cmd}" "Compile libgcc"
 
-    run "${__make} install-gcc" "Installing gcc"
-    run "${__make} install-target-libgcc" "Installing libgcc"
+	run "${__make} install-gcc" "Installing gcc"
+	run "${__make} install-target-libgcc" "Installing libgcc"
+	cd ..
+    fi
+
+    # GRUB MKRESCUE
+    echo -n "checking if grub-mkrescue is already installed... "
+    if hash grub-mkrescue 2>/dev/null; then
+	echo "already installed."
+    else
+	echo "not installed."
+	run "git clone ${GRUB_REPO} grub" "Cloning grub dev repo"
+	cd grub
+	run "./bootstrap" "Bootstraping grub"
+	cd ..
+	mkdir grub-build
+	cd grub-build
+
+	local __grub_config_cmd=$(cat <<- EOF
+    ../grub/configure \
+       --prefix=${__prefix} \
+       --target=${TARGET} \
+       --disable-werror \
+       TARGET_CC=${TARGET}-gcc \
+       TARGET_OBJCOPY=${TARGET}-objcopy \
+       TARGET_STRIP=${TARGET}-strip \
+       TARGET_NM=${TARGET}-nm \
+       TARGET_RANLIB=${TARGET}-ranlib
+EOF
+	      )
+	run "${__grub_config_cmd}" "Configuring grub"
+	run "${__make} ${__makeopts}" "Compiling grub"
+	run "${__make} install" "Installing grub"
+	cd ..
+    fi
+
+    # XORRISO
+    echo -n "checking if xorriso is already installed... "
+    if hash xorriso 2>/dev/null; then
+	echo "already installed."
+    else
+	echo "not installed."
+	case ${__pkgmgr} in
+	    brew*)
+		run "brew install xorriso" "installing xorriso with brew"
+		;;
+	    *)
+		eexit "please install xorriso"
+		;;
+	esac
+    fi
+
+    # QEMU
+    echo -n "checking if qemu-system-x86_64 is installed... "
+    if hash qemu-system-x86_64 2>/dev/null; then
+	echo "already installed."
+    else
+	echo "not installed."
+	case ${__pkgmgr} in
+	    brew*)
+		run "brew install qemu" "installing qemu with brew"
+		;;
+	    *)
+		eexit "please install qemu-system-x86_64"
+		;;
+	esac
+    fi
 
     cd ${INITIAL_DIRECTORY}
     rm -rf ${WORKING_DIRECTORY}
+    echo
+    echo "Installation successful. Make sure that ${__prefix}/bin is in your PATH before running make"
+    echo
     exit 0
 }
 main
