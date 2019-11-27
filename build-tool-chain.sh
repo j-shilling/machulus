@@ -25,6 +25,8 @@ readonly GCC_SOURCE="gcc-${GCC_VERSION}"
 readonly GCC_ARCHIVE="${GCC_SOURCE}.tar.gz"
 readonly GCC_URL="https://ftp.gnu.org/gnu/gcc/${GCC_SOURCE}/${GCC_ARCHIVE}"
 
+readonly GRUB_REPO="https://git.savannah.gnu.org/git/grub.git"
+
 readonly DEFAULT_PREFIX="${HOME}/tools"
 readonly DEFAULT_MAKEOPTS="-j$(nproc)"
 
@@ -170,6 +172,7 @@ main () {
     if [ -e ${__prefix}/bin/${TARGET}-as ]; then
 	echo "already installed."
     else
+	echo "not installed."
 	run "${__download} ${BINUTILS_URL}" "Downloading binutils"
 	run "${__tar} ${BINUTILS_ARCHIVE}" "Extracting binutils"
 
@@ -190,7 +193,7 @@ EOF
 	run "${__make} ${__makeopts}" "Compiling binutils"
 	run "${__make} install" "Installing binutils"
 
-    cd ..
+	cd ..
     fi
 
     ## GCC ##
@@ -198,6 +201,7 @@ EOF
     if [ -e ${__prefix}/bin/${TARGET}-gcc ]; then
 	echo "already installed."
     else
+	echo "not installed."
 	run "${__download} ${GCC_URL}" "Downloading gcc"
 	run "${__tar} ${GCC_ARCHIVE}" "Extracting gcc"
 
@@ -234,6 +238,37 @@ EOF
 
 	run "${__make} install-gcc" "Installing gcc"
 	run "${__make} install-target-libgcc" "Installing libgcc"
+	cd ..
+    fi
+
+    # GRUB MKRESCUE
+    echo -n "checking if grub-mkrescue is already installed... "
+    if hash grub-mkrescue 2>/dev/null; then
+	echo "already installed."
+    else
+	echo "not installed."
+	run "git clone ${GRUB_REPO} grub" "Cloning grub dev repo"
+	cd grub
+	run "./bootstrap" "Bootstraping grub"
+	cd ..
+	mkdir grub-build
+	cd grub-build
+
+	local __grub_config_cmd=$(cat <<- EOF
+    ../grub/configure \
+       --prefix=${__prefix} \
+       --target=${TARGET} \
+       --disable-werror \
+       TARGET_CC=${TARGET}-gcc \
+       TARGET_OBJCOPY=${TARGET}-objcopy \
+       TARGET_STRIP=${TARGET}-strip \
+       TARGET_NM=${TARGET}-nm \
+       TARGET_RANLIB=${TARGET}-ranlib
+EOF
+	      )
+	run "${__grub_config_cmd}" "Configuring grub"
+	run "${__make} ${__makeopts}" "Compiling grub"
+	run "${__make} install" "Installing grub"
     fi
 
     cd ${INITIAL_DIRECTORY}
