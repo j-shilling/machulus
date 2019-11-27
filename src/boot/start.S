@@ -79,6 +79,26 @@ cs_set:
 	cmpl	$0x80000001,%eax
 	jl	error_no_long_mode
 
+	// Set the address of the PML4 page table into cr3
+	movl	$virtual_to_physical(boot_p4),%eax
+	movl	%eax,%cr3
+
+	// Enable PAE
+	movl	%cr4,%eax
+	orl	$(1 << 5),%eax
+	movl	%eax,%cr4
+
+	// Switch to compatibility mode
+	movl	$0xc0000080,%ecx
+	rdmsr
+	orl	$(1 << 8),%eax
+	wrmsr
+
+	// Enable paging
+	movl	%cr0,%eax
+	orl	$(1 << 31),%eax
+	movl	%eax,%cr0
+
 	jmp	debug
 
 error_no_multiboot:
