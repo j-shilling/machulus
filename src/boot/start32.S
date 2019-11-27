@@ -19,13 +19,12 @@ boot_stack_top:
 error_no_multiboot_message:	.asciz "This was not booted from a Multiboot2 bootloaded."
 error_no_cpuid_message:		.asciz "Cannot detect system features."
 error_no_long_mode_message:	.asciz "Cannot start long mode on this system."
-debug_message:			.asciz "Hello, World!!!!"
 
 	.section .text
 	.code32
-	.global _start
-	.type _start, @function
-_start:
+	.global _start32
+	.type _start32, @function
+_start32:
 	cli
 	// Check Multiboot2 magic number
 	cmpl	$(MULTIBOOT2_BOOTLOADER_MAGIC),%eax
@@ -120,15 +119,9 @@ error_no_long_mode:
 	call	_boot_puts
 	addl	$4,%esp
 	jmp	halt32
-debug:
-	movl	$(debug_message - KERNEL_OFFSET),%eax
-	push	%eax
-	call	_boot_puts
-	addl	$4,%esp
-	jmp	halt32
 halt32:
 	cli
 1:	hlt
 	jmp 1b
 
-	.size _start, . - _start
+	.size _start32, . - _start32
