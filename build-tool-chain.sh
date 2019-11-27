@@ -117,6 +117,7 @@ main () {
     local __download=""
     local __make=""
     local __tar=""
+    local __pkgmgr=""
 
     echo "== Looking For Required Tools =="
 
@@ -147,6 +148,22 @@ main () {
     hash tar 2>/dev/null || eexit "not found"
     __tar="tar -xf"
     echo "ok"
+
+    # PACKAGE MANAGER
+    echo -n "checking for a system package manager... "
+    case $(uname -s) in
+	Darwin*)
+	    if hash brew 2>/dev/null; then
+		echo "brew"
+		__pkgmgr="brew"
+	    else
+		echo "unkown"
+	    fi
+	    ;;
+	*)
+	    echo "unkown"
+	    ;;
+    esac
 
     ## GET USER OPTIONS ##
     echo
@@ -197,7 +214,7 @@ EOF
     fi
 
     ## GCC ##
-    echo -n "check if ${TARGET}-gcc is already installed... "
+    echo -n "checking if ${TARGET}-gcc is already installed... "
     if [ -e ${__prefix}/bin/${TARGET}-gcc ]; then
 	echo "already installed."
     else
@@ -269,6 +286,39 @@ EOF
 	run "${__grub_config_cmd}" "Configuring grub"
 	run "${__make} ${__makeopts}" "Compiling grub"
 	run "${__make} install" "Installing grub"
+	cd ..
+    fi
+
+    # XORRISO
+    echo -n "checking if xorriso is already installed... "
+    if hash xorriso 2>/dev/null; then
+	echo "already installed."
+    else
+	echo "not installed."
+	case ${__pkgmgr} in
+	    brew*)
+		run "brew install xorriso" "installing xorriso with brew"
+		;;
+	    *)
+		eexit "please install xorriso"
+		;;
+	esac
+    fi
+
+    # QEMU
+    echo -n "checking if qemu-system-x86_64 is installed... "
+    if hash qemu-system-x86_64 2>/dev/null; then
+	echo "already installed."
+    else
+	echo "not installed."
+	case ${__pkgmgr} in
+	    brew*)
+		run "brew install qemu" "installing qemu with brew"
+		;;
+	    *)
+		eexit "please install qemu-system-x86_64"
+		;;
+	esac
     fi
 
     cd ${INITIAL_DIRECTORY}
