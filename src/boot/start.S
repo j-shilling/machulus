@@ -5,6 +5,8 @@
 	.extern kernel_main
 	.extern boot_gdt_descr
 	.extern boot_gdt_descr_higher_half
+	.extern boot_p4
+	.extern _start64
 
 	.global _start
 
@@ -99,7 +101,7 @@ cs_set:
 	orl	$(1 << 31),%eax
 	movl	%eax,%cr0
 
-	jmp	debug
+	ljmp	$0x10,$(virtual_to_physical(_start64))
 
 error_no_multiboot:
 	movl	$(error_no_multiboot_message - KERNEL_OFFSET),%eax
