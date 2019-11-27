@@ -2,9 +2,8 @@
 #include <memory.h>
 #include <multiboot2.h>
 
-	.extern kernel_main
 	.extern boot_gdt_descr
-	.extern boot_gdt_descr_higher_half
+
 	.extern boot_p4
 	.extern _start64
 

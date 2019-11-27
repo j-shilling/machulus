@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 // This is the x86's VGA textmode buffer. To display text, we write data to this memory location
-volatile uint16_t* vga_buffer = (uint16_t*)0xB8000;
+volatile uint16_t* vga_buffer = (uint16_t*)0xffffffff800B8000;
 // By default, the VGA textmode buffer has a size of 80x25 characters
 const int VGA_COLS = 80;
 const int VGA_ROWS = 25;
