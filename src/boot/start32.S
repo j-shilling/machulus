@@ -31,8 +31,8 @@ _start32:
 	jne	error_no_multiboot
 
 	// Load out GDT and set the code segment descriptor
-	lgdt	boot_gdt_descr - KERNEL_OFFSET
-	ljmp	$8,$(cs_set - KERNEL_OFFSET)
+	lgdt	virtual_to_physical(boot_gdt_descr - KERNEL_OFFSET)
+	ljmp	$8,$(virtual_to_physical(cs_set - KERNEL_OFFSET))
 cs_set:
 	// Now clear the data segment descriptor
 	movw	$0,%ax
@@ -48,8 +48,8 @@ cs_set:
 	movw	%ax,%gs
 
 	// Set up a stack
-	movl	$(boot_stack_top - KERNEL_OFFSET),%esp
-	movl	$(boot_stack_bottom - KERNEL_OFFSET),%ebp
+	movl	$(virtual_to_physical(boot_stack_top)),%esp
+	movl	$(virtual_to_physical(boot_stack_bottom)),%ebp
 
 	// push the address of multiboot structure.
 	push	%ebx
@@ -80,7 +80,7 @@ cs_set:
 	jl	error_no_long_mode
 
 	// Set the address of the PML4 page table into cr3
-	movl	$virtual_to_physical(boot_p4),%eax
+	movl	$(virtual_to_physical(boot_p4)),%eax
 	movl	%eax,%cr3
 
 	// Enable PAE
@@ -102,19 +102,19 @@ cs_set:
 	ljmp	$0x10,$(virtual_to_physical(_start64))
 
 error_no_multiboot:
-	movl	$(error_no_multiboot_message - KERNEL_OFFSET),%eax
+	movl	$(virtual_to_physical(error_no_multiboot_message)),%eax
 	push	%eax
 	call	_boot_puts
 	addl	$4,%esp
 	jmp	halt32
 error_no_cpuid:
-	movl	$(error_no_cpuid_message - KERNEL_OFFSET),%eax
+	movl	$(virtual_to_physical(error_no_cpuid_message)),%eax
 	push	%eax
 	call	_boot_puts
 	addl	$4,%esp
 	jmp	halt32
 error_no_long_mode:
-	movl	$(error_no_long_mode_message - KERNEL_OFFSET),%eax
+	movl	$(virtual_to_physical(error_no_long_mode_message)),%eax
 	push	%eax
 	call	_boot_puts
 	addl	$4,%esp
