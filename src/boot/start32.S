@@ -31,8 +31,8 @@ _start32:
 	jne	error_no_multiboot
 
 	// Load out GDT and set the code segment descriptor
-	lgdt	virtual_to_physical(boot_gdt_descr - KERNEL_OFFSET)
-	ljmp	$8,$(virtual_to_physical(cs_set - KERNEL_OFFSET))
+	lgdt	virtual_to_physical(boot_gdt_descr)
+	ljmp	$8,$(virtual_to_physical(cs_set))
 cs_set:
 	// Now clear the data segment descriptor
 	movw	$0,%ax
