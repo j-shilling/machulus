@@ -118,7 +118,8 @@ static int __putchar(int c) {
  *             given by pointer to the stream.
  *
  * @param      ptr The location from which to read data.
- * @param      size The size of each elements to write.
+ * @param      size The size of each elements should always be 1. This
+ *             value is ignored.
  * @param      nmemb The number of elements to write.
  * @param      stream The FILE to write data to. This value is ignored.
  *
@@ -128,12 +129,15 @@ static size_t __stdout_fwrite(const void *ptr, size_t size, size_t nmemb,
                               FILE *stream) {
   size_t ret = 0;
 
-  for (const char *cur = (const char *)ptr;
-       cur < ((const char *)ptr + (size * nmemb)); cur += (size)) {
+  const char *cur = (const char *)ptr;
+  const char *end = (cur + nmemb);
+
+  for (; cur < end; cur++) {
     const char c = *cur;
     if (__putchar((int)c) < 0) {
       break;
     }
+    ret++;
   }
 
   return ret;
