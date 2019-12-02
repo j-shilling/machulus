@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <file.h>
+#include <stdio.h>
 
 /**
  * @brief      Writes bytes to a stream.
@@ -14,10 +14,17 @@
  *
  * @return     The number of elements written.
  */
-size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream) {
-  if (stream && stream->fwrite) {
+size_t fwrite_unlocked(const void *ptr, size_t size, size_t nmemb,
+                       FILE *stream) {
+  if (stream->fwrite) {
     return stream->fwrite(ptr, size, nmemb, stream);
   } else {
     return 0;
   }
+}
+
+size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream) {
+  __lock_file(stream);
+  return fwrite_unlocked(ptr, size, nmemb, stream);
+  __unlock_file(stream);
 }
