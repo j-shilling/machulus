@@ -1,0 +1,10 @@
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "Machulus"
+OUTPUT_DIRECTORY       = docs
+OUTPUT_LANGUAGE        = English
+OPTIMIZE_OUTPUT_FOR_C  = YES
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+INPUT                  = inc
+FILE_PATTERNS          = *.c *.h
+RECURSIVE              = YES
