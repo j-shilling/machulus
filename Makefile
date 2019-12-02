@@ -21,20 +21,23 @@ DEPDIR    := .deps
 ### TOOLS
 #####
 
-XCC = x86_64-elf-gcc
+XCC = clang -target x86_64-pc-none-elf
 XCPP = $(XCC) -E
+XLD = ld.lld
 
 #####
 ### FLAGS AND OPTIONS
 #####
 
-CFLAGS   := -ggdb3 -O0 -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic \
-            -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 \
-            -Wformat-truncation -Wformat-overflow -Wundef -fno-common \
-            -Wstack-usage=1024 -Wno-unused-parameter
+CFLAGS_OPTIMIZATION := -g3 -O0
+CFLAGS_COMPILE_OPTS := -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic
+CFLAGS_WARNINGS     := -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 \
+                       -Wundef -fno-common -Wno-unused-parameter
+
+CFLAGS   := $(CFLAGS_OPTIMAZATION) $(CFLAGS_COMPILE_OPTS) $(CFLAGS_WARNINGS)
 ASFLAGS  := -ggdb3
 CPPFLAGS := -I$(INCDIR)
-LDFLAGS  := -n -nostdlib -lgcc
+LDFLAGS  := -n -nostdlib
 DEPFLAGS  = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 
 #####
@@ -126,7 +129,7 @@ $(addsuffix %,$(addprefix $(ISODIR), $(dir $(ISOFILES)))): $(TARGETDIR)/%
 
 $(KERNEL): $(OBJ) $(LDSCRIPT)
 	@mkdir -p $(dir $@)
-	$(XCC) $(LDFLAGS) -T $(LDSCRIPT) -o $@ $(OBJ)
+	$(XLD) $(LDFLAGS) -T $(LDSCRIPT) -o $@ $(OBJ)
 
 ####
 ## PATTERN RULES
