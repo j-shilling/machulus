@@ -32,7 +32,7 @@ XLD = ld.lld
 OPTIMIZATION_LEVEL := -O0
 DEBUG_LEVEL        := -g3
 
-WARNINGS          := -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 \
+WARNINGS           := -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 \
                       -Wundef -fno-common -Wno-unused-parameter
 
 COMPILE_FLAGS      := -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic
@@ -96,7 +96,7 @@ endif
 ### RULES                                     ###
 #################################################
 
-.PHONY: all clean info
+.PHONY: all clean info docs
 
 all: $(KERNEL)
 
@@ -106,12 +106,16 @@ qemu: $(ISO)
 debug: $(ISO)
 	$(QEMU) -cdrom $(ISO) -monitor stdio -d int -s -S
 
+docs: Doxyfile
+	doxygen Doxyfile
+
 clean:
 	-rm -rf $(TARGETDIR)
 	-rm -rf $(BUILDDIR)
 	-rm -rf $(DEPDIR)
 	-rm -rf $(ISODIR)
 	-rm -f  $(ISO)
+	-rm -rf docs
 
 ####
 ## BUILD BOOTABLE ISO
