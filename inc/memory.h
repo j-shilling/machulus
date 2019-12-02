@@ -7,3 +7,4 @@
 #define PAGE_WRITABLE (1 << 1)
 
 #define virtual_to_physical(addr) (addr - KERNEL_OFFSET)
+#define physical_to_virtual(addr) (addr + KERNEL_OFFSET)

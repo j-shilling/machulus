@@ -28,7 +28,10 @@ XCPP = $(XCC) -E
 ### FLAGS AND OPTIONS
 #####
 
-CFLAGS   := -ggdb3 -O0 -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic
+CFLAGS   := -ggdb3 -O0 -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic \
+            -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 \
+            -Wformat-truncation -Wformat-overflow -Wundef -fno-common \
+            -Wstack-usage=1024 -Wno-unused-parameter
 ASFLAGS  := -ggdb3
 CPPFLAGS := -I$(INCDIR)
 LDFLAGS  := -n -nostdlib -lgcc
