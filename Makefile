@@ -16,6 +16,7 @@ BUILDDIR  := obj
 TARGETDIR := bin
 ISODIR    := iso
 DEPDIR    := .deps
+DOCSDIR   := docs
 
 #####
 ### TOOLS
@@ -80,6 +81,7 @@ DEPS     += $(patsubst $(RESDIR)/%.in, $(DEPDIR)/%.d, $(INFILES))
 LDSCRIPT := $(TARGETDIR)/linker.ld
 GRUBCFG  := $(TARGETDIR)/grub.cfg
 KERNEL   := $(TARGETDIR)/$(TARGET)
+DOXYFILE := $(TARGETDIR)/Doxyfile
 
 ISOFILES := /boot/$(TARGET) \
 	/boot/grub/grub.cfg
@@ -106,8 +108,8 @@ qemu: $(ISO)
 debug: $(ISO)
 	$(QEMU) -cdrom $(ISO) -monitor stdio -d int -s -S
 
-docs: Doxyfile
-	doxygen Doxyfile
+docs: $(DOXYFILE)
+	doxygen $(DOXYFILE)
 
 clean:
 	-rm -rf $(TARGETDIR)
@@ -154,6 +156,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.S $(DEPDIR)/%.d
 
 $(TARGETDIR)/%: $(RESDIR)/%.in
 	@mkdir -p $(dir $@)
+	@mkdir -p $(dir $(patsubst $(RESDIR)/%, $(DEPDIR)/%, $<))
 	$(XCOMPILE.in) -o $@ $<
 
 $(TARGETDIR)/%: $(RESDIR)/%
