@@ -32,7 +32,7 @@ XLD = ld.lld
 OPTIMIZATION_LEVEL := -O0
 DEBUG_LEVEL        := -g3
 
-_WARNINGS          := -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 \
+WARNINGS          := -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 \
                       -Wundef -fno-common -Wno-unused-parameter
 
 COMPILE_FLAGS      := -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic
