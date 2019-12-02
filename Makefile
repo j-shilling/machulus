@@ -29,15 +29,18 @@ XLD = ld.lld
 ### FLAGS AND OPTIONS
 #####
 
-CFLAGS_OPTIMIZATION := -g3 -O0
-CFLAGS_COMPILE_OPTS := -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic
-CFLAGS_WARNINGS     := -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 \
-                       -Wundef -fno-common -Wno-unused-parameter
+OPTIMIZATION_LEVEL := -O0
+DEBUG_LEVEL        := -g3
 
-CFLAGS   := $(CFLAGS_OPTIMAZATION) $(CFLAGS_COMPILE_OPTS) $(CFLAGS_WARNINGS)
-ASFLAGS  := -ggdb3
+_WARNINGS          := -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 \
+                      -Wundef -fno-common -Wno-unused-parameter
+
+COMPILE_FLAGS      := -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic
+
+CFLAGS   := $(OPTIMIZATION_LEVEL) $(DEBUG_LEVEL) $(COMPILE_FLAGS) $(WARNINGS)
+ASFLAGS  := $(DEBUG_LEVEL)
 CPPFLAGS := -I$(INCDIR)
-LDFLAGS  := -n -nostdlib
+LDFLAGS  := -nostdlib
 DEPFLAGS  = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 
 #####
