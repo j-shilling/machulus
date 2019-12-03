@@ -1,8 +1,19 @@
 #####
+### VERSION NUMBERS
+#####
+
+MAJOR_VERSION := 0
+MINOR_VERSION := 1
+
+VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION)
+
+PROJECT_NAME  := machulus
+
+#####
 ### OUTPUT FILE NAMES
 #####
 
-TARGET    := machulus
+TARGET    := $(PROJECT_NAME)-$(VERSION)
 ISO       := $(TARGET).iso
 
 #####
@@ -17,6 +28,7 @@ TARGETDIR := bin
 ISODIR    := iso
 DEPDIR    := .deps
 DOCSDIR   := docs
+CONTRIBDIR:= $(INCDIR)/contrib
 
 #####
 ### TOOLS
@@ -38,9 +50,12 @@ WARNINGS           := -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat
 
 COMPILE_FLAGS      := -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic
 
+CONFIG_MACROS      := -D_DOCSDIR=$(DOCSDIR) -D_PROJECT_NAME=$(PROJECT_NAME) \
+                      -D_VERSION=$(VERSION) -D_INCDIR=$(INCDIR) -D_CONTRIB=$(CONTRIBDIR)
+
 CFLAGS   := $(OPTIMIZATION_LEVEL) $(DEBUG_LEVEL) $(COMPILE_FLAGS) $(WARNINGS)
 ASFLAGS  := $(DEBUG_LEVEL)
-CPPFLAGS := -I$(INCDIR)
+CPPFLAGS := -I$(INCDIR) -I$(CONTRIBDIR) $(CONFIG_MACROS)
 LDFLAGS  := -nostdlib
 DEPFLAGS  = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 
