@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <stdarg.h>
 #include <stddef.h>
 
 /**
@@ -47,7 +48,8 @@ size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);
  *
  * @see fwrite
  */
-size_t fwrite_unlocked(const void *ptr, size_t size, size_t nmemb, FILE *stream);
+size_t fwrite_unlocked(const void *ptr, size_t size, size_t nmemb,
+                       FILE *stream);
 
 /**
  * @brief Writes a character to a stream.
@@ -184,3 +186,7 @@ int puts(const char *s);
  * @see puts
  */
 int puts_unlocked(const char *s);
+
+int printf(const char *format, ...);
+int vprintf(const char *format, va_list ap);
+int vfprintf(FILE *stream, const char *format, va_list ap);
