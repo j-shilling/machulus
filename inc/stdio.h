@@ -188,5 +188,5 @@ int puts(const char *s);
 int puts_unlocked(const char *s);
 
 int printf(const char *format, ...);
-int vprintf(const char *format, va_list ap);
+#define vprintf(format, ap) vfprintf(stdout, format, ap);
 int vfprintf(FILE *stream, const char *format, va_list ap);
