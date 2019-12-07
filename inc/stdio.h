@@ -187,6 +187,35 @@ int puts(const char *s);
  */
 int puts_unlocked(const char *s);
 
+/**
+ * @brief Prints a formatted string to @c stdout.
+ *
+ * @details    detailed description
+ *
+ * @params[in] format The format string.
+ *
+ * @params[in] ... Additional arguments as required by the format
+ * string.
+ *
+ * @return On success, returns the number of printed characters; On
+ * failure, returns @c -1.
+ */
 int printf(const char *format, ...);
+
+/**
+ * @brief      function description
+ *
+ * @copydetails printf
+ *
+ * @return     return type
+ */
 #define vprintf(format, ap) vfprintf(stdout, format, ap);
+
+/**
+ * @brief      function description
+ *
+ * @details    detailed description
+ *
+ * @return     return type
+ */
 int vfprintf(FILE *stream, const char *format, va_list ap);
