@@ -200,9 +200,9 @@ int puts_unlocked(const char *s);
  * @return On success, returns the number of printed characters; On
  * failure, returns @c -1.
  *
- * @see vfprintf
+n * @see vfprintf
  */
-int printf(const char *format, ...);
+int printf(const char *format, ...) __attribute__((format (printf, 1, 2)));
 
 /**
  * @copybrief printf
@@ -220,7 +220,7 @@ int printf(const char *format, ...);
  *
  * @see printf
  */
-#define vprintf(format, ap) vfprintf(stdout, format, ap);
+#define vprintf(format, ap) vfprintf(stdout, format, ap)
 
 /**
  * @brief Prints a formatted string to a @c FILE.
