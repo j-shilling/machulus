@@ -167,7 +167,7 @@ int fputs_unlocked(const char *s, FILE *stream);
  * @brief Writes a string and a newline to @c stdout.
  *
  * @details Writes a null-terminated string @c s to @c stdout,
- * followed by a newline character ('\n').
+ * followed by a newline character ('\\n').
  *
  * @return On success, returns 0. On failure, returns @c EOF.
  *
@@ -190,32 +190,132 @@ int puts_unlocked(const char *s);
 /**
  * @brief Prints a formatted string to @c stdout.
  *
- * @details    detailed description
+ * @details This function primarily acts as a wrapper around @c
+ * vfprintf, initializing and cleaning up the necessary @c va_list.
  *
- * @params[in] format The format string.
- *
- * @params[in] ... Additional arguments as required by the format
+ * @param[in] format The format string.
+ * @param[in] ... Additional arguments as required by the format
  * string.
  *
  * @return On success, returns the number of printed characters; On
  * failure, returns @c -1.
+ *
+ * @see vfprintf
  */
 int printf(const char *format, ...);
 
 /**
- * @brief      function description
+ * @copybrief printf
  *
- * @copydetails printf
+ * @details This is a convenience macro used to call @c vfprintf with
+ * @c stdout.
  *
- * @return     return type
+ * @param[in] format The format string.
+ * @param[in] ap An already started @c va_list pointing to additional
+ * arguments as required by the format string. This function will not
+ * call @c va_end.
+ *
+ * @return On success, returns the number of printed characters; On
+ * failure, returns @c -1.
+ *
+ * @see printf
  */
 #define vprintf(format, ap) vfprintf(stdout, format, ap);
 
 /**
- * @brief      function description
+ * @brief Prints a formatted string to a @c FILE.
  *
- * @details    detailed description
+ * @details This is where the magic happens for the printf-family
+ * functions. The format string is parsed and printed here. This
+ * implementations only implements the core features needed by the
+ * kernel and not any POSIX extensions.
  *
- * @return     return type
+ * ## The Format String
+ * A placeholder in the format string can be represented as:
+ * @code
+ * %[flags][width][.precision][length]type
+ * @endcode
+ *
+ * ### The Flags field can consist of zero or more of the following characters
+ * | Character  |  Meaning |
+ * | ---------: | :------- |
+ * | - (minus)  | Left-align the output of this placeholder. |
+ * | + (plus)   | Prepend a plus for positive signed-numeric types. |
+ * |   (space)  | Prepend a space for positive signed-numeric types. |
+ * | 0 (zero)   | When the width option is specified. prepend zeros for numeric types. |
+ * | # (hash)   | Use alternate forms. |
+ *
+ * ### The Width field
+ * The Width field specifies the *minimum* number of characters to
+ * output, but does not cause oversized fields to be truncated.
+ *
+ * The width field may be ommited, an integer value, or a dynamic
+ * value when passed as another argument when indicated by an
+ * asterisk. A dynamic value must be passed in as an @c int.
+ *
+ * ### The Precision field
+ * The precision field usually specifies a *maximum* limit on the
+ * output, depending on the particular formatting type. For floating
+ * point numbers, it specifies the number of digits to the right of
+ * the decimal point. For strings, it limits the number of characters
+ * that should be written.
+ *
+ * The precision field may be ommited, an integer value, or a dynamic
+ * value when passed as another argument when indicated by an
+ * asterisk. A dynamic value must be passed in as an @c int.
+ *
+ * ### The length field can be left out or any of:
+ * | Character  |  Meaning |
+ * | ---------: | :------- |
+ * | hh | For integer types, expect an @c int sized integer argument which was promotted from a @c char. |
+ * | h  | For integer types, expect an @c int sized integer argument which was promotted from a @c short. |
+ * | l  | For integer types, expect a @c long sized integer argument. For floating point types, this has no effect. |
+ * | ll | For integer types, expect a @c long @c long sized integer argument. For floating point types, this has no effect. |
+ * | L  | For floating point types, expect a @c long @c double sized argument. |
+ * | z  | For integer types, expect a @c size_t sized integer argument. |
+ * | j  | For integer types, expect a @c intmax_t sized integer argument. |
+ * | t  | For integer types, expect a @c ptrdiff_t size integer argument. |
+ *
+ * ### The Type field can be any of:
+ * | Character  |  Meaning |
+ * | ---------: | :------- |
+ * | %    | Print a literal @c % character (this type ignores any flags, width, precision, and length fields). |
+ * | d, i | Print an integer argument as a signed, decimal number. |
+ * | u    | Print an unsigned integer argument as decimal number. |
+ * | f, F | Print a @c double argument in normal notation. |
+ * | e, E | Print a @c double argument in standard form. |
+ * | g, G | Print a @c double argument in either normal or standard form, whichever is shorter. |
+ * | x, X | Print an unsigned integer as a hexadecimal number. |
+ * | o    | Print an unsigned integer as an octal number. |
+ * | s    | Print an null-terminated string. |
+ * | c    | Print a character. |
+ * | p    | Print a pointer value. |
+ * | a, A | Print a @c double argument in hexadecimal notation. |
+ * | n    | Print nothing, but write the number of characters successfully written so far to an integer pointer. |
+ *
+ * @param[in] stream The stream to write to.
+ * @param[in] format The format string.
+ * @param[in] ap An already started @c va_list pointing to additional
+ * arguments as required by the format string. This function will not
+ * call @c va_end.
+ *
+ * @return On success, returns the number of printed characters; On
+ * failure, returns @c -1.
+ *
+ * @see printf
+ *
+ * @todo Type %
+ * @todo Type c
+ * @todo Type s
+ * @todo Types d, i, u
+ * @todo Types o, x, X
+ * @todo Types f, F
+ * @todo Type p
+ * @todo Types e, E
+ * @todo Types g, G
+ * @todo Types a, A
+ * @todo Type n
+ * @todo flags
+ * @todo width and precision
  */
 int vfprintf(FILE *stream, const char *format, va_list ap);
