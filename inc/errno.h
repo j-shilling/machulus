@@ -29,4 +29,9 @@
  *
  * @see errno
  */
-inline int *__errno_address(void);
+int *__errno_address(void);
+
+/**
+ * @brief Invalid Argument
+ */
+#define EINVAL -100
