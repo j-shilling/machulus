@@ -195,7 +195,7 @@ $$($(1)_OBJ): $$($(1)_SRC) $$($(1)_DEP)
 	@mkdir -p $$(dir $$@)
 	@mkdir -p $$(dir $$($(1)_DEP))
 	@echo "  [CC] $$@"
-	@$$(TCC) $$($(1)_DEPFLAGS) -c -o $$@ $$<
+	@$$(TCC) $$($(1)_DEPFLAGS) $$(kernel_CPPFLAGS) -c -o $$@ $$<
 
 .PHONY: $(1)
 
