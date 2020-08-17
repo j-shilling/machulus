@@ -44,11 +44,12 @@ XLD = $(TOOLS)/bin/x86_64-elf-ld
 ### FLAGS AND OPTIONS
 #####
 
-OPTIMIZATION_LEVEL := -O0
+OPTIMIZATION_LEVEL := -Og
 DEBUG_LEVEL        := -g3
 
 WARNINGS           := -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 \
-                      -Wundef -fno-common -Wno-unused-parameter
+                      -Wundef -fno-common -Wno-unused-parameter \
+                      -Wfatal-errors -fanalyzer
 
 COMPILE_FLAGS      := -std=gnu11 -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic
 
