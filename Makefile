@@ -29,29 +29,26 @@ ISODIR    := iso
 DEPDIR    := .deps
 DOCSDIR   := docs
 CONTRIBDIR:= $(INCDIR)/contrib
-TOOLS     := tools
 
 #####
 ### TOOLS
 #####
 
-# XCC = clang -target x86_64-pc-none-elf
-XCC = $(TOOLS)/bin/x86_64-elf-gcc
+XCC = clang -target x86_64-pc-none-elf
 XCPP = $(XCC) -E
-XLD = $(TOOLS)/bin/x86_64-elf-ld
+XLD = ld.lld
 
 #####
 ### FLAGS AND OPTIONS
 #####
 
-OPTIMIZATION_LEVEL := -Og
+OPTIMIZATION_LEVEL := -O0
 DEBUG_LEVEL        := -g3
 
 WARNINGS           := -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 \
-                      -Wundef -fno-common -Wno-unused-parameter \
-                      -Wfatal-errors -fanalyzer
+                      -Wundef -fno-common -Wno-unused-parameter
 
-COMPILE_FLAGS      := -std=gnu11 -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic
+COMPILE_FLAGS      := -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic
 
 CONFIG_MACROS      := -D_DOCSDIR=$(DOCSDIR) -D_PROJECT_NAME=$(PROJECT_NAME) \
                       -D_VERSION=$(VERSION) -D_INCDIR=$(INCDIR) -D_CONTRIB=$(CONTRIBDIR)
@@ -158,29 +155,26 @@ $(KERNEL): $(OBJ) $(LDSCRIPT)
 	@mkdir -p $(dir $@)
 	$(XLD) $(LDFLAGS) -T $(LDSCRIPT) -o $@ $(OBJ)
 
-$(XCC): build-tool-chain.sh
-	@./build-tool-chain.sh --jobs $(shell nproc) --prefix $(abspath $(TOOLS))
-
 ####
 ## PATTERN RULES
 ####
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.c $(DEPDIR)/%.d $(XCC)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c $(DEPDIR)/%.d
 	@mkdir -p $(dir $@)
 	@mkdir -p $(dir $(patsubst $(SRCDIR)/%, $(DEPDIR)/%, $<))
 	$(XCOMPILE.c) $< -o $@
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.S $(DEPDIR)/%.d $(XCC)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.S $(DEPDIR)/%.d
 	@mkdir -p $(dir $@)
 	@mkdir -p $(dir $(patsubst $(SRCDIR)/%, $(DEPDIR)/%, $<))
 	$(XCOMPILE.S) $< -o $@
 
-$(TARGETDIR)/%: $(RESDIR)/%.in $(XCC)
+$(TARGETDIR)/%: $(RESDIR)/%.in
 	@mkdir -p $(dir $@)
 	@mkdir -p $(dir $(patsubst $(RESDIR)/%, $(DEPDIR)/%, $<))
 	$(XCOMPILE.in) -o $@ $<
 
-$(TARGETDIR)/%: $(RESDIR)/% $(XCC)
+$(TARGETDIR)/%: $(RESDIR)/%
 	@mkdir -p $(dir $@)
 	@cp -v $< $@
 
