@@ -4,6 +4,8 @@ project(Machulus VERSION 0.1
   DESCRIPTION "A microkernel"
   LANGUAGES C ASM)
 
+add_subdirectory(libc)
+
 add_executable(machulus
   src/boot/boot_gdt.S
   src/boot/boot_page_tables.S
@@ -12,10 +14,6 @@ add_executable(machulus
   src/boot/start32.S
   src/boot/start64.S
   src/kernel.c
-  src/stdlib/stdio/fputc.c
-  src/stdlib/stdio/fputs.c
-  src/stdlib/stdio/fwrite.c
-  src/stdlib/stdio/puts.c
   src/stdout.c)
 
 target_include_directories(machulus PRIVATE inc inc/contrib)
@@ -27,13 +25,13 @@ target_compile_options(machulus PRIVATE
   -fno-pic
   -ffunction-sections
   -fdata-sections)
-
 target_link_options(machulus PRIVATE
   -nostdlib
   -no-pie
   -Wl,--build-id=none
   -Wl,-T${CMAKE_BINARY_DIR}/res/linker.ld
   -Wl,--gc-sections)
+target_link_libraries(machulus k)
 add_dependencies(
   machulus
   linker_ld)
