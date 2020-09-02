@@ -9,9 +9,9 @@ SECTIONS
 	. = KERNEL_OFFSET + 0x100000;
 	_KERNEL_START = .;
 	.text : AT(ADDR(.text) - KERNEL_OFFSET) {
-	      . = ALIGN(8);
-	      KEEP(*(.multiboot_header))
-	      *(.text)
+		  . = ALIGN(8);
+		  KEEP(*(.multiboot_header))
+		  *(.text)
 	}
 
 	.rodata ALIGN(4K) : AT(ADDR(.rodata) - KERNEL_OFFSET) {
@@ -19,12 +19,16 @@ SECTIONS
 	}
 
 	.data ALIGN(4k) : AT(ADDR(.data) - KERNEL_OFFSET) {
-	      *(.boot_gdt)
-	      *(.data)
+		  *(.boot_gdt)
+		  *(.data)
 	}
 
 	.bss ALIGN(4K) : AT(ADDR(.bss) - KERNEL_OFFSET) {
 		*(.bss)
+	}
+	/DISCARD/ : {
+	  *(.note*)
+	  *(.comment*)
 	}
 	_KERNEL_END = .;
 }
