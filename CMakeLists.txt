@@ -5,84 +5,34 @@ project(Machulus VERSION 0.1
   LANGUAGES C ASM)
 
 add_subdirectory(libc)
+add_subdirectory(kernel)
 
-add_executable(machulus
-  src/boot/boot_gdt.S
-  src/boot/boot_page_tables.S
-  src/boot/boot_puts.S
-  src/boot/multiboot_header.S
-  src/boot/start32.S
-  src/boot/start64.S
-  src/kernel.c
-  src/stdout.c)
-
-target_include_directories(machulus PRIVATE inc inc/contrib)
-target_compile_options(machulus PRIVATE
-  -target x86_64-pc-none-elf
-  -ffreestanding
-  -mcmodel=kernel
-  -mno-red-zone
-  -fno-pic
-  -ffunction-sections
-  -fdata-sections)
-target_link_options(machulus PRIVATE
-  -nostdlib
-  -no-pie
-  -Wl,--build-id=none
-  -Wl,-T${CMAKE_BINARY_DIR}/res/linker.ld
-  -Wl,--gc-sections)
-target_link_libraries(machulus k)
-add_dependencies(
-  machulus
-  linker_ld)
-
-set(INFILES
-  ${CMAKE_SOURCE_DIR}/res/linker.ld.in
-  ${CMAKE_SOURCE_DIR}/res/grub.cfg.in)
-foreach(_filename ${INFILES})
-  get_filename_component(_file ${_filename} NAME)
-  string(REPLACE ".in" "" _resource ${_file})
-  string(REPLACE "." "_" _target ${_resource})
-
-  add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/res/${_resource}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/res
-    COMMAND "${CMAKE_C_COMPILER}" -I${CMAKE_SOURCE_DIR}/inc -E -P -x c -o ${CMAKE_BINARY_DIR}/res/${_resource} ${_filename}
-    COMMENT "Preprocessing ${_file}"
-    DEPENDS ${_filename}
-    )
-
-  add_custom_target(
-    ${_target}
-    DEPENDS ${CMAKE_BINARY_DIR}/res/${_resource}
-    )
-endforeach()
+set(GRUB_CFG ${CMAKE_CURRENT_BINARY_DIR}/grub.cfg)
+add_custom_command(
+  OUTPUT ${GRUB_CFG}
+  COMMAND "${CMAKE_C_COMPILER}"
+  ARGS -E -P -x c -o ${GRUB_CFG} ${CMAKE_SOURCE_DIR}/res/grub.cfg.in
+  DEPENDS ${CMAKE_SOURCE_DIR}/res/grub.cfg.in)
+add_custom_target(
+  grub_cfg
+  DEPENDS ${GRUB_CFG})
 
 set(ISODIR ${CMAKE_BINARY_DIR}/iso)
 add_custom_command(
-  OUTPUT ${ISODIR}/boot/grub/grub.cfg
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${ISODIR}/boot/grub
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/res/grub.cfg ${ISODIR}/boot/grub
-  DEPENDS ${CMAKE_BINARY_DIR}/res/grub.cfg
-  )
-add_custom_command(
-  OUTPUT ${ISODIR}/boot/machulus
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${ISODIR}/boot
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different machulus ${ISODIR}/boot/
-  DEPENDS machulus
-  )
-add_custom_command(
   OUTPUT machulus.iso
-  COMMAND grub-mkrescue -o machulus.iso ${ISODIR}
-  DEPENDS ${ISODIR}/boot/machulus ${ISODIR}/boot/grub/grub.cfg
-  )
+  COMMAND ${CMAKE_COMMAND}
+  ARGS -E make_directory ${ISODIR}/boot/grub
+  COMMAND ${CMAKE_COMMAND}
+  ARGS -E copy_if_different ${GRUB_CFG} ${ISODIR}/boot/grub
+  COMMAND ${CMAKE_COMMAND}
+  ARGS -E copy_if_different $<TARGET_FILE:machulus> ${ISODIR}/boot/
+  COMMAND grub-mkrescue
+  ARGS -o machulus.iso ${ISODIR}
+  DEPENDS grub_cfg machulus)
 add_custom_target(
   iso
-  DEPENDS machulus.iso
-  )
-
+  DEPENDS machulus.iso)
 add_custom_target(
   qemu
   DEPENDS iso
-  COMMAND qemu-system-x86_64 -cpu host -enable-kvm -cdrom machulus.iso
-  )
+  COMMAND qemu-system-x86_64 -cpu host -enable-kvm -cdrom machulus.iso)
