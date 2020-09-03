@@ -4,6 +4,17 @@ project(Machulus VERSION 0.1
   DESCRIPTION "A microkernel"
   LANGUAGES C ASM)
 
+add_compile_options(
+  -Werror
+  -Wall
+  -Wextra
+  -Wshadow
+  -Wdouble-promotion
+  -Wformat=2
+  -Wundef
+  -fno-common
+  -Wno-unused-parameter)
+
 add_subdirectory(libc)
 add_subdirectory(kernel)
 
