@@ -5,6 +5,8 @@ project(Machulus VERSION 0.1
   LANGUAGES C ASM)
 
 add_compile_options(
+  -ggdb
+  -O0
   -Werror
   -Wall
   -Wextra
@@ -46,4 +48,4 @@ add_custom_target(
 add_custom_target(
   qemu
   DEPENDS iso
-  COMMAND qemu-system-x86_64 -cpu host -enable-kvm -cdrom machulus.iso)
+  COMMAND qemu-system-x86_64 -cpu host -enable-kvm -cdrom machulus.iso -serial stdio)

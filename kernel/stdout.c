@@ -2,6 +2,7 @@
 #include <memory.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <serial.h>
 
 // Store the virtual address of the video memory buffer
 static uint16_t *const framebuffer = (uint16_t *)(physical_to_virtual(0xb8000));
@@ -127,6 +128,8 @@ static int __putchar(int c) {
  */
 static size_t __stdout_fwrite(const void *ptr, size_t size, size_t nmemb,
                               FILE *stream) {
+  nmemb = fwrite(ptr, size, nmemb, COM1);
+
   size_t ret = 0;
 
   const char *cur = (const char *)ptr;
@@ -153,6 +156,8 @@ FILE *stdout = &__stdout;
  * @details    Clears the screen and disables the cursor.
  */
 void stdout_init(void) {
+  serial_init(COM1);
+
   __clear();
 
   // Disable cursor
