@@ -2,6 +2,7 @@
 
 	.global boot_gdt_descr
 	.global boot_gdt_descr_higher_half
+	.global boot_gdt
 
 	.section .boot_gdt
 	.align 16

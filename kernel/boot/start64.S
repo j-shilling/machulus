@@ -30,6 +30,26 @@ higher_half:
 	movq	$0x0,(%rax)
 	invlpg	0
 
+    /* Set up the TSS descriptor */
+
+	movq	$(boot_gdt + 32),%rdi
+.extern boot_tss
+	movq	$boot_tss,%rax
+	movw	%ax,2(%rdi)
+	shrq	$16,%rax
+	movb	%al,4(%rdi)
+	movb	%ah,7(%rdi)
+	shrq	$16,%rax
+	movl	%eax,8(%rdi)
+
+	/* Load the TSS */
+	movw	$32,%ax
+	ltr	%ax
+
+/* Init and load the IDT */
+.extern init_early_idt
+	callq	init_early_idt
+
 	// Enter C code
 	callq	kernel_main
 

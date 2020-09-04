@@ -3,12 +3,16 @@ set(KERNEL machulus)
 
 add_executable(${KERNEL}
   boot/boot_gdt.S
+  boot/boot_idt.S
   boot/boot_page_tables.S
   boot/boot_puts.S
   boot/multiboot_header.S
   boot/start32.S
   boot/start64.S
+  exception.c
+  halt.c
   kernel.c
+  panic.c
   serial.c
   stdout.c)
 target_include_directories(${KERNEL} PRIVATE
