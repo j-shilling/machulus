@@ -9,3 +9,7 @@ iso
 docs
 .deps
 *.iso
+build
+
+# cmake
+.cmake
