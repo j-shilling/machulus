@@ -10,7 +10,9 @@ add_executable(${KERNEL}
   boot/start32.S
   boot/start64.S
   exception.c
+  gdt.c
   halt.c
+  idt.c
   kernel.c
   panic.c
   serial.c
