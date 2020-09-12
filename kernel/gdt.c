@@ -29,10 +29,20 @@ static uint8_t const GDT_FLAG_PRESENT = (1 << 7);
 static uint8_t const GDT_FLAG_KERNEL = (0);
 static uint8_t const GDT_FLAG_USER = (3 << 5);
 static uint8_t const GDT_FLAG_CODE = (1 << 4) | (1 << 3) | (1 << 1);
-static uint8_t const GDT_FLAG_DATA = (1 << 4) | (1 << 3) | (1 << 1);
+static uint8_t const GDT_FLAG_DATA = (1 << 4) | (1 << 1);
 
 static uint8_t const GDT_FLAG_64_BIT = (1 << 5);
 static uint8_t const GDT_FLAGS_PAGE_GRANULARITY = (1 << 7);
+
+static int const GDT_KERNEL_CODE_INDEX = 1;
+static int const GDT_KERNEL_DATA_INDEX = 2;
+static int const GDT_USER_CODE_INDEX = 3;
+static int const GDT_USER_DATA_INDEX = 4;
+
+static uint16_t const GDT_KERNEL_CODE_OFFSET =
+    GDT_KERNEL_CODE_INDEX * sizeof(gdt_entry_t);
+static uint16_t const GDT_KERNEL_DATA_OFFSET =
+    GDT_KERNEL_DATA_INDEX * sizeof(gdt_entry_t);
 
 static void gdt_entry_init(gdt_entry_t *const entry, uint32_t base,
                            uint32_t limit, uint8_t access, uint8_t flags) {
@@ -48,20 +58,21 @@ static void gdt_entry_init(gdt_entry_t *const entry, uint32_t base,
 }
 
 static gdt_entry_t gdt[6] __attribute__((aligned(8))) = {{0}};
-static gdtr_t const gdtr = {
-  .len = sizeof(gdt),
-  .base = (uint64_t)gdt
-};
+static gdtr_t const gdtr = {.len = sizeof(gdt), .base = (uint64_t)gdt};
 
 void gdt_init(void) {
-  gdt_entry_init(gdt + 1, 0, 0x000FFFFF, GDT_FLAG_KERNEL | GDT_FLAG_CODE,
+  gdt_entry_init(gdt + GDT_KERNEL_CODE_INDEX, 0, 0x000FFFFF,
+                 GDT_FLAG_KERNEL | GDT_FLAG_CODE,
                  GDT_FLAGS_PAGE_GRANULARITY | GDT_FLAG_64_BIT);
-  gdt_entry_init(gdt + 2, 0, 0x000FFFFF, GDT_FLAG_KERNEL | GDT_FLAG_DATA,
+  gdt_entry_init(gdt + GDT_KERNEL_DATA_INDEX, 0, 0x000FFFFF,
+                 GDT_FLAG_KERNEL | GDT_FLAG_DATA,
                  GDT_FLAGS_PAGE_GRANULARITY | GDT_FLAG_64_BIT);
-  gdt_entry_init(gdt + 3, 0, 0x000FFFFF, GDT_FLAG_USER | GDT_FLAG_CODE,
+  gdt_entry_init(gdt + GDT_USER_CODE_INDEX, 0, 0x000FFFFF,
+                 GDT_FLAG_USER | GDT_FLAG_CODE,
                  GDT_FLAGS_PAGE_GRANULARITY | GDT_FLAG_64_BIT);
-  gdt_entry_init(gdt + 4, 0, 0x000FFFFF, GDT_FLAG_USER | GDT_FLAG_DATA,
+  gdt_entry_init(gdt + GDT_USER_DATA_INDEX, 0, 0x000FFFFF,
+                 GDT_FLAG_USER | GDT_FLAG_DATA,
                  GDT_FLAGS_PAGE_GRANULARITY | GDT_FLAG_64_BIT);
 
-  __asm__ volatile ("lgdt (%%rax);" :: "a"(&gdtr));
+  gdt_install((void *)(&gdtr), GDT_KERNEL_CODE_OFFSET, GDT_KERNEL_DATA_OFFSET);
 }

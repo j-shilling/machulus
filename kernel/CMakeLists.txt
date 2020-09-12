@@ -11,6 +11,7 @@ add_executable(${KERNEL}
   boot/start64.S
   exception.c
   gdt.c
+  gdt_install.S
   halt.c
   idt.c
   kernel.c
