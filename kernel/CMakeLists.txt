@@ -5,7 +5,7 @@ add_executable(${KERNEL}
   boot/boot_gdt.S
   boot/boot_page_tables.S
   boot/boot_puts.S
-  boot/multiboot_header.S
+  boot/multiboot_header.c
   boot/start32.S
   boot/start64.S
   kernel.c
@@ -15,7 +15,6 @@ target_include_directories(${KERNEL} PRIVATE
   include
   include/contrib)
 target_compile_options(${KERNEL} PRIVATE
-  -target x86_64-pc-none-elf
   -ffreestanding
   -mcmodel=kernel
   -mno-red-zone
@@ -25,6 +24,7 @@ target_compile_options(${KERNEL} PRIVATE
 target_link_options(${KERNEL} PRIVATE
   -nostdlib
   -no-pie
+  -n
   -Wl,--build-id=none
   -Wl,-T${LINKER_SCRIPT}
   -Wl,--gc-sections)

@@ -6,29 +6,31 @@ ENTRY(_start32)
 
 SECTIONS
 {
-	. = KERNEL_OFFSET + 0x100000;
-	_KERNEL_START = .;
-	.text : AT(ADDR(.text) - KERNEL_OFFSET) {
-		  . = ALIGN(8);
-		  KEEP(*(.multiboot_header))
-		  *(.text)
-	}
+    . = KERNEL_OFFSET + 0x100000;
 
-	.rodata ALIGN(4K) : AT(ADDR(.rodata) - KERNEL_OFFSET) {
-		*(.rodata)
-	}
+    .multiboot_header : AT(ADDR(.multiboot_header) - KERNEL_OFFSET){
+        KEEP(*(.multiboot_header))
+    }
 
-	.data ALIGN(4k) : AT(ADDR(.data) - KERNEL_OFFSET) {
-		  *(.boot_gdt)
-		  *(.data)
-	}
+    .text : AT(ADDR(.text) - KERNEL_OFFSET) {
+        *(.text)
+    }
 
-	.bss ALIGN(4K) : AT(ADDR(.bss) - KERNEL_OFFSET) {
-		*(.bss)
-	}
-	/DISCARD/ : {
-	  *(.note*)
-	  *(.comment*)
-	}
-	_KERNEL_END = .;
+    .rodata ALIGN(4K) : AT(ADDR(.rodata) - KERNEL_OFFSET) {
+        *(.rodata)
+    }
+
+    .data ALIGN(4k) : AT(ADDR(.data) - KERNEL_OFFSET) {
+        *(.boot_gdt)
+        *(.data)
+    }
+
+    .bss ALIGN(4K) : AT(ADDR(.bss) - KERNEL_OFFSET) {
+        *(.bss)
+    }
+
+    /DISCARD/ : {
+        *(.note*)
+        *(.comment*)
+    }
 }

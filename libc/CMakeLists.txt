@@ -8,7 +8,6 @@ add_library(k STATIC
   ${LIBC_SRCS})
 
 target_compile_options(k PUBLIC
-  -target x86_64-pc-none-elf
   -ffreestanding
   -mcmodel=kernel
   -mno-red-zone
