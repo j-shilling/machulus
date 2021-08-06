@@ -1,0 +1,3 @@
+#+TITLE: Sitemap for project site-org
+
+- [[file:example-page.org][example-page]]

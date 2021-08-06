@@ -1,0 +1,15 @@
+image: silex/emacs:27.2
+
+pages:
+  script:
+  - emacs --batch --no-init-file --load blog/bootstrap-emacs.el
+  - |
+    emacs --batch --no-init-file \
+      --eval "(progn (require 'package) (package-initialize))"
+      --load publish.el \
+      --funcall org-publish-all
+  artifacts:
+    paths:
+    - public
+  only:
+  - new-master
