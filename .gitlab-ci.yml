@@ -6,7 +6,7 @@ pages:
   - |
     emacs --batch --no-init-file \
       --eval "(progn (require 'package) (package-initialize))" \
-      --load publish.el \
+      --load blog/publish.el \
       --funcall org-publish-all
   artifacts:
     paths:
