@@ -11,6 +11,18 @@
 (require 'org)
 (require 'ox-publish)
 
+(defvar-local current-directory
+  (file-name-directory (buffer-file-name))
+  "The full path of the current directory.")
+(defvar-local publish-directory
+  (expand-file-name "public"
+                    (file-name-directory (directory-file-name current-directory)))
+  "The path be used as the export directory.")
+(defvar-local site-attachments
+  (regexp-opt '("jpg" "jpeg" "gif" "png" "svg"
+                "ico" "cur" "css" "js" "woff" "html" "pdf"))
+  "File types that are published as static files.")
+
 ;; setting to nil, avoids "Author: x" at the bottom
 (setq-local user-full-name nil)
 
@@ -28,19 +40,14 @@
       org-html-validation-link nil
       org-html-doctype "html5")
 
-(defvar site-attachments
-  (regexp-opt '("jpg" "jpeg" "gif" "png" "svg"
-                "ico" "cur" "css" "js" "woff" "html" "pdf"))
-  "File types that are published as static files.")
-
 (setq-local org-publish-project-alist
       (list
        (list "site-org"
-             :base-directory "./blog"
+             :base-directory current-directory
              :base-extension "org"
              :recursive t
              :publishing-function '(org-html-publish-to-html)
-             :publishing-directory "./public"
+             :publishing-directory publish-directory
              :exclude (regexp-opt '("README" "draft"))
              :auto-sitemap t
              :sitemap-filename "index.org"
@@ -50,7 +57,7 @@
              :sitemap-sort-files 'anti-chronologically)
        (list "site-static"
              :base-directory "."
-             :exclude "public/"
+             :exclude publish-directory
              :base-extension site-attachments
              :publishing-directory "./public"
              :publishing-function 'org-publish-attachment
