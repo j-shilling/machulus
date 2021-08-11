@@ -12,13 +12,13 @@
 (require 'ox-publish)
 
 ;; setting to nil, avoids "Author: x" at the bottom
-(setq user-full-name nil)
+(setq-local user-full-name nil)
 
-(setq org-export-with-section-numbers nil
+(setq-local org-export-with-section-numbers nil
       org-export-with-smart-quotes t
       org-export-with-toc nil)
 
-(setq org-html-divs '((preamble "header" "top")
+(setq-local org-html-divs '((preamble "header" "top")
                       (content "main" "content")
                       (postamble "footer" "postamble"))
       org-html-container-element "section"
@@ -33,7 +33,7 @@
                 "ico" "cur" "css" "js" "woff" "html" "pdf"))
   "File types that are published as static files.")
 
-(setq org-publish-project-alist
+(setq-local org-publish-project-alist
       (list
        (list "site-org"
              :base-directory "./blog"
