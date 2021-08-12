@@ -12,7 +12,7 @@
 (require 'ox-publish)
 
 (defvar-local current-directory
-  (file-name-directory (buffer-file-name))
+  (file-name-directory load-file-name)
   "The full path of the current directory.")
 (defvar-local publish-directory
   (expand-file-name "public"
