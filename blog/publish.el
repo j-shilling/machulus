@@ -27,42 +27,42 @@
 (setq-local user-full-name nil)
 
 (setq-local org-export-with-section-numbers nil
-      org-export-with-smart-quotes t
-      org-export-with-toc nil)
+            org-export-with-smart-quotes t
+            org-export-with-toc nil)
 
 (setq-local org-html-divs '((preamble "header" "top")
-                      (content "main" "content")
-                      (postamble "footer" "postamble"))
-      org-html-container-element "section"
-      org-html-metadata-timestamp-format "%Y-%m-%d"
-      org-html-checkbox-type 'html
-      org-html-html5-fancy t
-      org-html-validation-link nil
-      org-html-doctype "html5")
+                            (content "main" "content")
+                            (postamble "footer" "postamble"))
+            org-html-container-element "section"
+            org-html-metadata-timestamp-format "%Y-%m-%d"
+            org-html-checkbox-type 'html
+            org-html-html5-fancy t
+            org-html-validation-link nil
+            org-html-doctype "html5")
 
 (setq-local org-publish-project-alist
-      (list
-       (list "site-org"
-             :base-directory current-directory
-             :base-extension "org"
-             :recursive t
-             :publishing-function '(org-html-publish-to-html)
-             :publishing-directory publish-directory
-             :exclude (regexp-opt '("README" "draft"))
-             :auto-sitemap t
-             :sitemap-filename "index.org"
-             :sitemap-file-entry-format "%d *%t*"
-             :html-head-extra "<link rel=\"icon\" type=\"image/x-icon\" href=\"/favicon.ico\"/>"
-             :sitemap-style 'list
-             :sitemap-sort-files 'anti-chronologically)
-       (list "site-static"
-             :base-directory "."
-             :exclude publish-directory
-             :base-extension site-attachments
-             :publishing-directory "./public"
-             :publishing-function 'org-publish-attachment
-             :recursive t)
-       (list "site" :components '("site-org"))))
+            (list
+             (list "site-org"
+                   :base-directory current-directory
+                   :base-extension "org"
+                   :recursive t
+                   :publishing-function '(org-html-publish-to-html)
+                   :publishing-directory publish-directory
+                   :exclude (regexp-opt '("README" "draft"))
+                   :auto-sitemap t
+                   :sitemap-filename "index.org"
+                   :sitemap-file-entry-format "%d *%t*"
+                   :html-head-extra "<link rel=\"icon\" type=\"image/x-icon\" href=\"/favicon.ico\"/>"
+                   :sitemap-style 'list
+                   :sitemap-sort-files 'anti-chronologically)
+             (list "site-static"
+                   :base-directory "."
+                   :exclude publish-directory
+                   :base-extension site-attachments
+                   :publishing-directory publish-directory
+                   :publishing-function 'org-publish-attachment
+                   :recursive t)
+             (list "site" :components '("site-org"))))
 
 (provide 'publish)
 ;;; publish.el ends here
