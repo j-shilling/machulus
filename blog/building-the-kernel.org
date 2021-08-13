@@ -1,0 +1,86 @@
+#+Title: Building the Kernel
+
+* Kernels are Different
+
+It is easy for anyone writing a userspace application in C to feel like nothing is being handled by the language automatically. The abstractions that C provides are so primitive when compared to those we find in higher level languages that we can start to forget that C is not as low as we can go, and that a certain chunk of our program is being written for us.
+
+Take, for example, the simplest C program I can think of:
+
+#+begin_src c
+int
+main (int argc, char *argv[])
+{
+  return 0;
+}
+#+end_src
+
+Compiling this code (with gcc 8.2.1 on arch: =gcc -o test test.c=) will let us delve a little deeper into things. Let’s take a look at the header first (with =readelf -h test=):
+
+#+begin_quote
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Shared object file)
+  Machine:                           Advanced Micro Devices X86-64
+  Version:                           0x1
+  Entry point address:               0x1020
+  Start of program headers:          64 (bytes into file)
+  Start of section headers:          14592 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         11
+  Size of section headers:           64 (bytes)
+  Number of section headers:         27
+  Section header string table index: 26
+#+end_quote
+
+We can see that the program should start running at address 0x1020, and if we examine that address with =objdump -D test | grep 1020= we find that our program starts executions at a label =_start= -- not main. The full disassembly of this label is:
+
+#+begin_quote
+0000000000001020 <_start>:
+    1020: f3 0f 1e fa           endbr64
+    1024: 31 ed                 xor    %ebp,%ebp
+    1026: 49 89 d1              mov    %rdx,%r9
+    1029: 5e                    pop    %rsi
+    102a: 48 89 e2              mov    %rsp,%rdx
+    102d: 48 83 e4 f0           and    $0xfffffffffffffff0,%rsp
+    1031: 50                    push   %rax
+    1032: 54                    push   %rsp
+    1033: 4c 8d 05 66 01 00 00  lea    0x166(%rip),%r8        # 11a0 <__libc_csu_fini>
+    103a: 48 8d 0d ef 00 00 00  lea    0xef(%rip),%rcx        # 1130 <__libc_csu_init>
+    1041: 48 8d 3d d1 00 00 00  lea    0xd1(%rip),%rdi        # 1119 <main>
+    1048: ff 15 92 2f 00 00     callq  *0x2f92(%rip)        # 3fe0 <__libc_start_main@GLIBC_2.2.5>
+    104e: f4                    hlt
+    104f: 90                    nop
+#+end_quote
+
+That line at address 0x1048 is now calling another function =__libc_start_main= which will initialize =libc= and call the =main= function provided by our code. This is one of the reasons that -- even though we never call another function -- our small program still depends on external libraries, as we can see with =ldd test=:
+
+#+begin_quote
+linux-vdso.so.1 (0x00007ffea3797000)
+ libc.so.6 => /usr/lib/libc.so.6 (0x00007f09c20da000)
+ /lib64/ld-linux-x86-64.so.2 => /usr/lib64/ld-linux-x86-64.so.2 (0x00007f09c22b9000)
+#+end_quote
+
+So, what is all this about?
+
+In order to make good on the C Standard’s promise that a program always start at a function taking flags passed from =stdin= as an argument =char *argv[]= on any architecture, running any operating system, using any =libc= implementation, some bootstrapping needs to be done. This bootstrapping is going to be handled by a =_start= function provided in an object file [[https://en.wikipedia.org/wiki/Crt0][crt0.o]] in the c library.
+
+If we explore even more, we might find other secret files linked into our program. For example, for the functions marked with the gcc’s [[https://gcc.gnu.org/onlinedocs/gcc-4.7.0/gcc/Function-Attributes.html][constructor attribute]] to be called before main, some more work needs to be done after =_start= but before =main=. This work is handled by code from more, sneaky, object files: [[https://wiki.osdev.org/Creating_a_C_Library#crtbegin.o.2C_crtend.o.2C_crti.o.2C_and_crtn.o][crti.o and crtbegin.o]].
+
+Authors of userspace programs don’t have to know anything about these hidden objects because the compiler will link them in the background like magic. Kernels, however, are different — they must run without any =libc= or secret background object files linked in. They need to have no external dependencies whatsoever.
+
+Stoping the linking magic is pretty straight forward: we use linker flag =-nostdlib= to tell =ld= not to try to link against =libc= or any other secret objects and the compiler flag =-ffreestanding= to tell gcc that we cannot rely on the standard library when compiling. The trick is that we are now actually on our own: we have to create an entry point from scratch that will do all the bootstrapping to create an environment for our C code to run in.
+
+Additionally, we are going to have to customize the linking process a little bit — at least to tell the linker where our entry point is. There will also be some other concepts at play here which require that our resulting binary be formatting in a specific way. For example, the [[https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html][multiboot2 standard]] we are using to make our kernel compatible with GRUB requires that we include a [[https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#Header-layout][special header]] within the first 32768 bytes of our image. Once you start throwing things like [[https://en.wikipedia.org/wiki/Virtual_memory][virtual and physical memory addresses]] into the mix, the need for a fine grain of control in the linker process becomes clear.
+
+We get this level of customization from the linker by using a [[http://www.scoberlin.de/content/media/http/informatik/gcc_docs/ld_3.html][linker script]], which allows us to specify the exact layout of our kernel image. The whole structure, though, is going to end up being specific to a particular architecture and could possibly change based on a certain configuration.
+
+All of this has been to say, creating a robust and flexible build system for a kernel requires a different kind of thinking than a normal C project.
+
+* TODO Introduce CMAKE

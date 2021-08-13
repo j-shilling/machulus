@@ -1,3 +1,4 @@
 #+TITLE: Sitemap for project site-org
 
+- [[file:building-the-kernel.org][Building the Kernel]]
 - [[file:example-page.org][example-page]]
