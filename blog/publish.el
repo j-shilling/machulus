@@ -26,15 +26,38 @@
 ;; setting to nil, avoids "Author: x" at the bottom
 (setq-local user-full-name nil)
 
-(setq-local org-export-with-section-numbers nil
+(setq-local org-export-default-language "en"
+            org-export-with-section-numbers nil
             org-export-with-smart-quotes t
-            org-export-with-toc nil)
+            org-export-with-emphasize t
+            org-export-with-special-strings t
+            org-export-with-fixed-width t
+            org-export-with-timestamps nil
+            org-export-preserve-breaks t
+            org-export-with-sub-superscripts t
+            org-export-with-archived-trees nil
+            org-export-with-author nil
+            org-export-with-broken-links t
+            org-export-with-clocks nil
+            org-export-with-creator nil
+            org-export-with-date t
+            org-export-with-entities t
+            org-export-with-email nil
+            org-export-with-footnotes t
+            org-export-headline-levels  3
+            org-export-with-inlinetasks nil
+            org-export-with-planning nil
+            org-export-with-priority nil
+            org-export-with-properties nil
+            org-export-with-tags nil
+            org-export-with-tasks nil
+            org-export-time-stamp-file nil
+            org-export-with-title t
+            org-export-with-toc nil
+            org-export-with-todo-keywords nil
+            org-export-with-tables t)
 
-(setq-local org-html-divs '((preamble "header" "top")
-                            (content "main" "content")
-                            (postamble "footer" "postamble"))
-            org-html-container-element "section"
-            org-html-metadata-timestamp-format "%Y-%m-%d"
+(setq-local org-html-metadata-timestamp-format "%m-%d-%Y"
             org-html-checkbox-type 'html
             org-html-html5-fancy t
             org-html-validation-link nil
