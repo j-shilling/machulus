@@ -61,7 +61,19 @@
             org-html-checkbox-type 'html
             org-html-html5-fancy t
             org-html-validation-link nil
-            org-html-doctype "html5")
+            org-html-doctype "html5"
+            org-html-use-infojs t
+            org-html-infojs-options '((path . "org-info.js")
+                                      (view . "info")
+                                      (toc . :with-toc)
+                                      (ftoc . "0")
+                                      (tdepth . "max")
+                                      (sdepth . "max")
+                                      (mouse . "underline")
+                                      (buttons . "0")
+                                      (ltoc . "1")
+                                      (up . :html-link-up)
+                                      (home . :html-link-home)))
 
 (setq-local org-publish-project-alist
             (list
