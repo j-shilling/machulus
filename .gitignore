@@ -13,3 +13,6 @@ build
 
 # cmake
 .cmake
+CMakeFiles
+cmake_install.cmake
+Makefile
