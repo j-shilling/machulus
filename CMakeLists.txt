@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 
 project(Machulus VERSION 0.1
   DESCRIPTION "A microkernel"
@@ -17,7 +17,7 @@ add_compile_options(
   -fno-common
   -Wno-unused-parameter)
 
-add_subdirectory(libc)
+add_subdirectory(newlib)
 add_subdirectory(kernel)
 
 set(GRUB_CFG ${CMAKE_CURRENT_BINARY_DIR}/grub.cfg)
