@@ -12,8 +12,14 @@ set(NEWLIB_CONFIG_OPTIONS
   --program-prefix x86-64-elf-
   --target=x86_64-elf)
 
-set(NEWLIB_CFLAGS "-ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic")
-message("cflags = ${NEWLIB_CFLAGS}")
+set(NEWLIB_COMPILE_OPTIONS
+  "-ggdb"
+  "-O0"
+  "-ffreestanding"
+  "-mcmodel=kernel"
+  "-mno-red-zone"
+  "-fno-pic")
+list(JOIN NEWLIB_COMPILE_OPTIONS " " NEWLIB_CFLAGS)
 
 ExternalProject_Add(newlib
   SOURCE_DIR ${NEWLIB_SRC}
@@ -45,11 +51,14 @@ file(MAKE_DIRECTORY ${NEWLIB_INCLUDE})
 add_library(libc IMPORTED STATIC GLOBAL)
 add_library(libnosys IMPORTED STATIC GLOBAL)
 add_dependencies(libc newlib)
-add_dependencies(libnosys newlib)
 
 set_target_properties(libc PROPERTIES
   IMPORTED_LOCATION ${NEWLIB_LOCATION}
   INTERFACE_INCLUDE_DIRECTORIES ${NEWLIB_INCLUDE})
 
-set_target_properties(libnosys PROPERTIES
-  IMPORTED_LOCATION ${NOSYS_LOCATION})
+set(LIBSYS_SRCS
+  sys.c)
+add_library(sys ${LIBSYS_SRCS})
+add_dependencies(sys libc)
+target_include_directories(sys PUBLIC ${NEWLIB_INCLUDE})
+target_compile_options(sys PUBLIC ${NEWLIB_COMPILE_OPTIONS})

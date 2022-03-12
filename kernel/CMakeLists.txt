@@ -9,7 +9,6 @@ add_executable(${KERNEL}
   boot/start32.S
   boot/start64.S
   kernel.c
-  serial.c
   stdout.c)
 target_include_directories(${KERNEL} PRIVATE
   include
@@ -28,7 +27,8 @@ target_link_options(${KERNEL} PRIVATE
   -Wl,--build-id=none
   -Wl,-T${LINKER_SCRIPT}
   -Wl,--gc-sections)
-target_link_libraries(machulus k)
+target_link_libraries(machulus libc)
+target_link_libraries(machulus sys)
 
 add_custom_command(
   TARGET ${KERNEL} PRE_LINK
