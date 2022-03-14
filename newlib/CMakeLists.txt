@@ -56,9 +56,20 @@ set_target_properties(libc PROPERTIES
   IMPORTED_LOCATION ${NEWLIB_LOCATION}
   INTERFACE_INCLUDE_DIRECTORIES ${NEWLIB_INCLUDE})
 
-set(LIBSYS_SRCS
-  sys.c)
+set(
+  LIBSYS_SRCS
+  close.c
+  fstat.c
+  isatty.c
+  lseek.c
+  read.c
+  sbrk.c
+  write.c
+)
 add_library(sys ${LIBSYS_SRCS})
 add_dependencies(sys libc)
 target_include_directories(sys PUBLIC ${NEWLIB_INCLUDE})
-target_compile_options(sys PUBLIC ${NEWLIB_COMPILE_OPTIONS})
+target_compile_options(sys PUBLIC
+  ${NEWLIB_COMPILE_OPTIONS}
+  -D_XOPEN_SOURCE=0
+  -D_FORTIFY_SOURCE=0)
