@@ -1,12 +1,34 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <file.h>
+#include <stdbool.h>
 
 #include <cpu.h>
 #include <serial.h>
 
 #define __port(stream) ((serial_port_t *)stream)->port
+
+struct FILE {
+  /**
+   * @brief References an implementation of fwrite.
+   *
+   * @see fwrite
+   */
+  size_t (*fwrite)(const void *ptr, size_t size, size_t nmemb, FILE *stream);
+
+  /**
+   * @brief A spinlock to provide synchronized access to this stream.
+   */
+  volatile bool lock;
+};
+
+static inline void __lock_file(FILE *file) {
+  while(!__atomic_test_and_set(&file->lock, __ATOMIC_ACQUIRE));
+}
+
+static inline void __unlock_file(FILE *file) {
+  __atomic_clear(&file->lock, __ATOMIC_RELEASE);
+}
 
 typedef struct {
   FILE __parent;

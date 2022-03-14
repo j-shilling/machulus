@@ -1,4 +1,3 @@
-#include <file.h>
 #include <memory.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -53,7 +52,7 @@ static inline void __clear(void) {
  *
  * @return     return 0 on success and -1 on failure.
  */
-static int __putchar(int c) {
+int __putchar(int c) {
   // If this is a printable character (32-127), simply print to the
   // screen.
   if (c >= 32 && c <= 127) {
@@ -126,6 +125,7 @@ static int __putchar(int c) {
  *
  * @return     The number of elements written.
  */
+__attribute__((unused))
 static size_t __stdout_fwrite(const void *ptr, size_t size, size_t nmemb,
                               FILE *stream) {
   nmemb = fwrite(ptr, size, nmemb, COM1);
@@ -146,9 +146,6 @@ static size_t __stdout_fwrite(const void *ptr, size_t size, size_t nmemb,
   return ret;
 }
 
-FILE __stdout = {.fwrite = __stdout_fwrite};
-
-FILE *stdout = &__stdout;
 
 /**
  * @brief      Prepares stdout for writing.
@@ -156,7 +153,7 @@ FILE *stdout = &__stdout;
  * @details    Clears the screen and disables the cursor.
  */
 void stdout_init(void) {
-  serial_init(COM1);
+  /* serial_init(COM1); */
 
   __clear();
 
