@@ -9,7 +9,7 @@ add_executable(${KERNEL}
   boot/start32.S
   boot/start64.S
   kernel.c
-  stdout.c)
+  tty.c)
 target_include_directories(${KERNEL} PRIVATE
   include
   include/contrib)

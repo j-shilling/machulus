@@ -1,9 +1,9 @@
 #include <stdio.h>
 
-extern void stdout_init(void);
+#include <machulus/tty.h>
 
 void kernel_main() {
-  stdout_init();
+  tty_init();
 
   puts("Hello, World!");
   puts("Welcome to the kernel.");

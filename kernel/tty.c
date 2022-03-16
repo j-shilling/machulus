@@ -1,4 +1,5 @@
 #include <memory.h>
+#include <sys/types.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <serial.h>
@@ -52,7 +53,7 @@ static inline void __clear(void) {
  *
  * @return     return 0 on success and -1 on failure.
  */
-int __putchar(int c) {
+static int __putchar(int c) {
   // If this is a printable character (32-127), simply print to the
   // screen.
   if (c >= 32 && c <= 127) {
@@ -108,7 +109,7 @@ int __putchar(int c) {
 }
 
 /**
- * @brief      Implements fwrite for stdout.
+ * @brief      Writes text to VGA text buffer
  *
  * @details    Writes the given data buffer as a string to the screen a
  *             video memory buffer assuming VGA text mode. Each
@@ -117,23 +118,17 @@ int __putchar(int c) {
  *             the first invalid ascii code it finds. the location
  *             given by pointer to the stream.
  *
- * @param      ptr The location from which to read data.
- * @param      size The size of each elements should always be 1. This
+ * @param      buf The location from which to read data.
+ * @param      count The size of each elements should always be 1. This
  *             value is ignored.
- * @param      nmemb The number of elements to write.
- * @param      stream The FILE to write data to. This value is ignored.
  *
  * @return     The number of elements written.
  */
-__attribute__((unused))
-static size_t __stdout_fwrite(const void *ptr, size_t size, size_t nmemb,
-                              FILE *stream) {
-  nmemb = fwrite(ptr, size, nmemb, COM1);
+ssize_t tty_write(const void *buf, size_t count) {
+  ssize_t ret = 0;
 
-  size_t ret = 0;
-
-  const char *cur = (const char *)ptr;
-  const char *end = (cur + nmemb);
+  const char *cur = (const char *)buf;
+  const char *end = (cur + count);
 
   for (; cur < end; cur++) {
     const char c = *cur;
@@ -152,7 +147,7 @@ static size_t __stdout_fwrite(const void *ptr, size_t size, size_t nmemb,
  *
  * @details    Clears the screen and disables the cursor.
  */
-void stdout_init(void) {
+void tty_init(void) {
   /* serial_init(COM1); */
 
   __clear();

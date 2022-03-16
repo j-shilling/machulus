@@ -1,18 +1,16 @@
 #include <stddef.h>
-extern int __putchar(int);
-int write (int file, char *ptr, int len) {
-  size_t ret = 0;
+#include <unistd.h>
 
-  const char *cur = (const char *)ptr;
-  const char *end = (cur + len);
+#include <machulus/tty.h>
 
-  for (; cur < end; cur++) {
-    const char c = *cur;
-    if (__putchar((int)c) < 0) {
-      break;
-    }
-    ret++;
+#ifndef _READ_WRITE_RETURN_TYPE
+#define _READ_WRITE_RETURN_TYPE ssize_t
+#endif
+
+_READ_WRITE_RETURN_TYPE write(int file, const void *ptr, size_t len) {
+  if (file == STDOUT_FILENO || file == STDERR_FILENO) {
+    return tty_write(ptr, len);
   }
 
-  return ret;
+  return 0;
 }
