@@ -28,6 +28,9 @@ set(
   -fno-pic
 )
 
+set_directory_properties(PROPERTIES
+  INCLUDE_DIRECTORIES ${CMAKE_SORUCE_DIR}/include)
+
 add_subdirectory(newlib)
 add_subdirectory(kernel)
 
