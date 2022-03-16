@@ -10,7 +10,8 @@ add_executable(${KERNEL}
   boot/start64.S
   kernel.c
   tty.c
-  serial.c)
+  serial.c
+  panic.c)
 target_include_directories(${KERNEL} PRIVATE
   include
   include/contrib)
