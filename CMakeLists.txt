@@ -26,6 +26,7 @@ set(
   -mcmodel=kernel
   -mno-red-zone
   -fno-pic
+  -fstack-protector
 )
 
 set_directory_properties(PROPERTIES
