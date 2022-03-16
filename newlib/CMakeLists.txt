@@ -14,7 +14,10 @@ set(
   --target=x86_64-elf
 )
 
-set(NEWLIB_COMPILE_OPTIONS -ggdb -O0)
+set(NEWLIB_COMPILE_OPTIONS
+  -ggdb
+  -O0
+  -Wno-implicit-function-declaration)
 list(APPEND NEWLIB_COMPILE_OPTIONS ${FREESTANDING_COMPILE_OPTIONS})
 
 list(JOIN NEWLIB_COMPILE_OPTIONS " " NEWLIB_CFLAGS)
