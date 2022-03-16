@@ -60,6 +60,7 @@ set_target_properties(
   libc PROPERTIES
   IMPORTED_LOCATION ${NEWLIB_LOCATION}
   INTERFACE_INCLUDE_DIRECTORIES ${NEWLIB_INCLUDE}
+  INTERFACE_COMPILE_DEFINITIONS XOPEN_SOURCE=700
 )
 
 set(
@@ -81,7 +82,8 @@ add_dependencies(sys libc)
 target_include_directories(sys PUBLIC
   ${CMAKE_SOURCE_DIR}/include
   ${NEWLIB_INCLUDE})
+target_compile_definitions(sys PUBLIC
+  _XOPEN_SOURCE=700
+  _FORTIFY_SOURCE=1)
 target_compile_options(sys PUBLIC
-  ${LIBSYS_COMPILE_OPTIONS}
-  -D_XOPEN_SOURCE=0
-  -D_FORTIFY_SOURCE=0)
+  ${LIBSYS_COMPILE_OPTIONS})
