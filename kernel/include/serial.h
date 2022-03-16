@@ -1,10 +1,7 @@
-#ifndef SERIAL_H
-#define SERIAL_H
+#pragma once
 
-#include <stdint.h>
-#include <stdio.h>
+#include <sys/types.h>
+#include <stddef.h>
 
-extern FILE *COM1;
-void serial_init(FILE *);
-
-#endif /* SERIAL_H */
+void serial_init(void);
+ssize_t serial_write(const void *, size_t);

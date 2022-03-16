@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <stddef.h>
 #include <stdint.h>
+
 #include <serial.h>
 
 // Store the virtual address of the video memory buffer
@@ -125,6 +126,8 @@ static int __putchar(int c) {
  * @return     The number of elements written.
  */
 ssize_t tty_write(const void *buf, size_t count) {
+  serial_write(buf, count);
+
   ssize_t ret = 0;
 
   const char *cur = (const char *)buf;
@@ -148,7 +151,7 @@ ssize_t tty_write(const void *buf, size_t count) {
  * @details    Clears the screen and disables the cursor.
  */
 void tty_init(void) {
-  /* serial_init(COM1); */
+  serial_init();
 
   __clear();
 
