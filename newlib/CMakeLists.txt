@@ -14,7 +14,7 @@ set(
   --target=x86_64-elf
 )
 
-set(NEWLIB_COMPILE_OPTIONS ${DEBUG_COMPILE_OPTIONS})
+set(NEWLIB_COMPILE_OPTIONS -ggdb -O0)
 list(APPEND NEWLIB_COMPILE_OPTIONS ${FREESTANDING_COMPILE_OPTIONS})
 
 list(JOIN NEWLIB_COMPILE_OPTIONS " " NEWLIB_CFLAGS)
@@ -69,10 +69,16 @@ set(
   sbrk.c
   write.c
 )
+
+set(LIBSYS_COMPILE_OPTIONS -ggdb -O0)
+list(APPEND LIBSYS_COMPILE_OPTIONS ${FREESTANDING_COMPILE_OPTIONS})
+
 add_library(sys ${LIBSYS_SRCS})
 add_dependencies(sys libc)
-target_include_directories(sys PUBLIC ${NEWLIB_INCLUDE})
+target_include_directories(sys PUBLIC
+  ${CMAKE_SOURCE_DIR}/include
+  ${NEWLIB_INCLUDE})
 target_compile_options(sys PUBLIC
-  ${NEWLIB_COMPILE_OPTIONS}
+  ${LIBSYS_COMPILE_OPTIONS}
   -D_XOPEN_SOURCE=0
   -D_FORTIFY_SOURCE=0)
