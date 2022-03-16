@@ -72,6 +72,9 @@ set(
   read.c
   sbrk.c
   write.c
+  _exit.c
+  kill.c
+  getpid.c
 )
 
 set(LIBSYS_COMPILE_OPTIONS -ggdb -O0)
