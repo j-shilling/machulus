@@ -77,7 +77,7 @@ set(
   getpid.c
 )
 
-set(LIBSYS_COMPILE_OPTIONS -ggdb -O0)
+set(LIBSYS_COMPILE_OPTIONS ${DEBUG_COMPILE_OPTIONS})
 list(APPEND LIBSYS_COMPILE_OPTIONS ${FREESTANDING_COMPILE_OPTIONS})
 
 add_library(sys ${LIBSYS_SRCS})
@@ -87,6 +87,7 @@ target_include_directories(sys PUBLIC
   ${NEWLIB_INCLUDE})
 target_compile_definitions(sys PUBLIC
   _XOPEN_SOURCE=700
-  _FORTIFY_SOURCE=1)
+  _FORTIFY_SOURCE=1
+  __OPTIMIZE__=0)
 target_compile_options(sys PUBLIC
   ${LIBSYS_COMPILE_OPTIONS})
