@@ -1,11 +1,5 @@
 #include <ubsan.h>
 
-void __ubsan_handle_alignment_assumption(
-    struct ubsan_alignment_assumption_data *Data, void *Pointer,
-    void *Alignment, void *Offset){}
-void __ubsan_handle_alignment_assumption_abort(
-    struct ubsan_alignment_assumption_data *Data, void *Pointer,
-    void *Alignment, void *Offset){}
 void __ubsan_handle_add_overflow(struct ubsan_overflow_data *Data, void *LHS,
                                   void *RHS){}
 void __ubsan_handle_add_overflow_abort(struct ubsan_overflow_data *Data,

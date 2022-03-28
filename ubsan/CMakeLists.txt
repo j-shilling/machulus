@@ -1,5 +1,6 @@
 set(LIBUBSAN_SRCS
   ubsan.c
+  alignment_assumption.c
   type_mismatch.c)
 
 set(LIBUBSAN_COMPILE_OPTIONS ${DEBUG_COMPILE_OPTIONS})
