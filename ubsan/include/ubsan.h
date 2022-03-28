@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 struct ubsan_source_location {
   const char *filename;
@@ -151,8 +152,9 @@ struct ubsan_report_options {
   void *bp;
 };
 
-void __ubsan_printf(struct ubsan_source_location *, const char *, ...);
-void __ubsan_vprintf(struct ubsan_source_location *, const char *, va_list);
+#define __ubsan_printf(loc, fmt, ...)                                          \
+  fprintf(stderr, "UBSAN %s:%d:%d - " fmt, (loc)->filename, (loc)->line,       \
+          (loc)->column, ##__VA_ARGS__)
 
 void __ubsan_handle_type_mismatch_v1(struct ubsan_type_mismatch_data *, void *);
 void __ubsan_handle_type_mismatch_v1_abort(struct ubsan_type_mismatch_data *,

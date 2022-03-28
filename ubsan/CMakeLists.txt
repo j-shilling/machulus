@@ -1,6 +1,5 @@
 set(LIBUBSAN_SRCS
   ubsan.c
-  printf.c
   type_mismatch.c)
 
 set(LIBUBSAN_COMPILE_OPTIONS ${DEBUG_COMPILE_OPTIONS})
