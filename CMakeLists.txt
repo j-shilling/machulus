@@ -26,13 +26,15 @@ set(
   -mcmodel=kernel
   -mno-red-zone
   -fno-pic
-  -fstack-protector
-)
+  -ffunction-sections
+  -fsanitize=undefined
+  -fdata-sections)
 
 set_directory_properties(PROPERTIES
   INCLUDE_DIRECTORIES ${CMAKE_SORUCE_DIR}/include)
 
 add_subdirectory(newlib)
+add_subdirectory(ubsan)
 add_subdirectory(kernel)
 
 set(GRUB_CFG ${CMAKE_CURRENT_BINARY_DIR}/grub.cfg)

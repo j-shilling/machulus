@@ -15,13 +15,7 @@ add_executable(${KERNEL}
 target_include_directories(${KERNEL} PRIVATE
   include
   include/contrib)
-target_compile_options(${KERNEL} PRIVATE
-  -ffreestanding
-  -mcmodel=kernel
-  -mno-red-zone
-  -fno-pic
-  -ffunction-sections
-  -fdata-sections)
+target_compile_options(${KERNEL} PRIVATE ${FREESTANDING_COMPILE_OPTIONS})
 target_link_options(${KERNEL} PRIVATE
   -nostdlib
   -no-pie
@@ -29,6 +23,7 @@ target_link_options(${KERNEL} PRIVATE
   -Wl,--build-id=none
   -Wl,-T${LINKER_SCRIPT}
   -Wl,--gc-sections)
+target_link_libraries(machulus ubsan)
 target_link_libraries(machulus libc)
 target_link_libraries(machulus sys)
 
