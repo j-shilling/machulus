@@ -1,0 +1,17 @@
+* DONE Stack Smash Protector
+CLOSED: [2022-03-28 Mon 09:56]
+* TODO Multiboot
+* TODO Global Descriptor Table
+* TODO Memory Management
+* TODO Interrupts
+* TODO Multithreaded Kernel
+* TODO Keyboard
+* TODO Internal Debugger
+* TODO Filesystem Support
+* TODO User-space
+* TODO Program Loading
+* TODO System Calls
+* TODO OS Specific Toolchain
+* TODO Libc
+* TODO Fork and exec
+* TODO shell
