@@ -1,9 +1,5 @@
 #include <ubsan.h>
 
-void __ubsan_handle_type_mismatch_v1(struct ubsan_type_mismatch_data *data,
-                                     void *ptr) {}
-void __ubsan_handle_type_mismatch_v1_abort(
-    struct ubsan_type_mismatch_data *data, void *ptr) {}
 void __ubsan_handle_alignment_assumption(
     struct ubsan_alignment_assumption_data *Data, void *Pointer,
     void *Alignment, void *Offset){}
