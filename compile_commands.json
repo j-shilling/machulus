@@ -1,0 +1,107 @@
+[
+{
+  "directory": "/home/jake/projects/machulus/build/newlib",
+  "command": "/usr/local/bin/x86_64-elf-gcc -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/include -I/home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -fstack-protector -o CMakeFiles/sys.dir/close.c.obj -c /home/jake/projects/machulus/newlib/close.c",
+  "file": "/home/jake/projects/machulus/newlib/close.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/newlib",
+  "command": "/usr/local/bin/x86_64-elf-gcc -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/include -I/home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -fstack-protector -o CMakeFiles/sys.dir/fstat.c.obj -c /home/jake/projects/machulus/newlib/fstat.c",
+  "file": "/home/jake/projects/machulus/newlib/fstat.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/newlib",
+  "command": "/usr/local/bin/x86_64-elf-gcc -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/include -I/home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -fstack-protector -o CMakeFiles/sys.dir/isatty.c.obj -c /home/jake/projects/machulus/newlib/isatty.c",
+  "file": "/home/jake/projects/machulus/newlib/isatty.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/newlib",
+  "command": "/usr/local/bin/x86_64-elf-gcc -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/include -I/home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -fstack-protector -o CMakeFiles/sys.dir/lseek.c.obj -c /home/jake/projects/machulus/newlib/lseek.c",
+  "file": "/home/jake/projects/machulus/newlib/lseek.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/newlib",
+  "command": "/usr/local/bin/x86_64-elf-gcc -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/include -I/home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -fstack-protector -o CMakeFiles/sys.dir/read.c.obj -c /home/jake/projects/machulus/newlib/read.c",
+  "file": "/home/jake/projects/machulus/newlib/read.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/newlib",
+  "command": "/usr/local/bin/x86_64-elf-gcc -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/include -I/home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -fstack-protector -o CMakeFiles/sys.dir/sbrk.c.obj -c /home/jake/projects/machulus/newlib/sbrk.c",
+  "file": "/home/jake/projects/machulus/newlib/sbrk.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/newlib",
+  "command": "/usr/local/bin/x86_64-elf-gcc -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/include -I/home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -fstack-protector -o CMakeFiles/sys.dir/write.c.obj -c /home/jake/projects/machulus/newlib/write.c",
+  "file": "/home/jake/projects/machulus/newlib/write.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/newlib",
+  "command": "/usr/local/bin/x86_64-elf-gcc -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/include -I/home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -fstack-protector -o CMakeFiles/sys.dir/_exit.c.obj -c /home/jake/projects/machulus/newlib/_exit.c",
+  "file": "/home/jake/projects/machulus/newlib/_exit.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/newlib",
+  "command": "/usr/local/bin/x86_64-elf-gcc -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/include -I/home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -fstack-protector -o CMakeFiles/sys.dir/kill.c.obj -c /home/jake/projects/machulus/newlib/kill.c",
+  "file": "/home/jake/projects/machulus/newlib/kill.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/newlib",
+  "command": "/usr/local/bin/x86_64-elf-gcc -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/include -I/home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -fstack-protector -o CMakeFiles/sys.dir/getpid.c.obj -c /home/jake/projects/machulus/newlib/getpid.c",
+  "file": "/home/jake/projects/machulus/newlib/getpid.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/ubsan",
+  "command": "/usr/local/bin/x86_64-elf-gcc  -I/include -I/home/jake/projects/machulus/include -I/home/jake/projects/machulus/ubsan/include -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -fstack-protector -o CMakeFiles/ubsan.dir/ubsan.c.obj -c /home/jake/projects/machulus/ubsan/ubsan.c",
+  "file": "/home/jake/projects/machulus/ubsan/ubsan.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/kernel",
+  "command": "/usr/local/bin/x86_64-elf-gcc -DXOPEN_SOURCE=700 -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/kernel/include -I/home/jake/projects/machulus/kernel/include/contrib -I/home/jake/projects/machulus/include -isystem /home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -ffunction-sections -fsanitize=undefined -fdata-sections -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -fstack-protector -o CMakeFiles/machulus.dir/boot/boot_gdt.S.obj -c /home/jake/projects/machulus/kernel/boot/boot_gdt.S",
+  "file": "/home/jake/projects/machulus/kernel/boot/boot_gdt.S"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/kernel",
+  "command": "/usr/local/bin/x86_64-elf-gcc -DXOPEN_SOURCE=700 -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/kernel/include -I/home/jake/projects/machulus/kernel/include/contrib -I/home/jake/projects/machulus/include -isystem /home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -ffunction-sections -fsanitize=undefined -fdata-sections -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -fstack-protector -o CMakeFiles/machulus.dir/boot/boot_page_tables.S.obj -c /home/jake/projects/machulus/kernel/boot/boot_page_tables.S",
+  "file": "/home/jake/projects/machulus/kernel/boot/boot_page_tables.S"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/kernel",
+  "command": "/usr/local/bin/x86_64-elf-gcc -DXOPEN_SOURCE=700 -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/kernel/include -I/home/jake/projects/machulus/kernel/include/contrib -I/home/jake/projects/machulus/include -isystem /home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -ffunction-sections -fsanitize=undefined -fdata-sections -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -fstack-protector -o CMakeFiles/machulus.dir/boot/boot_puts.S.obj -c /home/jake/projects/machulus/kernel/boot/boot_puts.S",
+  "file": "/home/jake/projects/machulus/kernel/boot/boot_puts.S"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/kernel",
+  "command": "/usr/local/bin/x86_64-elf-gcc -DXOPEN_SOURCE=700 -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/kernel/include -I/home/jake/projects/machulus/kernel/include/contrib -I/home/jake/projects/machulus/include -isystem /home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -ffunction-sections -fsanitize=undefined -fdata-sections -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -fstack-protector -o CMakeFiles/machulus.dir/boot/multiboot_header.c.obj -c /home/jake/projects/machulus/kernel/boot/multiboot_header.c",
+  "file": "/home/jake/projects/machulus/kernel/boot/multiboot_header.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/kernel",
+  "command": "/usr/local/bin/x86_64-elf-gcc -DXOPEN_SOURCE=700 -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/kernel/include -I/home/jake/projects/machulus/kernel/include/contrib -I/home/jake/projects/machulus/include -isystem /home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -ffunction-sections -fsanitize=undefined -fdata-sections -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -fstack-protector -o CMakeFiles/machulus.dir/boot/start32.S.obj -c /home/jake/projects/machulus/kernel/boot/start32.S",
+  "file": "/home/jake/projects/machulus/kernel/boot/start32.S"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/kernel",
+  "command": "/usr/local/bin/x86_64-elf-gcc -DXOPEN_SOURCE=700 -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/kernel/include -I/home/jake/projects/machulus/kernel/include/contrib -I/home/jake/projects/machulus/include -isystem /home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -ffunction-sections -fsanitize=undefined -fdata-sections -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -fstack-protector -o CMakeFiles/machulus.dir/boot/start64.S.obj -c /home/jake/projects/machulus/kernel/boot/start64.S",
+  "file": "/home/jake/projects/machulus/kernel/boot/start64.S"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/kernel",
+  "command": "/usr/local/bin/x86_64-elf-gcc -DXOPEN_SOURCE=700 -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/kernel/include -I/home/jake/projects/machulus/kernel/include/contrib -I/home/jake/projects/machulus/include -isystem /home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -ffunction-sections -fsanitize=undefined -fdata-sections -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -fstack-protector -o CMakeFiles/machulus.dir/kernel.c.obj -c /home/jake/projects/machulus/kernel/kernel.c",
+  "file": "/home/jake/projects/machulus/kernel/kernel.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/kernel",
+  "command": "/usr/local/bin/x86_64-elf-gcc -DXOPEN_SOURCE=700 -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/kernel/include -I/home/jake/projects/machulus/kernel/include/contrib -I/home/jake/projects/machulus/include -isystem /home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -ffunction-sections -fsanitize=undefined -fdata-sections -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -fstack-protector -o CMakeFiles/machulus.dir/tty.c.obj -c /home/jake/projects/machulus/kernel/tty.c",
+  "file": "/home/jake/projects/machulus/kernel/tty.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/kernel",
+  "command": "/usr/local/bin/x86_64-elf-gcc -DXOPEN_SOURCE=700 -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/kernel/include -I/home/jake/projects/machulus/kernel/include/contrib -I/home/jake/projects/machulus/include -isystem /home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -ffunction-sections -fsanitize=undefined -fdata-sections -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -fstack-protector -o CMakeFiles/machulus.dir/serial.c.obj -c /home/jake/projects/machulus/kernel/serial.c",
+  "file": "/home/jake/projects/machulus/kernel/serial.c"
+},
+{
+  "directory": "/home/jake/projects/machulus/build/kernel",
+  "command": "/usr/local/bin/x86_64-elf-gcc -DXOPEN_SOURCE=700 -D_FORTIFY_SOURCE=1 -D_XOPEN_SOURCE=700 -D__OPTIMIZE__=0 -I/include -I/home/jake/projects/machulus/kernel/include -I/home/jake/projects/machulus/kernel/include/contrib -I/home/jake/projects/machulus/include -isystem /home/jake/projects/machulus/build/newlib/install/x86_64-elf/include -ffreestanding -mcmodel=kernel -mno-red-zone -fno-pic -ffunction-sections -fsanitize=undefined -fdata-sections -ggdb -O0 -Werror -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -fno-common -Wno-unused-parameter -fstack-protector -o CMakeFiles/machulus.dir/panic.c.obj -c /home/jake/projects/machulus/kernel/panic.c",
+  "file": "/home/jake/projects/machulus/kernel/panic.c"
+}
+]
