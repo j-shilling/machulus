@@ -1,25 +1,5 @@
 #include <ubsan.h>
 
-void __ubsan_handle_add_overflow(struct ubsan_overflow_data *Data, void *LHS,
-                                  void *RHS){}
-void __ubsan_handle_add_overflow_abort(struct ubsan_overflow_data *Data,
-                                        void *LHS, void *RHS){}
-void __ubsan_handle_sub_overflow(struct ubsan_overflow_data *Data, void *LHS,
-                                  void *RHS){}
-void __ubsan_handle_sub_overflow_abort(struct ubsan_overflow_data *Data,
-                                        void *LHS, void *RHS){}
-void __ubsan_handle_mul_overflow(struct ubsan_overflow_data *Data, void *LHS,
-                                  void *RHS){}
-void __ubsan_handle_mul_overflow_abort(struct ubsan_overflow_data *Data,
-                                        void *LHS, void *RHS){}
-void __ubsan_handle_negate_overflow(struct ubsan_overflow_data *Data,
-                                     void *OldVal){}
-void __ubsan_handle_negate_overflow_abort(struct ubsan_overflow_data *Data,
-                                           void *OldVal){}
-void __ubsan_handle_divrem_overflow(struct ubsan_overflow_data *Data,
-                                     void *LHS, void *RHS){}
-void __ubsan_handle_divrem_overflow_abort(struct ubsan_overflow_data *Data,
-                                           void *LHS, void *RHS){}
 void __ubsan_handle_shift_out_of_bounds(
     struct ubsan_shift_out_of_bounds_data *Data, void *LHS, void *RHS){}
 void __ubsan_handle_shift_out_of_bounds_abort(
